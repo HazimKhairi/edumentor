@@ -45,7 +45,7 @@ export default function DashboardPage() {
               <br />
               <span className="display-italic text-oxblood">Aiman.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-[18px] leading-[1.55] text-ink-soft">
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft">
               You are signed in as a mentee on{" "}
               <span className="eyebrow-italic text-ink">{SUBJECT.code}</span>.
               The class is in session, with strong induction on the
@@ -67,7 +67,7 @@ export default function DashboardPage() {
                 2023607832 · B.Sc. CS, Y1
               </div>
               <div className="rule mt-4" />
-              <div className="grid grid-cols-3 mt-4 text-[10px] font-mono uppercase tracking-[0.22em]">
+              <div className="grid grid-cols-3 mt-4 text-xs font-medium uppercase tracking-wider">
                 <div>
                   <div className="text-ink-muted">Term GPA</div>
                   <div className="text-ink mt-1 text-[14px] tracking-normal">3.74</div>
@@ -117,7 +117,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="col-span-12 md:col-span-3 md:text-right">
                         <span
-                          className={`inline-flex items-center gap-2 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.22em] ${s.tone}`}
+                          className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-medium uppercase tracking-wider ${s.tone}`}
                         >
                           {e.state === "now" ? (
                             <span className="size-1.5 rounded-full bg-bone blink" />
@@ -136,7 +136,7 @@ export default function DashboardPage() {
               <div className="label mb-4">Live class watch</div>
               {liveSession ? (
                 <div className="border border-ink bg-ink text-bone p-6">
-                  <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.22em] text-bone/60">
+                  <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-bone/60">
                     <span className="inline-flex items-center gap-2">
                       <span className="size-1.5 rounded-full bg-saffron blink" />
                       Now
@@ -149,7 +149,7 @@ export default function DashboardPage() {
                       strong induction, trees
                     </span>
                   </div>
-                  <div className="mt-6 grid grid-cols-3 gap-2 text-[10px] font-mono uppercase tracking-[0.22em] text-bone/60">
+                  <div className="mt-6 grid grid-cols-3 gap-2 text-xs font-medium uppercase tracking-wider text-bone/60">
                     <div>
                       <div>Expected</div>
                       <div className="text-bone text-[20px] mt-1 tracking-normal">{liveSession.expected}</div>
@@ -167,13 +167,13 @@ export default function DashboardPage() {
                   <div className="mt-6 flex items-center gap-3">
                     <Link
                       href="/attendance"
-                      className="inline-flex items-center gap-2 border border-bone bg-bone px-4 py-2.5 text-[11px] font-mono uppercase tracking-[0.22em] text-ink hover:bg-saffron hover:border-saffron transition-colors"
+                      className="inline-flex items-center gap-2 border border-bone bg-bone px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-ink hover:bg-saffron hover:border-saffron transition-colors"
                     >
                       Join the room →
                     </Link>
                     <Link
                       href="/discussion"
-                      className="inline-flex items-center gap-2 border border-bone/40 px-4 py-2.5 text-[11px] font-mono uppercase tracking-[0.22em] hover:border-bone transition-colors"
+                      className="inline-flex items-center gap-2 border border-bone/40 px-4 py-2.5 text-xs font-medium uppercase tracking-wider hover:border-bone transition-colors"
                     >
                       Open chat
                     </Link>
@@ -192,7 +192,7 @@ export default function DashboardPage() {
                     <div className="display text-[36px] leading-none mt-2 tracking-[-0.03em]">
                       {s.value}
                     </div>
-                    <div className="text-[11px] text-ink-muted mt-1">{s.caption}</div>
+                    <div className="text-xs text-ink-muted mt-1">{s.caption}</div>
                   </div>
                 ))}
               </div>
@@ -227,7 +227,7 @@ export default function DashboardPage() {
                       <div className="display text-[24px] leading-[1.05] tracking-[-0.02em] mt-1">
                         {a.title}
                       </div>
-                      <p className="text-[13px] text-ink-soft mt-2 max-w-md leading-relaxed">
+                      <p className="text-sm text-ink-soft mt-2 max-w-md leading-relaxed">
                         {a.note}
                       </p>
                     </div>
@@ -263,7 +263,7 @@ export default function DashboardPage() {
             <div className="mt-6">
               <Link
                 href="/assignments"
-                className="link-reveal text-[12px] font-mono uppercase tracking-[0.22em]"
+                className="link-reveal text-xs font-medium uppercase tracking-wider"
               >
                 Open the assignments folio →
               </Link>
@@ -282,8 +282,8 @@ export default function DashboardPage() {
                   <div className="display text-[22px] leading-tight tracking-[-0.02em] mt-1">
                     {r.title}
                   </div>
-                  <p className="text-[13px] text-ink-soft mt-2 leading-relaxed">{r.excerpt}</p>
-                  <div className="mt-2 flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.18em] text-ink-muted">
+                  <p className="text-sm text-ink-soft mt-2 leading-relaxed">{r.excerpt}</p>
+                  <div className="mt-2 flex items-center justify-between text-xs font-medium uppercase tracking-wide text-ink-muted">
                     <span>by {r.starter} · {r.role}</span>
                     <span>{r.posts} posts · {r.members} in</span>
                   </div>
@@ -298,19 +298,19 @@ export default function DashboardPage() {
                   <li key={m.id} className="grid grid-cols-12 gap-3 items-baseline">
                     <span className="col-span-2 numeral">{m.time}</span>
                     <div className="col-span-10">
-                      <div className="text-[12px] font-mono uppercase tracking-[0.18em]">
+                      <div className="text-xs font-medium uppercase tracking-wide">
                         <span className={m.role === "Mentor" ? "text-oxblood" : ""}>
                           {m.author}
                         </span>
                       </div>
-                      <p className="text-[14px] leading-snug mt-1">{m.body}</p>
+                      <p className="text-base leading-snug mt-1">{m.body}</p>
                     </div>
                   </li>
                 ))}
               </ul>
               <Link
                 href="/discussion"
-                className="inline-flex mt-4 items-center gap-2 link-reveal text-[11px] font-mono uppercase tracking-[0.22em]"
+                className="inline-flex mt-4 items-center gap-2 link-reveal text-xs font-medium uppercase tracking-wider"
               >
                 Read the room →
               </Link>
@@ -337,10 +337,10 @@ export default function DashboardPage() {
                 <h3 className="display mt-4 text-[26px] leading-[1.05] tracking-[-0.025em]">
                   {c.title}
                 </h3>
-                <p className="text-[12px] text-ink-muted mt-1 eyebrow-italic">
+                <p className="text-sm text-ink-muted mt-1 eyebrow-italic">
                   {c.mentor}
                 </p>
-                <p className="text-[13px] text-ink-soft mt-4 leading-relaxed flex-1">
+                <p className="text-sm text-ink-soft mt-4 leading-relaxed flex-1">
                   {c.abstract}
                 </p>
                 <div className="mt-6">
@@ -352,7 +352,7 @@ export default function DashboardPage() {
                     <div className="h-full bg-ink" style={{ width: `${c.progress}%` }} />
                   </div>
                 </div>
-                <div className="mt-4 flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.22em] text-ink-muted">
+                <div className="mt-4 flex items-center justify-between text-xs font-medium uppercase tracking-wider text-ink-muted">
                   <span>{c.pace}</span>
                   <span>{c.enrolled}/{c.capacity}</span>
                 </div>
@@ -383,7 +383,7 @@ export default function DashboardPage() {
               <div className="display text-[26px] leading-tight tracking-[-0.025em] mt-3">
                 {q.t}
               </div>
-              <p className="text-[13px] text-ink-soft mt-2 leading-relaxed">{q.b}</p>
+              <p className="text-sm text-ink-soft mt-2 leading-relaxed">{q.b}</p>
             </Link>
           ))}
         </div>

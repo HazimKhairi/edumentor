@@ -30,12 +30,12 @@ export default function LoginPage() {
               <br /> with three doors.
             </p>
             <div className="rule mt-6" />
-            <p className="mt-6 text-[14px] leading-relaxed text-ink-soft">
+            <p className="mt-6 text-base leading-relaxed text-ink-soft">
               Sign in with your matric or staff number. We do not keep
               your password — only the discipline of the choice you made
               when you wrote it.
             </p>
-            <ul className="mt-6 space-y-2 text-[11px] font-mono uppercase tracking-[0.22em] text-ink-muted">
+            <ul className="mt-6 space-y-2 text-xs font-medium uppercase tracking-wider text-ink-muted">
               <li className="flex items-center justify-between">
                 <span>SSO</span>
                 <span className="text-ink">UiTM</span>
@@ -58,7 +58,7 @@ export default function LoginPage() {
               <br />
               take a seat.
             </h1>
-            <p className="mt-8 max-w-2xl text-[18px] leading-[1.55] text-ink-soft">
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
               Three roles share this folio. Choose the one written on
               your card. The desk will arrange itself accordingly —
               admins receive the catalogue, mentors receive the cohort,
@@ -108,7 +108,7 @@ export default function LoginPage() {
                 <div className="mt-auto pt-6">
                   <Link
                     href={ROLE_HREF[role.key]}
-                    className="inline-flex w-full items-center justify-between border border-ink bg-ink px-5 py-3 text-[12px] font-mono uppercase tracking-[0.22em] text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
+                    className="inline-flex w-full items-center justify-between border border-ink bg-ink px-5 py-3 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
                   >
                     <span>Enter as {role.key.toLowerCase()}</span>
                     <span aria-hidden>→</span>
@@ -135,13 +135,13 @@ export default function LoginPage() {
               <br />
               <span className="display-italic text-oxblood">please.</span>
             </h2>
-            <p className="mt-6 text-[16px] leading-relaxed text-ink-soft max-w-md">
+            <p className="mt-6 text-base leading-relaxed text-ink-soft max-w-md">
               Use the matric number printed on your student card, or the
               staff number issued by the registrar. Forgotten passwords
               are reset by the librarian on duty.
             </p>
 
-            <ul className="mt-8 space-y-3 text-[13px] text-ink-soft">
+            <ul className="mt-8 space-y-3 text-sm text-ink-soft">
               <li className="flex items-baseline gap-3 border-b border-rule pb-3">
                 <span className="numeral shrink-0">A</span>
                 <span>Mentees: matric number, e.g. <span className="font-mono text-ink">2023607832</span></span>
@@ -221,7 +221,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex items-center justify-between gap-3 pt-2">
-                  <label className="flex items-center gap-2 text-[12px] font-mono uppercase tracking-[0.18em] text-ink-soft cursor-pointer">
+                  <label className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-ink-soft cursor-pointer">
                     <input type="checkbox" className="size-3 accent-ink" defaultChecked />
                     <span>Remember this desk</span>
                   </label>
@@ -234,20 +234,20 @@ export default function LoginPage() {
               <div className="mt-6 flex items-center justify-between gap-3">
                 <Link
                   href="/"
-                  className="link-reveal text-[12px] font-mono uppercase tracking-[0.22em] text-ink-soft"
+                  className="link-reveal text-xs font-medium uppercase tracking-wider text-ink-soft"
                 >
                   ← Back to masthead
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-3 border border-ink bg-ink px-6 py-3 text-[12px] font-mono uppercase tracking-[0.22em] text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
+                  className="inline-flex items-center gap-3 border border-ink bg-ink px-6 py-3 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
                 >
                   Open the desk
                   <span aria-hidden>→</span>
                 </Link>
               </div>
 
-              <div className="mt-8 grid grid-cols-3 gap-3 text-[10px] font-mono uppercase tracking-[0.22em] text-ink-muted border-t border-rule pt-4">
+              <div className="mt-8 grid grid-cols-3 gap-3 text-xs font-medium uppercase tracking-wider text-ink-muted border-t border-rule pt-4">
                 <div>
                   <div>Method</div>
                   <div className="text-ink mt-1">Password</div>
@@ -285,7 +285,7 @@ export default function LoginPage() {
             <div key={h.n} className="col-span-12 md:col-span-3 border-l border-rule pl-6">
               <div className="numeral">{h.n}</div>
               <div className="mt-2 eyebrow-italic text-[18px] text-ink">{h.t}</div>
-              <p className="mt-3 text-[14px] leading-relaxed text-ink-soft">{h.b}</p>
+              <p className="mt-3 text-base leading-relaxed text-ink-soft">{h.b}</p>
             </div>
           ))}
         </div>

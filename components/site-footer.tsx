@@ -7,7 +7,7 @@ export function SiteFooter() {
     <footer className="mt-32 border-t-2 border-ink bg-paper">
       {/* Colophon header */}
       <div className="border-b border-rule">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-6 px-6 py-6 text-[10px] uppercase tracking-[0.22em] font-mono text-ink-muted">
+        <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-6 px-6 py-6 text-xs font-medium uppercase tracking-wider text-ink-muted">
           <div className="col-span-6 md:col-span-3">
             <div className="text-ink">Colophon</div>
           </div>
@@ -40,7 +40,7 @@ export function SiteFooter() {
               Edu<span className="display-italic text-oxblood">Mentor</span>
             </div>
           </div>
-          <p className="mt-6 max-w-md text-ink-soft text-[15px] leading-relaxed">
+          <p className="mt-6 max-w-md text-ink-soft text-base leading-relaxed">
             An editorial periodical for mentor-led classrooms. Designed
             for{" "}
             <span className="eyebrow-italic">{SUBJECT.code}</span>{" "}
@@ -48,7 +48,7 @@ export function SiteFooter() {
             attendance, settle the assignment, leave a kindly review.
           </p>
 
-          <div className="mt-8 flex items-center gap-4 text-[11px] font-mono uppercase tracking-[0.22em]">
+          <div className="mt-8 flex items-center gap-4 text-xs font-medium uppercase tracking-wider">
             <Link href="/login" className="link-reveal">Sign in</Link>
             <span className="text-ink-muted">/</span>
             <Link href="/login" className="link-reveal">Apply as mentor</Link>
@@ -88,12 +88,12 @@ export function SiteFooter() {
             />
             <button
               type="submit"
-              className="px-2 py-2 text-[11px] font-mono uppercase tracking-[0.22em] text-ink hover:text-oxblood transition-colors"
+              className="px-2 py-2 text-xs font-medium uppercase tracking-wider text-ink hover:text-oxblood transition-colors"
             >
               Send →
             </button>
           </form>
-          <p className="mt-3 text-[11px] text-ink-muted leading-relaxed">
+          <p className="mt-3 text-xs text-ink-muted leading-relaxed">
             One letter per week. The class digest, with notes from the
             mentors&apos; desk and a single recommended reading.
           </p>
@@ -102,7 +102,7 @@ export function SiteFooter() {
 
       {/* Sign-off */}
       <div className="border-t border-rule">
-        <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-6 py-5 text-[10px] font-mono uppercase tracking-[0.22em] text-ink-muted md:flex-row md:items-center md:justify-between">
+        <div className="mx-auto flex max-w-[1400px] flex-col gap-2 px-6 py-5 text-xs font-medium uppercase tracking-wider text-ink-muted md:flex-row md:items-center md:justify-between">
           <div>© 2026 EduMentor Periodical — All rights typeset</div>
           <div className="flex items-center gap-4">
             <span>Privacy</span>

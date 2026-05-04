@@ -32,7 +32,7 @@ export default function AttendancePage() {
               <br /> by the camera.
             </p>
             <div className="rule mt-6" />
-            <dl className="mt-6 space-y-4 text-[12px] font-mono uppercase tracking-[0.18em]">
+            <dl className="mt-6 space-y-4 text-xs font-medium uppercase tracking-wide">
               <div className="flex justify-between"><dt className="text-ink-muted">Today</dt><dd>Live</dd></div>
               <div className="flex justify-between"><dt className="text-ink-muted">Cohort</dt><dd>{ROSTER.length}</dd></div>
               <div className="flex justify-between"><dt className="text-ink-muted">Matched</dt><dd>{checkedCount}</dd></div>
@@ -45,7 +45,7 @@ export default function AttendancePage() {
               The{" "}
               <span className="display-italic text-oxblood">roll.</span>
             </h1>
-            <p className="mt-8 max-w-2xl text-[18px] leading-[1.55] text-ink-soft">
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
               Open the camera and the system will tick names off the
               roster. The mentor confirms the list before it is filed.
               Mentees may correct their own row in the next sixty
@@ -77,11 +77,11 @@ export default function AttendancePage() {
                       className={`absolute border ${b.ok ? "border-oxblood" : "border-ink-muted border-dashed"}`}
                       style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%` }}
                     >
-                      <div className={`absolute -top-5 left-0 right-0 flex items-center justify-between text-[9px] font-mono uppercase tracking-[0.16em] ${b.ok ? "text-oxblood" : "text-ink-muted"}`}>
+                      <div className={`absolute -top-5 left-0 right-0 flex items-center justify-between text-xs font-medium uppercase tracking-wider ${b.ok ? "text-oxblood" : "text-ink-muted"}`}>
                         <span>{b.name}</span>
                         <span>{b.ok ? "OK" : "?"}</span>
                       </div>
-                      <div className="absolute -bottom-4 left-0 text-[9px] font-mono text-ink-muted">{b.id}</div>
+                      <div className="absolute -bottom-4 left-0 text-xs font-medium text-ink-muted">{b.id}</div>
                       <span className={`absolute -left-1 -top-1 size-2 border-l border-t ${b.ok ? "border-oxblood" : "border-ink-muted"}`} />
                       <span className={`absolute -right-1 -top-1 size-2 border-r border-t ${b.ok ? "border-oxblood" : "border-ink-muted"}`} />
                       <span className={`absolute -left-1 -bottom-1 size-2 border-l border-b ${b.ok ? "border-oxblood" : "border-ink-muted"}`} />
@@ -89,22 +89,22 @@ export default function AttendancePage() {
                     </div>
                   ))}
                 </div>
-                <div className="absolute top-3 left-4 text-[10px] font-mono uppercase tracking-[0.22em] text-ink-muted flex items-center gap-2">
+                <div className="absolute top-3 left-4 text-xs font-medium uppercase tracking-wider text-ink-muted flex items-center gap-2">
                   <span className="size-1.5 rounded-full bg-oxblood blink" />
                   Recognising · {checkedCount}/{ROSTER.length} matched
                 </div>
-                <div className="absolute bottom-3 right-4 text-[10px] font-mono uppercase tracking-[0.22em] text-ink-muted">
+                <div className="absolute bottom-3 right-4 text-xs font-medium uppercase tracking-wider text-ink-muted">
                   {live.room} · {live.time}
                 </div>
               </div>
               <div className="mt-4 flex items-center gap-3">
-                <button className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2.5 text-[11px] font-mono uppercase tracking-[0.22em] text-bone hover:bg-oxblood hover:border-oxblood transition-colors">
+                <button className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors">
                   File the roll →
                 </button>
-                <button className="inline-flex items-center gap-2 border border-ink px-4 py-2.5 text-[11px] font-mono uppercase tracking-[0.22em] hover:bg-ink hover:text-bone transition-colors">
+                <button className="inline-flex items-center gap-2 border border-ink px-4 py-2.5 text-xs font-medium uppercase tracking-wider hover:bg-ink hover:text-bone transition-colors">
                   Re-scan
                 </button>
-                <button className="link-reveal text-[11px] font-mono uppercase tracking-[0.22em] ml-2">
+                <button className="link-reveal text-xs font-medium uppercase tracking-wider ml-2">
                   Manual override
                 </button>
               </div>
@@ -118,15 +118,15 @@ export default function AttendancePage() {
                     <span className="col-span-1 numeral">{i + 1 < 10 ? `0${i + 1}` : i + 1}</span>
                     <div className="col-span-7">
                       <div className="text-[14px]">{s.name}</div>
-                      <div className="text-[11px] font-mono text-ink-muted mt-0.5">{s.matric}</div>
+                      <div className="text-xs text-ink-muted mt-0.5">{s.matric}</div>
                     </div>
                     <div className="col-span-4 text-right">
                       {s.checked ? (
-                        <span className="inline-flex items-center gap-2 px-2 py-1 text-[10px] font-mono uppercase tracking-[0.22em] bg-ink text-bone">
+                        <span className="inline-flex items-center gap-2 px-2 py-1 text-xs font-medium uppercase tracking-wider bg-ink text-bone">
                           ✓ Present
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-2 px-2 py-1 text-[10px] font-mono uppercase tracking-[0.22em] bg-bone border border-rule text-ink-muted">
+                        <span className="inline-flex items-center gap-2 px-2 py-1 text-xs font-medium uppercase tracking-wider bg-bone border border-rule text-ink-muted">
                           — Awaiting
                         </span>
                       )}
@@ -162,10 +162,10 @@ export default function AttendancePage() {
                     </div>
                   </div>
                   <div className="col-span-2 text-right">
-                    <span className={`inline-block px-2 py-1 text-[10px] font-mono uppercase tracking-[0.22em] ${stateTone[s.state]}`}>
+                    <span className={`inline-block px-2 py-1 text-xs font-medium uppercase tracking-wider ${stateTone[s.state]}`}>
                       {s.state}
                     </span>
-                    <Link href="#" className="block mt-2 link-reveal text-[10px] font-mono uppercase tracking-[0.22em]">
+                    <Link href="#" className="block mt-2 link-reveal text-xs font-medium uppercase tracking-wider">
                       Audit →
                     </Link>
                   </div>

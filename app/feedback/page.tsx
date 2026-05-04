@@ -47,7 +47,7 @@ export default function FeedbackPage() {
               <br /> evaluates the mentor.
             </p>
             <div className="rule mt-6" />
-            <p className="mt-6 text-[14px] leading-relaxed text-ink-soft">
+            <p className="mt-6 text-base leading-relaxed text-ink-soft">
               At term&apos;s end the mentee writes the review. Names are
               redacted, scores are kept. A teacher who survives criticism
               with grace is one worth keeping on the masthead.
@@ -59,7 +59,7 @@ export default function FeedbackPage() {
               The{" "}
               <span className="display-italic text-oxblood">review.</span>
             </h1>
-            <p className="mt-8 max-w-2xl text-[18px] leading-[1.55] text-ink-soft">
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
               You are reviewing{" "}
               <span className="eyebrow-italic">Dr. Aishah Mokhtar</span>{" "}
               for MAT CS110, Sem 02 / 2026. Your name will not be
@@ -82,7 +82,7 @@ export default function FeedbackPage() {
                 <div className="display text-[40px] leading-tight tracking-[-0.025em] mt-1">
                   Dr. Aishah Mokhtar
                 </div>
-                <div className="text-[12px] font-mono uppercase tracking-[0.18em] text-ink-muted mt-1">
+                <div className="text-xs font-medium uppercase tracking-wide text-ink-muted mt-1">
                   MAT CS110 · Discrete Structures · 24 sessions
                 </div>
               </div>
@@ -115,7 +115,7 @@ export default function FeedbackPage() {
                 <textarea
                   rows={3}
                   defaultValue="Patient and rigorous. The induction worksheets were the most useful resource of the term."
-                  className="w-full bg-paper border border-rule p-4 text-[14px] leading-relaxed outline-none focus:border-ink"
+                  className="w-full bg-paper border border-rule p-4 text-base leading-relaxed outline-none focus:border-ink"
                 />
               </div>
 
@@ -124,16 +124,16 @@ export default function FeedbackPage() {
                 <textarea
                   rows={3}
                   defaultValue="Office hours filled up quickly in week 8. A second slot would have helped before the midterm."
-                  className="w-full bg-paper border border-rule p-4 text-[14px] leading-relaxed outline-none focus:border-ink"
+                  className="w-full bg-paper border border-rule p-4 text-base leading-relaxed outline-none focus:border-ink"
                 />
               </div>
 
               <div className="flex items-center justify-between gap-3 pt-2 border-t-2 border-ink">
-                <label className="flex items-center gap-2 text-[12px] font-mono uppercase tracking-[0.18em] text-ink-soft cursor-pointer mt-6">
+                <label className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-ink-soft cursor-pointer mt-6">
                   <input type="checkbox" className="size-3 accent-ink" defaultChecked />
                   <span>File anonymously</span>
                 </label>
-                <Link href="/dashboard" className="inline-flex items-center gap-2 border border-ink bg-ink px-5 py-3 text-[11px] font-mono uppercase tracking-[0.22em] text-bone hover:bg-oxblood hover:border-oxblood transition-colors mt-6">
+                <Link href="/dashboard" className="inline-flex items-center gap-2 border border-ink bg-ink px-5 py-3 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors mt-6">
                   Submit review →
                 </Link>
               </div>
@@ -165,7 +165,7 @@ export default function FeedbackPage() {
                   <div className="display text-[20px] leading-tight tracking-[-0.02em] mt-1">
                     {f.mentor}
                   </div>
-                  <p className="text-[13px] leading-relaxed text-ink-soft mt-2 italic">
+                  <p className="text-sm leading-relaxed text-ink-soft mt-2 italic">
                     &ldquo;{f.comment}&rdquo;
                   </p>
                   <div className="numeral mt-2">{f.by} · n = {f.n}</div>

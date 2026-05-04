@@ -30,7 +30,7 @@ export default function CoursesPage() {
               <br /> bound for the term.
             </p>
             <div className="rule mt-6" />
-            <dl className="mt-6 space-y-4 text-[12px] font-mono uppercase tracking-[0.18em]">
+            <dl className="mt-6 space-y-4 text-xs font-medium uppercase tracking-wide">
               <div className="flex justify-between"><dt className="text-ink-muted">Term</dt><dd>Sem 02 / 26</dd></div>
               <div className="flex justify-between"><dt className="text-ink-muted">Open</dt><dd>{COURSES.length}</dd></div>
               <div className="flex justify-between"><dt className="text-ink-muted">Capacity</dt><dd>220</dd></div>
@@ -42,7 +42,7 @@ export default function CoursesPage() {
               The{" "}
               <span className="display-italic text-oxblood">catalogue.</span>
             </h1>
-            <p className="mt-8 max-w-2xl text-[18px] leading-[1.55] text-ink-soft">
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
               Each course is a folio of its own — a mentor, a cohort,
               a syllabus, a pace. Browse by code or by faculty. Enrol
               with a click; un-enrol the same way.
@@ -51,7 +51,7 @@ export default function CoursesPage() {
               {["All", "MAT", "CSC", "STA", "Year 1", "Year 2", "Foundation"].map((f, i) => (
                 <button
                   key={f}
-                  className={`px-3 py-1.5 text-[11px] font-mono uppercase tracking-[0.2em] border ${i === 0 ? "border-ink bg-ink text-bone" : "border-rule hover:border-ink"} transition-colors`}
+                  className={`px-3 py-1.5 text-xs font-medium uppercase tracking-wide border ${i === 0 ? "border-ink bg-ink text-bone" : "border-rule hover:border-ink"} transition-colors`}
                 >
                   {f}
                 </button>
@@ -72,7 +72,7 @@ export default function CoursesPage() {
                     <div className="numeral">№ 0{i + 1}</div>
                   </div>
                   <div className="col-span-12 md:col-span-2">
-                    <span className={`inline-block px-2 py-1 text-[10px] font-mono uppercase tracking-[0.22em] ${colorMap[c.color]}`}>
+                    <span className={`inline-block px-2 py-1 text-xs font-medium uppercase tracking-wider ${colorMap[c.color]}`}>
                       {c.code}
                     </span>
                     <div className="numeral mt-3">{c.cohort}</div>
@@ -84,25 +84,25 @@ export default function CoursesPage() {
                     <p className="mt-3 eyebrow-italic text-[16px] text-ink-soft">
                       Conducted by {c.mentor}
                     </p>
-                    <p className="mt-4 text-[14px] leading-relaxed text-ink-soft max-w-xl">
+                    <p className="mt-4 text-base leading-relaxed text-ink-soft max-w-xl">
                       {c.abstract}
                     </p>
                     <div className="mt-6 flex flex-wrap items-center gap-3">
                       <Link
                         href="/dashboard"
-                        className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2 text-[11px] font-mono uppercase tracking-[0.22em] text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
+                        className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
                       >
                         Open course →
                       </Link>
                       <Link
                         href="/discussion"
-                        className="link-reveal text-[11px] font-mono uppercase tracking-[0.22em]"
+                        className="link-reveal text-xs font-medium uppercase tracking-wider"
                       >
                         Discussion
                       </Link>
                       <Link
                         href="/assignments"
-                        className="link-reveal text-[11px] font-mono uppercase tracking-[0.22em]"
+                        className="link-reveal text-xs font-medium uppercase tracking-wider"
                       >
                         Assignments
                       </Link>

@@ -23,7 +23,7 @@ export default function DiscussionPage() {
               <br />Take a chair.
             </p>
             <div className="rule mt-6" />
-            <p className="mt-6 text-[14px] leading-relaxed text-ink-soft">
+            <p className="mt-6 text-base leading-relaxed text-ink-soft">
               Discussion threads stay attached to the course they belong
               to. Mentors pin what should not drift; mentees write what
               must be remembered.
@@ -35,7 +35,7 @@ export default function DiscussionPage() {
               The{" "}
               <span className="display-italic text-oxblood">room.</span>
             </h1>
-            <p className="mt-8 max-w-2xl text-[18px] leading-[1.55] text-ink-soft">
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
               Live now: <span className="eyebrow-italic">Proof by induction, again</span> — fourteen mentees in.
             </p>
           </div>
@@ -60,8 +60,8 @@ export default function DiscussionPage() {
                     {r.title}
                   </h3>
                   <div className="numeral mt-1">{r.course}</div>
-                  <p className="mt-2 text-[13px] text-ink-soft leading-relaxed">{r.excerpt}</p>
-                  <div className="mt-3 flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.22em] text-ink-muted">
+                  <p className="mt-2 text-sm text-ink-soft leading-relaxed">{r.excerpt}</p>
+                  <div className="mt-3 flex items-center justify-between text-xs font-medium uppercase tracking-wider text-ink-muted">
                     <span>by {r.starter} · {r.role}</span>
                     <span>{r.posts} · {r.members} in</span>
                   </div>
@@ -79,7 +79,7 @@ export default function DiscussionPage() {
 
             <div className="mt-8 border border-ink bg-bone">
               {/* thread header */}
-              <div className="flex items-center justify-between border-b border-rule px-6 py-3 text-[10px] font-mono uppercase tracking-[0.22em]">
+              <div className="flex items-center justify-between border-b border-rule px-6 py-3 text-xs font-medium uppercase tracking-wider">
                 <div className="flex items-center gap-3">
                   <span className="size-1.5 rounded-full bg-oxblood blink" />
                   <span>Live · MAT CS110 · Room 01</span>
@@ -91,7 +91,7 @@ export default function DiscussionPage() {
                 {MESSAGES.map((m) => (
                   <li key={m.id} className="px-6 py-5 grid grid-cols-12 gap-4">
                     <div className="col-span-2 md:col-span-2">
-                      <div className="size-9 border border-ink flex items-center justify-center text-[11px] font-mono uppercase tracking-[0.18em]">
+                      <div className="size-9 border border-ink flex items-center justify-center text-xs font-medium uppercase tracking-wide">
                         {m.author.split(" ").map((p) => p[0]).slice(0, 2).join("")}
                       </div>
                       <div className="numeral mt-2">{m.time}</div>
@@ -103,8 +103,8 @@ export default function DiscussionPage() {
                         </span>
                         <span className="numeral">{m.role}</span>
                       </div>
-                      <p className="mt-2 text-[15px] leading-[1.55] text-ink">{m.body}</p>
-                      <div className="mt-3 flex items-center gap-4 text-[11px] font-mono uppercase tracking-[0.18em] text-ink-muted">
+                      <p className="mt-2 text-base leading-relaxed text-ink">{m.body}</p>
+                      <div className="mt-3 flex items-center gap-4 text-xs font-medium uppercase tracking-wide text-ink-muted">
                         <button className="link-reveal">Reply</button>
                         <button className="link-reveal">Quote</button>
                         <button className="link-reveal">Mark useful</button>
@@ -120,17 +120,17 @@ export default function DiscussionPage() {
                 <textarea
                   rows={3}
                   defaultValue="Got it. So the inductive hypothesis is on size n, and we split into two subtrees of strictly smaller size — let me try writing the skeleton."
-                  className="w-full bg-paper border border-rule p-4 text-[14px] leading-relaxed outline-none focus:border-ink"
+                  className="w-full bg-paper border border-rule p-4 text-base leading-relaxed outline-none focus:border-ink"
                 />
                 <div className="mt-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3 text-[11px] font-mono uppercase tracking-[0.18em] text-ink-muted">
+                  <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
                     <button className="link-reveal">Attach</button>
                     <button className="link-reveal">LaTeX</button>
                     <button className="link-reveal">Photo of board</button>
                   </div>
                   <Link
                     href="#"
-                    className="inline-flex items-center gap-2 border border-ink bg-ink px-5 py-2.5 text-[11px] font-mono uppercase tracking-[0.22em] text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
+                    className="inline-flex items-center gap-2 border border-ink bg-ink px-5 py-2.5 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
                   >
                     Send →
                   </Link>

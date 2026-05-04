@@ -16,13 +16,13 @@ export default function HomePage() {
           {/* Left rail: dateline + lede */}
           <aside className="col-span-12 md:col-span-3 md:border-r md:border-rule md:pr-6">
             <div className="numeral mb-3">№ 04 / Vol. I</div>
-            <p className="text-[15px] leading-relaxed text-ink-soft">
+            <p className="text-base leading-relaxed text-ink-soft">
               <span className="eyebrow-italic text-ink">A new term opens</span>
               {" "}— and with it, a quiet experiment. Every classroom becomes
               a desk. Every desk becomes a column. Every mentor, an editor.
             </p>
             <div className="rule mt-6" />
-            <dl className="mt-6 space-y-4 text-[12px] font-mono uppercase tracking-[0.18em]">
+            <dl className="mt-6 space-y-4 text-xs font-medium uppercase tracking-wide">
               <div className="flex justify-between">
                 <dt className="text-ink-muted">Subject</dt>
                 <dd>{SUBJECT.code}</dd>
@@ -56,7 +56,7 @@ export default function HomePage() {
 
             <div className="mt-10 grid grid-cols-12 gap-6">
               <div className="col-span-12 md:col-span-7">
-                <p className="text-[20px] leading-[1.55] text-ink-soft max-w-2xl">
+                <p className="text-xl leading-relaxed text-ink-soft max-w-2xl">
                   EduMentor is a periodical for the classroom, set in serif.
                   It collects discussion, attendance, assignments, and
                   feedback inside a single quiet folio — so a mentor can
@@ -66,18 +66,18 @@ export default function HomePage() {
                 <div className="mt-8 flex flex-wrap items-center gap-3">
                   <Link
                     href="/login"
-                    className="inline-flex items-center gap-3 border border-ink bg-ink px-5 py-3 text-[12px] font-mono uppercase tracking-[0.22em] text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
+                    className="inline-flex items-center gap-3 border border-ink bg-ink px-5 py-3 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
                   >
                     Open the desk
                     <span aria-hidden>→</span>
                   </Link>
                   <Link
                     href="/courses"
-                    className="inline-flex items-center gap-3 border border-ink px-5 py-3 text-[12px] font-mono uppercase tracking-[0.22em] hover:bg-ink hover:text-bone transition-colors"
+                    className="inline-flex items-center gap-3 border border-ink px-5 py-3 text-xs font-medium uppercase tracking-wider hover:bg-ink hover:text-bone transition-colors"
                   >
                     Read the catalogue
                   </Link>
-                  <span className="ml-2 text-[11px] font-mono uppercase tracking-[0.22em] text-ink-muted">
+                  <span className="ml-2 text-xs font-medium uppercase tracking-wider text-ink-muted">
                     No paywall · Demo classroom
                   </span>
                 </div>
@@ -85,7 +85,7 @@ export default function HomePage() {
 
               <aside className="col-span-12 md:col-span-5 border-l border-rule md:pl-6">
                 <div className="label mb-3">From the mentors&apos; desk</div>
-                <blockquote className="text-[18px] leading-[1.55]">
+                <blockquote className="text-lg leading-relaxed">
                   <span className="display-italic text-oxblood">“</span>
                   Strong induction over the size of the tree is what you
                   want. I will write the skeleton on the board.
@@ -130,7 +130,7 @@ export default function HomePage() {
               <div className="display mt-3 text-[64px] leading-none tracking-[-0.04em]">
                 {stat.value}
               </div>
-              <div className="mt-2 text-[13px] text-ink-muted">{stat.caption}</div>
+              <div className="mt-2 text-sm text-ink-muted">{stat.caption}</div>
             </div>
           ))}
         </div>
@@ -143,7 +143,7 @@ export default function HomePage() {
           <div className="mt-10 grid grid-cols-12 gap-x-6 gap-y-10">
             <div className="col-span-12 md:col-span-4">
               <div className="numeral">¶ 01 — On reading</div>
-              <p className="mt-4 text-[18px] leading-[1.55] first-letter:display first-letter:float-left first-letter:mr-2 first-letter:text-[64px] first-letter:leading-[0.85] first-letter:text-oxblood">
+              <p className="mt-4 text-lg leading-relaxed first-letter:display first-letter:float-left first-letter:mr-2 first-letter:text-[64px] first-letter:leading-[0.85] first-letter:text-oxblood">
                 A classroom is a periodical that publishes itself. The
                 mentor is the editor, the mentees are the columnists, and
                 the syllabus is the broadsheet they keep returning to.
@@ -151,7 +151,7 @@ export default function HomePage() {
             </div>
             <div className="col-span-12 md:col-span-4">
               <div className="numeral">¶ 02 — On marking</div>
-              <p className="mt-4 text-[18px] leading-[1.55]">
+              <p className="mt-4 text-lg leading-relaxed">
                 Attendance ticks itself with face recognition, but the
                 meaningful mark is the one you leave in the margin. We
                 made the margin a feature, not a footnote — it&apos;s where
@@ -160,7 +160,7 @@ export default function HomePage() {
             </div>
             <div className="col-span-12 md:col-span-4">
               <div className="numeral">¶ 03 — On evaluation</div>
-              <p className="mt-4 text-[18px] leading-[1.55]">
+              <p className="mt-4 text-lg leading-relaxed">
                 At term&apos;s end the mentee evaluates the mentor, not the
                 other way around. A teacher who survives criticism with
                 grace is one worth keeping on the masthead.
@@ -213,7 +213,7 @@ export default function HomePage() {
                 </ul>
                 <Link
                   href="/login"
-                  className="mt-6 inline-flex items-center gap-2 link-reveal text-[12px] font-mono uppercase tracking-[0.22em]"
+                  className="mt-6 inline-flex items-center gap-2 link-reveal text-xs font-medium uppercase tracking-wider"
                 >
                   Sign in as {role.key.toLowerCase()} →
                 </Link>
@@ -240,7 +240,7 @@ export default function HomePage() {
                   bound by mentors.
                 </span>
               </h2>
-              <p className="mt-6 max-w-md text-[16px] leading-relaxed text-ink-soft">
+              <p className="mt-6 max-w-md text-base leading-relaxed text-ink-soft">
                 Each course in EduMentor is conducted by a single mentor
                 across a fixed cohort. The pace is published, the rubrics
                 are open, the discussion lives where the work is being
@@ -248,7 +248,7 @@ export default function HomePage() {
               </p>
               <Link
                 href="/courses"
-                className="mt-8 inline-flex items-center gap-3 border border-ink px-5 py-3 text-[12px] font-mono uppercase tracking-[0.22em] hover:bg-ink hover:text-bone transition-colors"
+                className="mt-8 inline-flex items-center gap-3 border border-ink px-5 py-3 text-xs font-medium uppercase tracking-wider hover:bg-ink hover:text-bone transition-colors"
               >
                 Read the full catalogue →
               </Link>
@@ -264,13 +264,13 @@ export default function HomePage() {
                     <span className="col-span-1 numeral">0{i + 1}</span>
                     <div className="col-span-3">
                       <div className="numeral">{c.code}</div>
-                      <div className="text-[11px] text-ink-muted mt-1">{c.cohort}</div>
+                      <div className="text-xs text-ink-muted mt-1">{c.cohort}</div>
                     </div>
                     <div className="col-span-5">
                       <div className="display text-[28px] leading-[0.95] tracking-[-0.025em]">
                         {c.title}
                       </div>
-                      <div className="text-[12px] text-ink-muted mt-1 eyebrow-italic">
+                      <div className="text-sm text-ink-muted mt-1 eyebrow-italic">
                         Conducted by {c.mentor}
                       </div>
                     </div>
@@ -319,7 +319,7 @@ export default function HomePage() {
               <br />
               by the <span className="display-italic text-oxblood">camera.</span>
             </h2>
-            <p className="mt-6 text-[16px] leading-relaxed text-ink-soft max-w-md">
+            <p className="mt-6 text-base leading-relaxed text-ink-soft max-w-md">
               Open the live class, point the camera, watch the matric
               numbers tick. Mentors override; mentees confirm. A history
               of every session is kept in the back of the folio for
@@ -365,11 +365,11 @@ export default function HomePage() {
                       height: `${b.h}%`,
                     }}
                   >
-                    <div className="absolute -top-5 left-0 right-0 flex items-center justify-between text-[9px] font-mono uppercase tracking-[0.16em] text-oxblood">
+                    <div className="absolute -top-5 left-0 right-0 flex items-center justify-between text-xs font-medium uppercase tracking-wider text-oxblood">
                       <span>{b.name}</span>
                       <span>OK</span>
                     </div>
-                    <div className="absolute -bottom-4 left-0 text-[9px] font-mono text-ink-muted">
+                    <div className="absolute -bottom-4 left-0 text-xs font-medium text-ink-muted">
                       {b.id}
                     </div>
                     {/* corner ticks */}
@@ -381,11 +381,11 @@ export default function HomePage() {
                 ))}
               </div>
               {/* viewfinder HUD */}
-              <div className="absolute top-3 left-4 text-[10px] font-mono uppercase tracking-[0.22em] text-ink-muted flex items-center gap-2">
+              <div className="absolute top-3 left-4 text-xs font-medium uppercase tracking-wider text-ink-muted flex items-center gap-2">
                 <span className="size-1.5 rounded-full bg-oxblood blink" />
                 Recognising · 6 / 8 matched
               </div>
-              <div className="absolute bottom-3 right-4 text-[10px] font-mono uppercase tracking-[0.22em] text-ink-muted">
+              <div className="absolute bottom-3 right-4 text-xs font-medium uppercase tracking-wider text-ink-muted">
                 BD-3, Block A · 14:02
               </div>
             </div>
@@ -404,7 +404,7 @@ export default function HomePage() {
               at the{" "}
               <span className="display-italic text-saffron">desk.</span>
             </h2>
-            <p className="mt-8 max-w-2xl text-[18px] leading-[1.55] text-bone/80">
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-bone/80">
               EduMentor is free to enrol for the demo cohort. Pick a
               role, claim a name, and start a discussion thread before
               the bell rings.
@@ -412,13 +412,13 @@ export default function HomePage() {
             <div className="mt-10 flex flex-wrap items-center gap-3">
               <Link
                 href="/login"
-                className="inline-flex items-center gap-3 border border-bone bg-bone px-5 py-3 text-[12px] font-mono uppercase tracking-[0.22em] text-ink hover:bg-saffron hover:border-saffron transition-colors"
+                className="inline-flex items-center gap-3 border border-bone bg-bone px-5 py-3 text-xs font-medium uppercase tracking-wider text-ink hover:bg-saffron hover:border-saffron transition-colors"
               >
                 Sign in →
               </Link>
               <Link
                 href="/login"
-                className="inline-flex items-center gap-3 border border-bone/40 px-5 py-3 text-[12px] font-mono uppercase tracking-[0.22em] hover:border-bone transition-colors"
+                className="inline-flex items-center gap-3 border border-bone/40 px-5 py-3 text-xs font-medium uppercase tracking-wider hover:border-bone transition-colors"
               >
                 Apply as mentor
               </Link>
@@ -429,15 +429,15 @@ export default function HomePage() {
             <div className="label text-bone/60">Numbers, briefly</div>
             <dl className="mt-6 space-y-6">
               <div>
-                <dt className="text-[11px] font-mono uppercase tracking-[0.22em] text-bone/60">Mentees enrolled</dt>
+                <dt className="text-xs font-medium uppercase tracking-wider text-bone/60">Mentees enrolled</dt>
                 <dd className="display text-[56px] leading-none mt-2">158</dd>
               </div>
               <div>
-                <dt className="text-[11px] font-mono uppercase tracking-[0.22em] text-bone/60">Mentor satisfaction</dt>
+                <dt className="text-xs font-medium uppercase tracking-wider text-bone/60">Mentor satisfaction</dt>
                 <dd className="display text-[56px] leading-none mt-2">4.6<span className="text-[28px] text-bone/50">/5</span></dd>
               </div>
               <div>
-                <dt className="text-[11px] font-mono uppercase tracking-[0.22em] text-bone/60">Attendance accuracy</dt>
+                <dt className="text-xs font-medium uppercase tracking-wider text-bone/60">Attendance accuracy</dt>
                 <dd className="display text-[56px] leading-none mt-2">98<span className="text-[28px] text-bone/50">.4%</span></dd>
               </div>
             </dl>

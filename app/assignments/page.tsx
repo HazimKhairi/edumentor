@@ -34,7 +34,7 @@ export default function AssignmentsPage() {
               <br /> due and delivered.
             </p>
             <div className="rule mt-6" />
-            <dl className="mt-6 space-y-4 text-[12px] font-mono uppercase tracking-[0.18em]">
+            <dl className="mt-6 space-y-4 text-xs font-medium uppercase tracking-wide">
               <div className="flex justify-between"><dt className="text-ink-muted">Open</dt><dd>{open.length}</dd></div>
               <div className="flex justify-between"><dt className="text-ink-muted">Closed</dt><dd>{closed.length}</dd></div>
               <div className="flex justify-between"><dt className="text-ink-muted">Weight</dt><dd>{totalWeight}%</dd></div>
@@ -47,7 +47,7 @@ export default function AssignmentsPage() {
               The{" "}
               <span className="display-italic text-oxblood">work.</span>
             </h1>
-            <p className="mt-8 max-w-2xl text-[18px] leading-[1.55] text-ink-soft">
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
               Problem sets, labs, and essays. Pick one, read the brief,
               file your submission. Late submissions lose two points per
               day, no exceptions, no negotiations.
@@ -76,23 +76,23 @@ export default function AssignmentsPage() {
                       <h3 className="display text-[32px] leading-[1.0] tracking-[-0.025em] mt-1">
                         {a.title}
                       </h3>
-                      <p className="mt-3 text-[14px] leading-relaxed text-ink-soft max-w-xl">
+                      <p className="mt-3 text-base leading-relaxed text-ink-soft max-w-xl">
                         {a.note}
                       </p>
                       <div className="mt-4 flex flex-wrap items-center gap-3">
-                        <Link href="#" className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2 text-[11px] font-mono uppercase tracking-[0.22em] text-bone hover:bg-oxblood hover:border-oxblood transition-colors">
+                        <Link href="#" className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors">
                           Submit work →
                         </Link>
-                        <Link href="#" className="link-reveal text-[11px] font-mono uppercase tracking-[0.22em]">
+                        <Link href="#" className="link-reveal text-xs font-medium uppercase tracking-wider">
                           Read brief
                         </Link>
-                        <Link href="#" className="link-reveal text-[11px] font-mono uppercase tracking-[0.22em]">
+                        <Link href="#" className="link-reveal text-xs font-medium uppercase tracking-wider">
                           Rubric
                         </Link>
                       </div>
                     </div>
                     <div className="col-span-12 md:col-span-3 md:text-right">
-                      <span className={`inline-block px-3 py-1 text-[10px] font-mono uppercase tracking-[0.22em] ${statusTone[a.status]}`}>
+                      <span className={`inline-block px-3 py-1 text-xs font-medium uppercase tracking-wider ${statusTone[a.status]}`}>
                         {a.status}
                       </span>
                       <div className="mt-4 numeral">Due</div>
@@ -132,7 +132,7 @@ export default function AssignmentsPage() {
                   </div>
                 </div>
                 <div className="col-span-3 text-right">
-                  <span className="inline-block px-2 py-1 text-[10px] font-mono uppercase tracking-[0.22em] bg-ink text-bone">
+                  <span className="inline-block px-2 py-1 text-xs font-medium uppercase tracking-wider bg-ink text-bone">
                     {a.status}
                   </span>
                   <div className="numeral mt-2">Due {a.due} · {a.submissions}/{a.of}</div>

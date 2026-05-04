@@ -42,7 +42,7 @@ export default function ReportsPage() {
               <br /> broadsheet.
             </p>
             <div className="rule mt-6" />
-            <dl className="mt-6 space-y-4 text-[12px] font-mono uppercase tracking-[0.18em]">
+            <dl className="mt-6 space-y-4 text-xs font-medium uppercase tracking-wide">
               <div className="flex justify-between"><dt className="text-ink-muted">Period</dt><dd>Sem 02 / 26</dd></div>
               <div className="flex justify-between"><dt className="text-ink-muted">Issued</dt><dd>04 May 26</dd></div>
               <div className="flex justify-between"><dt className="text-ink-muted">Author</dt><dd className="text-right">Registrar</dd></div>
@@ -55,22 +55,22 @@ export default function ReportsPage() {
               The{" "}
               <span className="display-italic text-oxblood">report.</span>
             </h1>
-            <p className="mt-8 max-w-2xl text-[18px] leading-[1.55] text-ink-soft">
+            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
               A weekly broadsheet for the registrar. Cohort health, mentor
               workloads, attendance accuracy, and the open issues that
               need a quiet word before next session.
             </p>
             <div className="mt-8 flex flex-wrap gap-2">
-              <button className="px-3 py-1.5 text-[11px] font-mono uppercase tracking-[0.2em] border border-ink bg-ink text-bone">
+              <button className="px-3 py-1.5 text-xs font-medium uppercase tracking-wide border border-ink bg-ink text-bone">
                 This week
               </button>
-              <button className="px-3 py-1.5 text-[11px] font-mono uppercase tracking-[0.2em] border border-rule hover:border-ink transition-colors">
+              <button className="px-3 py-1.5 text-xs font-medium uppercase tracking-wide border border-rule hover:border-ink transition-colors">
                 Last 4 weeks
               </button>
-              <button className="px-3 py-1.5 text-[11px] font-mono uppercase tracking-[0.2em] border border-rule hover:border-ink transition-colors">
+              <button className="px-3 py-1.5 text-xs font-medium uppercase tracking-wide border border-rule hover:border-ink transition-colors">
                 Term
               </button>
-              <button className="ml-auto px-3 py-1.5 text-[11px] font-mono uppercase tracking-[0.2em] border border-rule hover:border-ink transition-colors">
+              <button className="ml-auto px-3 py-1.5 text-xs font-medium uppercase tracking-wide border border-rule hover:border-ink transition-colors">
                 Export PDF →
               </button>
             </div>
@@ -87,7 +87,7 @@ export default function ReportsPage() {
               <div key={s.label} className={`p-6 ${i !== 0 ? "border-l border-rule" : ""} ${i >= 2 ? "border-t md:border-t-0" : ""}`}>
                 <div className="label">{s.label}</div>
                 <div className="display text-[56px] leading-none mt-3 tracking-[-0.04em]">{s.value}</div>
-                <div className="text-[12px] text-ink-muted mt-2">{s.caption}</div>
+                <div className="text-sm text-ink-muted mt-2">{s.caption}</div>
               </div>
             ))}
           </div>
@@ -107,12 +107,12 @@ export default function ReportsPage() {
                       className={`w-full ${i === SPARK.length - 1 ? "bg-oxblood" : "bg-ink"}`}
                       style={{ height: `${v}%` }}
                     />
-                    <span className="text-[10px] font-mono text-ink-muted">W{i + 1}</span>
+                    <span className="text-xs font-mono text-ink-muted">W{i + 1}</span>
                   </div>
                 ))}
               </div>
               <div className="rule-thick mt-6" />
-              <div className="grid grid-cols-3 mt-4 text-[10px] font-mono uppercase tracking-[0.22em]">
+              <div className="grid grid-cols-3 mt-4 text-xs font-medium uppercase tracking-wider">
                 <div>
                   <div className="text-ink-muted">Avg</div>
                   <div className="text-ink mt-1 text-[14px] tracking-normal">59%</div>
@@ -144,7 +144,7 @@ export default function ReportsPage() {
                   const pct = Math.round((c.enrolled / c.capacity) * 100);
                   return (
                     <li key={c.id}>
-                      <div className="flex items-baseline justify-between text-[12px] font-mono uppercase tracking-[0.18em]">
+                      <div className="flex items-baseline justify-between text-xs font-medium uppercase tracking-wide">
                         <span>{c.code}</span>
                         <span>{pct}%</span>
                       </div>
@@ -173,7 +173,7 @@ export default function ReportsPage() {
                     <div className="display text-[22px] leading-tight tracking-[-0.02em]">
                       {f.mentor}
                     </div>
-                    <p className="text-[13px] leading-snug text-ink-soft mt-1 italic">
+                    <p className="text-sm leading-snug text-ink-soft mt-1 italic">
                       &ldquo;{f.comment}&rdquo;
                     </p>
                   </div>
@@ -186,7 +186,7 @@ export default function ReportsPage() {
                   </div>
                   <div className="col-span-2 text-right">
                     <div className="numeral">n = {f.n}</div>
-                    <Link href="#" className="block mt-2 link-reveal text-[10px] font-mono uppercase tracking-[0.22em]">
+                    <Link href="#" className="block mt-2 link-reveal text-xs font-medium uppercase tracking-wider">
                       Open →
                     </Link>
                   </div>
@@ -206,14 +206,14 @@ export default function ReportsPage() {
                     <div className="numeral mt-1">{i.c}</div>
                   </div>
                   <div className="col-span-3 text-right">
-                    <span className={`inline-block px-2 py-1 text-[10px] font-mono uppercase tracking-[0.22em] ${sevTone[i.sev]}`}>
+                    <span className={`inline-block px-2 py-1 text-xs font-medium uppercase tracking-wider ${sevTone[i.sev]}`}>
                       {i.sev}
                     </span>
                   </div>
                 </li>
               ))}
             </ul>
-            <Link href="#" className="mt-6 inline-flex items-center gap-2 link-reveal text-[11px] font-mono uppercase tracking-[0.22em]">
+            <Link href="#" className="mt-6 inline-flex items-center gap-2 link-reveal text-xs font-medium uppercase tracking-wider">
               Read the full audit log →
             </Link>
           </aside>
