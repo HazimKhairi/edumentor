@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { NAV, SUBJECT } from "@/lib/data";
 
@@ -23,7 +24,17 @@ export function SiteNav() {
 
       {/* Masthead */}
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-8 px-6 pt-6 pb-3">
-        <Link href="/" className="group flex items-end gap-3">
+        <Link href="/" className="group flex items-end gap-4">
+          <span className="relative size-12 shrink-0 overflow-hidden border border-ink bg-bone">
+            <Image
+              src="/logo.jpeg"
+              alt="EduMentor"
+              fill
+              sizes="48px"
+              className="object-cover"
+              priority
+            />
+          </span>
           <span className="display text-[44px] leading-none tracking-[-0.04em]">
             Edu<span className="display-italic text-oxblood">Mentor</span>
           </span>

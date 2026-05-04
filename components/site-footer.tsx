@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { NAV, SUBJECT } from "@/lib/data";
 
@@ -25,8 +26,19 @@ export function SiteFooter() {
       {/* Body */}
       <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-y-12 gap-x-6 px-6 py-16">
         <div className="col-span-12 md:col-span-5">
-          <div className="display text-[88px] leading-[0.85] tracking-[-0.045em]">
-            Edu<span className="display-italic text-oxblood">Mentor</span>
+          <div className="flex items-end gap-5">
+            <span className="relative size-20 shrink-0 overflow-hidden border border-ink bg-bone">
+              <Image
+                src="/logo.jpeg"
+                alt="EduMentor"
+                fill
+                sizes="80px"
+                className="object-cover"
+              />
+            </span>
+            <div className="display text-[88px] leading-[0.85] tracking-[-0.045em]">
+              Edu<span className="display-italic text-oxblood">Mentor</span>
+            </div>
           </div>
           <p className="mt-6 max-w-md text-ink-soft text-[15px] leading-relaxed">
             An editorial periodical for mentor-led classrooms. Designed
