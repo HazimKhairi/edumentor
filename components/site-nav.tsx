@@ -61,8 +61,11 @@ export function SiteNav() {
           <Link href="/dashboard" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
             My learning
           </Link>
-          <Link href="/discussion" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
-            Discussion
+          <Link href="/mentor" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
+            Mentor
+          </Link>
+          <Link href="/admin" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
+            Admin
           </Link>
         </nav>
 
