@@ -95,7 +95,7 @@ export function SiteFooter() {
 
       <div className="border-t border-rule">
         <div className="mx-auto max-w-[1400px] px-6 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-ink-muted">
-          <div>© 2026 EduMentor — A learning platform for UiTM, FCMS</div>
+          <div>© 2026 EduMentor | A learning platform for UiTM, FCMS</div>
           <div className="flex items-center gap-5">
             <Link href="#" className="hover:text-ink">Privacy</Link>
             <Link href="#" className="hover:text-ink">Terms</Link>

@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { ASSIGNMENTS } from "@/lib/data";
 
 export const metadata = {
-  title: "Assignments — EduMentor",
+  title: "Assignments | EduMentor",
   description: "Submissions, due dates, and graded work.",
 };
 
@@ -36,7 +36,7 @@ export default function AssignmentsPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">My assignments</h1>
           <p className="mt-3 text-ink-soft">
-            {open.length} open · {closed.length} closed · Late submissions lose 2 points/day.
+            {open.length} open , {closed.length} closed , Late submissions lose 2 points/day.
           </p>
 
           <div className="mt-6 flex items-center gap-1 border-b border-rule -mb-px overflow-x-auto">
@@ -69,7 +69,7 @@ export default function AssignmentsPage() {
                 <div className="col-span-12 md:col-span-7">
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className={statusBadge[a.status]}>{a.status}</span>
-                    <span className="text-xs text-ink-muted">{a.course} · {a.type}</span>
+                    <span className="text-xs text-ink-muted">{a.course} , {a.type}</span>
                     <span className="badge badge-oxblood">{a.weight}% of grade</span>
                   </div>
                   <h3 className="font-semibold text-lg leading-snug mb-2">{a.title}</h3>
@@ -77,7 +77,7 @@ export default function AssignmentsPage() {
 
                   <div className="mt-4 flex items-center gap-3">
                     <Link href="#" className="btn btn-primary btn-sm">
-                      Submit work →
+                      Submit work
                     </Link>
                     <Link href="#" className="btn btn-ghost btn-sm">
                       View brief
@@ -115,7 +115,7 @@ export default function AssignmentsPage() {
               <div className="col-span-10 md:col-span-7">
                 <span className={statusBadge[a.status]}>{a.status}</span>
                 <h3 className="font-semibold text-base mt-1.5">{a.title}</h3>
-                <div className="text-xs text-ink-muted mt-1">{a.course} · Due {a.due}</div>
+                <div className="text-xs text-ink-muted mt-1">{a.course} , Due {a.due}</div>
               </div>
               <div className="col-span-12 md:col-span-4 md:text-right">
                 <div className="text-sm">

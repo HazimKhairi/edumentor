@@ -63,7 +63,7 @@ export function CourseCard({
 
         {!compact && (cohort || pace) ? (
           <p className="text-xs text-ink-muted mt-auto pt-1">
-            {[cohort, pace].filter(Boolean).join(" · ")}
+            {[cohort, pace].filter(Boolean).join(" , ")}
           </p>
         ) : null}
 

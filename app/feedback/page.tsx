@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { StarRating } from "@/components/star-rating";
 import { FEEDBACK_ENTRIES } from "@/lib/data";
 
 export const metadata = {
-  title: "Reviews — EduMentor",
+  title: "Reviews | EduMentor",
   description: "End-of-term mentor evaluations.",
 };
 
@@ -48,7 +49,7 @@ export default function FeedbackPage() {
                 <div>
                   <p className="text-sm text-ink-muted">You&apos;re reviewing</p>
                   <h2 className="font-semibold text-lg">Dr. Aishah Mokhtar</h2>
-                  <p className="text-xs text-ink-muted">MAT CS110 · Discrete Structures · 24 sessions</p>
+                  <p className="text-xs text-ink-muted">MAT CS110 , Discrete Structures , 24 sessions</p>
                 </div>
               </div>
 
@@ -60,14 +61,13 @@ export default function FeedbackPage() {
                       <button
                         key={n}
                         type="button"
-                        className={`text-3xl transition-transform hover:scale-110 ${
-                          n <= 5 ? "text-saffron" : "text-rule"
-                        }`}
+                        aria-label={`${n} stars`}
+                        className="text-amber-500 transition-transform hover:scale-110"
                       >
-                        ★
+                        <Star size={28} fill="currentColor" />
                       </button>
                     ))}
-                    <span className="ml-3 text-sm text-ink-muted">5.0 · Excellent</span>
+                    <span className="ml-3 text-sm text-ink-muted">5.0 Excellent</span>
                   </div>
                 </div>
 
@@ -95,7 +95,7 @@ export default function FeedbackPage() {
                       </li>
                     ))}
                   </ul>
-                  <p className="text-xs text-ink-muted mt-3">1 — disagree · 5 — strongly agree</p>
+                  <p className="text-xs text-ink-muted mt-3">1 | disagree , 5 | strongly agree</p>
                 </div>
 
                 <div>
@@ -125,7 +125,7 @@ export default function FeedbackPage() {
 
                 <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
                   <Link href="/dashboard" className="btn btn-ghost">Cancel</Link>
-                  <Link href="/dashboard" className="btn btn-primary">Submit review →</Link>
+                  <Link href="/dashboard" className="btn btn-primary">Submit review</Link>
                 </div>
               </form>
             </div>
@@ -157,7 +157,7 @@ export default function FeedbackPage() {
                     &ldquo;{f.comment}&rdquo;
                   </p>
                   <div className="text-xs text-ink-muted mt-3 pt-3 border-t border-rule">
-                    {f.by} · n = {f.n}
+                    {f.by} , n = {f.n}
                   </div>
                 </li>
               ))}

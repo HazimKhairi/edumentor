@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Check, Search } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
@@ -39,12 +40,12 @@ export default function HomePage() {
             <p className="mt-5 text-lg text-ink-soft leading-relaxed max-w-xl">
               EduMentor is a small, mentor-led learning platform for UiTM
               cohorts. Pick a course, join the discussion, get real
-              feedback on your work — all in one quiet place.
+              feedback on your work | all in one quiet place.
             </p>
 
             <form className="mt-8 flex items-center gap-2 max-w-xl">
               <label className="relative flex-1">
-                <span aria-hidden className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted">⌕</span>
+                <Search size={18} aria-hidden className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
                 <input
                   type="search"
                   placeholder="What do you want to learn? e.g. discrete math"
@@ -59,9 +60,9 @@ export default function HomePage() {
                 <StarRating value={4.6} />
                 <span>average mentor rating</span>
               </div>
-              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">,</span>
               <span><span className="font-semibold text-ink">158</span> active mentees</span>
-              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">,</span>
               <span><span className="font-semibold text-ink">12</span> mentors on roster</span>
             </div>
           </div>
@@ -161,13 +162,13 @@ export default function HomePage() {
                 <ul className="space-y-2 mb-6 text-sm">
                   {role.duties.map((d) => (
                     <li key={d} className="flex items-start gap-2">
-                      <span className="text-oxblood mt-0.5" aria-hidden>✓</span>
+                      <Check size={16} className="text-oxblood mt-1 shrink-0" aria-hidden />
                       <span>{d}</span>
                     </li>
                   ))}
                 </ul>
                 <Link href="/login" className="btn btn-secondary btn-sm mt-auto self-start">
-                  Continue as {role.key.toLowerCase()} →
+                  Continue as {role.key.toLowerCase()}
                 </Link>
               </article>
             ))}
@@ -184,7 +185,7 @@ export default function HomePage() {
                 <div>
                   <div className="text-sm font-semibold text-saffron mb-2">Mentor of the term</div>
                   <div className="display text-4xl">Dr. Aishah <span className="display-italic">Mokhtar</span></div>
-                  <p className="text-sm mt-3 opacity-80">MAT CS110 · Discrete Structures</p>
+                  <p className="text-sm mt-3 opacity-80">MAT CS110 , Discrete Structures</p>
                 </div>
               </div>
             </div>
@@ -203,7 +204,7 @@ export default function HomePage() {
             </blockquote>
             <div className="mt-5 flex items-center gap-4">
               <StarRating value={4.7} count={451} size="md" />
-              <span className="text-sm text-ink-muted">·</span>
+              <span className="text-sm text-ink-muted">,</span>
               <span className="text-sm text-ink-muted">24 sessions this term</span>
             </div>
             <div className="mt-6 flex flex-wrap gap-3">
@@ -263,13 +264,15 @@ export default function HomePage() {
                 "98.4% accuracy across the last 30 days",
               ].map((b) => (
                 <li key={b} className="flex items-start gap-3 text-sm">
-                  <span className="size-5 rounded-full bg-saffron/20 text-saffron flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">✓</span>
+                  <span className="size-5 rounded-full bg-saffron/20 text-saffron flex items-center justify-center shrink-0 mt-0.5">
+                    <Check size={12} />
+                  </span>
                   <span>{b}</span>
                 </li>
               ))}
             </ul>
             <Link href="/attendance" className="btn btn-secondary mt-7 inline-flex">
-              See it in action →
+              See it in action
             </Link>
           </div>
 
@@ -290,18 +293,19 @@ export default function HomePage() {
                       className={`absolute border ${b.ok ? "border-saffron" : "border-bone/40 border-dashed"} rounded-sm`}
                       style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%` }}
                     >
-                      <div className={`absolute -top-5 left-0 text-[10px] font-semibold ${b.ok ? "text-saffron" : "text-bone/60"}`}>
-                        {b.name} {b.ok && "✓"}
+                      <div className={`absolute -top-5 left-0 text-[10px] font-semibold flex items-center gap-1 ${b.ok ? "text-saffron" : "text-bone/60"}`}>
+                        <span>{b.name}</span>
+                        {b.ok ? <Check size={10} /> : null}
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="absolute top-3 left-4 text-xs font-medium text-bone/80 flex items-center gap-2">
                   <span className="size-1.5 rounded-full bg-oxblood blink" />
-                  Live · 5 / 6 matched
+                  Live , 5 / 6 matched
                 </div>
                 <div className="absolute bottom-3 right-4 text-xs text-bone/60">
-                  BD-3, Block A · 14:02
+                  BD-3, Block A , 14:02
                 </div>
               </div>
             </div>
@@ -320,7 +324,7 @@ export default function HomePage() {
               </h2>
               <p className="mt-4 text-bone/80 max-w-xl leading-relaxed">
                 Sign in with your matric or staff number and pick a role.
-                The demo classroom is open — no payment, no permission slip.
+                The demo classroom is open | no payment, no permission slip.
               </p>
             </div>
             <div className="col-span-12 md:col-span-4 flex flex-wrap md:justify-end gap-3">
@@ -329,7 +333,7 @@ export default function HomePage() {
                 className="btn btn-lg"
                 style={{ background: "var(--color-saffron)", color: "var(--color-ink)" }}
               >
-                Sign in →
+                Sign in
               </Link>
               <Link
                 href="/courses"

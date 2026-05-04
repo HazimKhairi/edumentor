@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "EduMentor — Collaborative Mentorship Platform",
+  title: "EduMentor | Collaborative Mentorship Platform",
   description:
     "A learning platform for MAT CS110. Discussions, assignments, attendance, and reports.",
 };

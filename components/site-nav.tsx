@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ChevronDown, Search } from "lucide-react";
 import { NAV } from "@/lib/data";
 
 const CATEGORIES = [
@@ -29,7 +30,7 @@ export function SiteNav() {
         <details className="hidden md:block relative">
           <summary className="list-none cursor-pointer px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink rounded-sm flex items-center gap-1">
             Categories
-            <span aria-hidden className="text-xs">▾</span>
+            <ChevronDown size={14} aria-hidden />
           </summary>
           <div className="absolute top-full left-0 mt-1 w-64 bg-bone border border-rule rounded-md shadow-lg p-2">
             {CATEGORIES.map((c) => (
@@ -47,10 +48,10 @@ export function SiteNav() {
         {/* Search */}
         <form className="flex-1 max-w-2xl hidden sm:block">
           <label className="relative flex items-center">
-            <span aria-hidden className="absolute left-3 text-ink-muted">⌕</span>
+            <Search size={16} aria-hidden className="absolute left-3 text-ink-muted" />
             <input
               type="search"
-              placeholder="Search courses, mentors, topics…"
+              placeholder="Search courses, mentors, topics"
               className="input pl-9 rounded-full bg-paper-dark/60"
             />
           </label>

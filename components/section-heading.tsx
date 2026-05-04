@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 export function SectionHeading({
   eyebrow,
@@ -27,7 +28,7 @@ export function SectionHeading({
           href={link.href}
           className="text-sm font-semibold text-oxblood hover:text-oxblood-deep transition-colors flex items-center gap-1"
         >
-          {link.label} <span aria-hidden>→</span>
+          {link.label} <ArrowRight size={14} aria-hidden />
         </Link>
       ) : null}
     </div>

@@ -1,10 +1,11 @@
+import { ChevronDown, Search, Star } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
 import { COURSES, FEEDBACK_ENTRIES } from "@/lib/data";
 
 export const metadata = {
-  title: "Courses — EduMentor",
+  title: "Courses | EduMentor",
   description: "Browse the full course catalogue for the term.",
 };
 
@@ -63,12 +64,12 @@ export default function CoursesPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Course catalogue</h1>
           <p className="mt-3 text-ink-soft max-w-2xl">
-            {COURSES.length} courses · open for Semester 02 / 2026 · taught by 12 mentors.
+            {COURSES.length} courses , open for Semester 02 / 2026 , taught by 12 mentors.
           </p>
 
           <form className="mt-6 flex items-center gap-2 max-w-xl">
             <label className="relative flex-1">
-              <span aria-hidden className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted">⌕</span>
+              <Search size={16} aria-hidden className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
               <input
                 type="search"
                 placeholder="Search by title, code, or mentor"
@@ -95,7 +96,7 @@ export default function CoursesPage() {
                 <details key={f.title} open className="border-b border-rule pb-4 group">
                   <summary className="list-none cursor-pointer flex items-center justify-between mb-3">
                     <span className="font-semibold text-sm">{f.title}</span>
-                    <span aria-hidden className="text-ink-muted group-open:rotate-180 transition-transform">▾</span>
+                    <ChevronDown size={16} aria-hidden className="text-ink-muted group-open:rotate-180 transition-transform" />
                   </summary>
                   <ul className="space-y-2">
                     {f.options.map((o) => (
@@ -120,9 +121,15 @@ export default function CoursesPage() {
                     <li key={r}>
                       <label className="flex items-center gap-2 cursor-pointer text-sm">
                         <input type="radio" name="rating" className="size-4 accent-oxblood" />
-                        <span className="text-saffron">
-                          {"★".repeat(Math.floor(r))}
-                          {"☆".repeat(5 - Math.floor(r))}
+                        <span className="inline-flex items-center gap-px text-amber-500">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <Star
+                              key={i}
+                              size={12}
+                              fill={i < Math.floor(r) ? "currentColor" : "none"}
+                              className={i < Math.floor(r) ? "" : "text-rule"}
+                            />
+                          ))}
                         </span>
                         <span>{r}+ &amp; up</span>
                       </label>
@@ -142,7 +149,7 @@ export default function CoursesPage() {
                 <option>Most popular</option>
                 <option>Newest</option>
                 <option>Highest rated</option>
-                <option>A → Z</option>
+                <option>A Z</option>
               </select>
             </div>
 
@@ -166,11 +173,11 @@ export default function CoursesPage() {
             </div>
 
             <div className="flex items-center justify-center gap-2 mt-12">
-              <button className="btn btn-ghost btn-sm" disabled>← Prev</button>
+              <button className="btn btn-ghost btn-sm" disabled> Prev</button>
               <button className="size-9 rounded-sm border border-ink bg-ink text-bone text-sm font-semibold">1</button>
               <button className="size-9 rounded-sm border border-rule hover:border-ink text-sm">2</button>
               <button className="size-9 rounded-sm border border-rule hover:border-ink text-sm">3</button>
-              <button className="btn btn-ghost btn-sm">Next →</button>
+              <button className="btn btn-ghost btn-sm">Next</button>
             </div>
           </div>
         </div>

@@ -1,9 +1,10 @@
+import { Camera, Check, Info, Video } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { ATTENDANCE_SESSIONS, ROSTER } from "@/lib/data";
 
 export const metadata = {
-  title: "Attendance — EduMentor",
+  title: "Attendance | EduMentor",
   description: "Roll, called by the camera. Confirmed by the mentor.",
 };
 
@@ -41,13 +42,13 @@ export default function AttendancePage() {
                 <span className="badge badge-oxblood">
                   <span className="size-1.5 rounded-full bg-oxblood blink mr-1" /> Live now
                 </span>
-                <h2 className="font-semibold text-lg">{live.course} — {live.room}</h2>
+                <h2 className="font-semibold text-lg">{live.course} | {live.room}</h2>
               </div>
 
               {/* Info notice */}
               <div className="card p-4 mb-4 bg-oxblood/[0.04] border-oxblood/20 flex items-start gap-3">
-                <span className="size-8 rounded-full bg-oxblood/15 text-oxblood flex items-center justify-center shrink-0 text-base">
-                  ℹ
+                <span className="size-8 rounded-full bg-oxblood/15 text-oxblood flex items-center justify-center shrink-0">
+                  <Info size={16} />
                 </span>
                 <div className="text-sm">
                   <p className="font-semibold text-ink mb-1">How face recognition works</p>
@@ -66,8 +67,8 @@ export default function AttendancePage() {
                 <div className="flex items-center justify-between px-4 py-3 border-b border-rule bg-paper-dark/40">
                   <div className="flex items-center gap-2">
                     <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-oxblood">
-                      <span aria-hidden>📷</span>
-                      Camera 01 · {live.room}
+                      <Camera size={16} aria-hidden />
+                      Camera 01 | {live.room}
                     </span>
                   </div>
                   <span className="inline-flex items-center gap-2 text-xs text-ink-muted">
@@ -78,9 +79,8 @@ export default function AttendancePage() {
 
                 {/* Video preview area */}
                 <div className="relative aspect-[16/9] bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center">
-                  {/* center camera icon — placeholder for real video */}
                   <div className="text-center text-bone/70">
-                    <div className="text-5xl mb-2">📹</div>
+                    <Video size={48} className="mx-auto mb-3 opacity-80" />
                     <p className="text-sm">Live camera feed placeholder</p>
                     <p className="text-xs text-bone/50 mt-1">In production this shows the classroom camera</p>
                   </div>
@@ -88,10 +88,10 @@ export default function AttendancePage() {
                   {/* match indicator overlays */}
                   <div className="absolute top-3 left-3 inline-flex items-center gap-2 bg-bone/95 px-2.5 py-1 rounded-sm text-xs font-semibold">
                     <span className="size-1.5 rounded-full bg-oxblood blink" />
-                    {checkedCount}/{ROSTER.length} matched · {Math.round((checkedCount / ROSTER.length) * 100)}% accuracy
+                    {checkedCount}/{ROSTER.length} matched , {Math.round((checkedCount / ROSTER.length) * 100)}% accuracy
                   </div>
                   <div className="absolute bottom-3 right-3 text-xs text-bone/70 font-mono tabular">
-                    {live.time} · {live.date}
+                    {live.time} , {live.date}
                   </div>
                 </div>
 
@@ -113,7 +113,7 @@ export default function AttendancePage() {
               </div>
 
               <div className="mt-4 flex flex-wrap gap-3">
-                <button className="btn btn-primary">File the roll →</button>
+                <button className="btn btn-primary">File the roll</button>
                 <button className="btn btn-ghost">Re-scan</button>
                 <button className="btn btn-ghost">Manual override</button>
               </div>
@@ -123,7 +123,7 @@ export default function AttendancePage() {
             </div>
 
             <aside className="col-span-12 lg:col-span-5">
-              <h2 className="font-semibold text-lg mb-4">Roster · {ROSTER.length} students</h2>
+              <h2 className="font-semibold text-lg mb-4">Roster , {ROSTER.length} students</h2>
               <ul className="card divide-y divide-rule p-0 overflow-hidden">
                 {ROSTER.map((s, i) => (
                   <li key={s.id} className="flex items-center gap-3 px-4 py-3">
@@ -138,7 +138,7 @@ export default function AttendancePage() {
                       <div className="text-xs text-ink-muted tabular">{s.matric}</div>
                     </div>
                     {s.checked ? (
-                      <span className="badge badge-fern">✓ Present</span>
+                      <span className="badge badge-fern inline-flex items-center gap-1"><Check size={12} /> Present</span>
                     ) : (
                       <span className="badge badge-muted">Awaiting</span>
                     )}

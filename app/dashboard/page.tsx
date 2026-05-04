@@ -15,7 +15,7 @@ import {
 } from "@/lib/data";
 
 export const metadata = {
-  title: "My learning — EduMentor",
+  title: "My learning | EduMentor",
   description: "Continue learning, today's events, assignments due.",
 };
 
@@ -59,7 +59,7 @@ export default function DashboardPage() {
               </div>
               <div className="flex-1">
                 <div className="font-semibold">Aiman Hakimi</div>
-                <div className="text-xs text-ink-muted">2023607832 · Mentee</div>
+                <div className="text-xs text-ink-muted">2023607832 , Mentee</div>
               </div>
               <div className="text-right">
                 <div className="text-xs text-ink-muted">GPA</div>
@@ -88,7 +88,7 @@ export default function DashboardPage() {
                   <span className="badge badge-oxblood w-fit mb-3">In progress</span>
                   <h3 className="text-2xl md:text-3xl font-bold mb-2">{continueCourse.title}</h3>
                   <p className="text-sm text-ink-muted">
-                    {continueCourse.mentor} · {continueCourse.code}
+                    {continueCourse.mentor} , {continueCourse.code}
                   </p>
                   <p className="text-base text-ink-soft mt-4 leading-relaxed flex-1">
                     {continueCourse.abstract}
@@ -109,7 +109,7 @@ export default function DashboardPage() {
 
                   <div className="mt-6 flex flex-wrap gap-3">
                     <Link href="/discussion" className="btn btn-primary">
-                      Continue lesson →
+                      Continue lesson
                     </Link>
                     <Link href="/assignments" className="btn btn-ghost">
                       View assignments
@@ -154,7 +154,7 @@ export default function DashboardPage() {
                     className="btn btn-lg mt-auto"
                     style={{ background: "var(--color-saffron)", color: "var(--color-ink)" }}
                   >
-                    Join the room →
+                    Join the room
                   </Link>
                 </div>
               </aside>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                 return (
                   <li key={a.id} className="card p-4">
                     <div className="flex items-baseline justify-between mb-1">
-                      <span className="text-xs text-ink-muted">{a.code} · {a.course}</span>
+                      <span className="text-xs text-ink-muted">{a.code} , {a.course}</span>
                       <span className="badge badge-saffron">{a.weight}%</span>
                     </div>
                     <div className="font-semibold text-sm leading-snug mb-2">{a.title}</div>
@@ -230,7 +230,7 @@ export default function DashboardPage() {
                       <span className="text-ink-muted">{pct}% submitted</span>
                     </div>
                     <Link href="/assignments" className="btn btn-ghost btn-sm w-full mt-3">
-                      Submit →
+                      Submit
                     </Link>
                   </li>
                 );
@@ -250,7 +250,7 @@ export default function DashboardPage() {
                   <div className="font-semibold text-sm leading-snug">{r.title}</div>
                   <p className="text-xs text-ink-muted mt-1.5 line-clamp-2">{r.excerpt}</p>
                   <div className="text-xs text-ink-muted mt-2">
-                    {r.starter} · {r.posts} posts · {r.members} in
+                    {r.starter} , {r.posts} posts , {r.members} in
                   </div>
                 </li>
               ))}
@@ -259,7 +259,7 @@ export default function DashboardPage() {
                   <div className="text-xs text-ink-muted mb-2">Latest reply</div>
                   <div className="text-sm">
                     <span className="font-semibold text-oxblood">{MESSAGES.at(-1)?.author}</span>
-                    <span className="text-ink-muted"> · {MESSAGES.at(-1)?.time}</span>
+                    <span className="text-ink-muted"> , {MESSAGES.at(-1)?.time}</span>
                   </div>
                   <p className="text-sm mt-1.5 line-clamp-2">{MESSAGES.at(-1)?.body}</p>
                 </li>
@@ -321,7 +321,7 @@ export default function DashboardPage() {
               <div className="text-sm font-semibold text-oxblood mb-1">Rate your mentor</div>
               <h3 className="display text-2xl">How was Dr. Aishah this week?</h3>
               <p className="text-sm text-ink-muted mt-1">
-                Quick anonymous review — takes 30 seconds.
+                Quick anonymous review | takes 30 seconds.
               </p>
             </div>
             <div className="flex items-center gap-3">

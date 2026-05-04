@@ -1,10 +1,11 @@
+import { TrendingUp } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { StarRating } from "@/components/star-rating";
 import { COURSES, FEEDBACK_ENTRIES, STATS } from "@/lib/data";
 
 export const metadata = {
-  title: "Reports — EduMentor",
+  title: "Reports | EduMentor",
   description: "Term metrics and audits for the registrar.",
 };
 
@@ -39,7 +40,7 @@ export default function ReportsPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Term reports</h1>
           <p className="mt-3 text-ink-soft">
-            For Semester 02 / 2026 · Filed by Registrar · 04 May 2026
+            For Semester 02 / 2026 , Filed by Registrar , 04 May 2026
           </p>
 
           <div className="mt-6 flex items-center gap-2 flex-wrap">
@@ -53,7 +54,7 @@ export default function ReportsPage() {
                 {p}
               </button>
             ))}
-            <button className="btn btn-ghost btn-sm ml-auto">Export PDF →</button>
+            <button className="btn btn-ghost btn-sm ml-auto">Export PDF</button>
           </div>
         </div>
       </section>
@@ -78,9 +79,12 @@ export default function ReportsPage() {
                 <h3 className="font-semibold text-lg">Attendance, by week</h3>
                 <span className="text-xs text-ink-muted">Last 12 weeks</span>
               </div>
-              <p className="text-sm text-ink-muted mb-6">
-                Average <span className="font-semibold text-ink tabular">59%</span> · Trend{" "}
-                <span className="font-semibold text-fern">↗ +18 pp</span>
+              <p className="text-sm text-ink-muted mb-6 inline-flex items-center gap-1.5 flex-wrap">
+                <span>Average <span className="font-semibold text-ink tabular">59%</span></span>
+                <span className="text-rule">|</span>
+                <span className="inline-flex items-center gap-1 text-fern font-semibold">
+                  <TrendingUp size={14} /> +18 pp
+                </span>
               </p>
               <div className="flex items-end justify-between gap-2 h-48">
                 {SPARK.map((v, i) => (
@@ -102,7 +106,7 @@ export default function ReportsPage() {
             <div className="card p-6">
               <h3 className="font-semibold text-lg">Cohort fill</h3>
               <p className="text-sm text-ink-muted mb-4">
-                {totalEnrolled} of {totalCapacity} seats · {fillPct}%
+                {totalEnrolled} of {totalCapacity} seats , {fillPct}%
               </p>
               <div className="display text-5xl text-oxblood">{fillPct}%</div>
               <ul className="mt-6 space-y-3">
@@ -112,7 +116,7 @@ export default function ReportsPage() {
                     <li key={c.id}>
                       <div className="flex items-baseline justify-between text-sm mb-1">
                         <span className="font-medium">{c.code}</span>
-                        <span className="text-ink-muted tabular">{pct}% · {c.enrolled}/{c.capacity}</span>
+                        <span className="text-ink-muted tabular">{pct}% , {c.enrolled}/{c.capacity}</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-paper-dark overflow-hidden">
                         <div className="h-full bg-oxblood rounded-full" style={{ width: `${pct}%` }} />
@@ -186,7 +190,7 @@ export default function ReportsPage() {
             <div className="col-span-12 md:col-span-3 md:border-l md:border-rule md:pl-6 text-sm text-ink-muted">
               <div>Filed by Registrar</div>
               <div>04 May 2026, 14:42</div>
-              <div className="mt-3 font-semibold text-ink">— EduMentor</div>
+              <div className="mt-3 font-semibold text-ink">, EduMentor</div>
             </div>
           </div>
         </div>

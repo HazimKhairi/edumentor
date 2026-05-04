@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { ThumbsUp } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { MESSAGES, ROOMS } from "@/lib/data";
 
 export const metadata = {
-  title: "Discussion — EduMentor",
+  title: "Discussion | EduMentor",
   description: "Q&A and discussion rooms for your courses.",
 };
 
@@ -59,7 +60,7 @@ export default function DiscussionPage() {
                     <h3 className="font-semibold text-sm leading-snug">{r.title}</h3>
                     <p className="text-xs text-ink-muted mt-2 line-clamp-2">{r.excerpt}</p>
                     <div className="text-xs text-ink-muted mt-3 flex items-center justify-between">
-                      <span>{r.posts} replies · {r.members} in</span>
+                      <span>{r.posts} replies , {r.members} in</span>
                       <span>{r.last}</span>
                     </div>
                   </Link>
@@ -74,11 +75,11 @@ export default function DiscussionPage() {
                 <span className="badge badge-oxblood">
                   <span className="size-1.5 rounded-full bg-oxblood blink mr-1" /> Live thread
                 </span>
-                <span className="text-xs text-ink-muted">MAT CS110 · 14 in · 38 replies</span>
+                <span className="text-xs text-ink-muted">MAT CS110 , 14 in , 38 replies</span>
               </div>
               <h2 className="display text-2xl mb-2">Proof by induction, again</h2>
               <p className="text-ink-soft">
-                Started by Aiman Hakimi · 2 minutes ago · Pinned by Dr. Aishah
+                Started by Aiman Hakimi , 2 minutes ago , Pinned by Dr. Aishah
               </p>
             </div>
 
@@ -99,11 +100,13 @@ export default function DiscussionPage() {
                         ) : (
                           <span className="badge badge-muted">Mentee</span>
                         )}
-                        <span className="text-xs text-ink-muted">· {m.time}</span>
+                        <span className="text-xs text-ink-muted">, {m.time}</span>
                       </div>
                       <p className="text-base leading-relaxed">{m.body}</p>
                       <div className="mt-3 flex items-center gap-4 text-sm text-ink-muted">
-                        <button className="hover:text-ink flex items-center gap-1">↑ Helpful</button>
+                        <button className="hover:text-ink flex items-center gap-1.5">
+                          <ThumbsUp size={14} /> Helpful
+                        </button>
                         <button className="hover:text-ink">Reply</button>
                         <button className="hover:text-ink">Share</button>
                       </div>
@@ -117,19 +120,19 @@ export default function DiscussionPage() {
               <h3 className="font-semibold text-base mb-3">Your reply</h3>
               <textarea
                 rows={4}
-                defaultValue="Got it. So the inductive hypothesis is on size n, and we split into two subtrees of strictly smaller size — let me try writing the skeleton."
+                defaultValue="Got it. So the inductive hypothesis is on size n, and we split into two subtrees of strictly smaller size | let me try writing the skeleton."
                 className="input"
                 style={{ fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
               />
               <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-2 text-sm text-ink-muted">
                   <button className="hover:text-ink">Attach</button>
-                  <span>·</span>
+                  <span>,</span>
                   <button className="hover:text-ink">LaTeX</button>
-                  <span>·</span>
+                  <span>,</span>
                   <button className="hover:text-ink">Photo</button>
                 </div>
-                <button className="btn btn-primary">Post reply →</button>
+                <button className="btn btn-primary">Post reply</button>
               </div>
             </div>
           </div>

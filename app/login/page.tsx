@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Star } from "lucide-react";
 import { ROLES } from "@/lib/data";
 
 export const metadata = {
-  title: "Sign in — EduMentor",
+  title: "Sign in | EduMentor",
   description: "Sign in or create an account to continue.",
 };
 
@@ -23,7 +24,7 @@ export default function LoginPage() {
           </h2>
           <p className="mt-5 text-bone/80 max-w-md leading-relaxed">
             Pick the role written on your card. The desk arranges itself
-            accordingly — admins see the catalogue, mentors see the cohort,
+            accordingly | admins see the catalogue, mentors see the cohort,
             mentees see the reading.
           </p>
 
@@ -37,14 +38,14 @@ export default function LoginPage() {
               <div className="text-xs text-bone/60 mt-1">Mentors</div>
             </div>
             <div>
-              <div className="display text-3xl">4.6<span className="text-saffron">★</span></div>
+              <div className="display text-3xl flex items-center gap-1">4.6 <Star size={20} className="text-amber-400" fill="currentColor" /></div>
               <div className="text-xs text-bone/60 mt-1">Avg. rating</div>
             </div>
           </div>
         </div>
 
         <p className="text-xs text-bone/50 relative z-10">
-          © 2026 EduMentor — UiTM, FCMS
+          © 2026 EduMentor | UiTM, FCMS
         </p>
 
         <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
@@ -101,7 +102,7 @@ export default function LoginPage() {
               </div>
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 defaultValue="passpassword"
                 className="input"
                 autoComplete="current-password"
@@ -136,7 +137,7 @@ export default function LoginPage() {
             </label>
 
             <Link href="/dashboard" className="btn btn-primary btn-lg w-full">
-              Sign in →
+              Sign in
             </Link>
 
             <div className="relative my-6">

@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { Star } from "lucide-react";
 
 export function StarRating({
   value,
@@ -14,18 +15,27 @@ export function StarRating({
   const full = Math.floor(value);
   const half = value - full >= 0.5;
   const sizeClass = size === "xs" ? "text-xs" : size === "md" ? "text-base" : "text-sm";
+  const iconSize = size === "xs" ? 12 : size === "md" ? 18 : 14;
 
   return (
     <span className={clsx("inline-flex items-center gap-1.5", sizeClass, className)}>
       <span className="font-semibold tabular text-ink">{value.toFixed(1)}</span>
-      <span className="inline-flex text-amber-500 leading-none" aria-hidden>
+      <span className="inline-flex gap-px" aria-hidden>
         {Array.from({ length: 5 }).map((_, i) => {
-          if (i < full) return <span key={i}>★</span>;
-          if (i === full && half) return <span key={i} className="relative">
-            <span className="text-rule">★</span>
-            <span className="absolute left-0 top-0 overflow-hidden w-1/2 text-amber-500">★</span>
-          </span>;
-          return <span key={i} className="text-rule">★</span>;
+          if (i < full) {
+            return <Star key={i} size={iconSize} className="text-amber-500" fill="currentColor" />;
+          }
+          if (i === full && half) {
+            return (
+              <span key={i} className="relative inline-flex">
+                <Star size={iconSize} className="text-rule" fill="currentColor" />
+                <span className="absolute left-0 top-0 overflow-hidden" style={{ width: "50%" }}>
+                  <Star size={iconSize} className="text-amber-500" fill="currentColor" />
+                </span>
+              </span>
+            );
+          }
+          return <Star key={i} size={iconSize} className="text-rule" fill="currentColor" />;
         })}
       </span>
       {typeof count === "number" ? (
