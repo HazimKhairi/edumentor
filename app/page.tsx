@@ -159,7 +159,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <p className="text-base text-ink-soft mb-4">{role.oneLiner}</p>
-                <ul className="space-y-2 mb-6 text-sm">
+                <ul className="space-y-2 mb-4 text-sm">
                   {role.duties.map((d) => (
                     <li key={d} className="flex items-start gap-2">
                       <Check size={16} className="text-oxblood mt-1 shrink-0" aria-hidden />
@@ -167,7 +167,15 @@ export default function HomePage() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/login" className="btn btn-secondary btn-sm mt-auto self-start">
+                {role.key === "Mentor" ? (
+                  <p className="text-xs text-ink-muted mb-4 p-2 rounded-sm bg-paper-dark/50">
+                    <span className="font-semibold text-ink">Eligibility:</span> CGPA 3.20 or above, or faculty staff.
+                  </p>
+                ) : null}
+                <Link
+                  href={role.key === "Admin" ? "/login" : "/register"}
+                  className="btn btn-secondary btn-sm mt-auto self-start"
+                >
                   Continue as {role.key.toLowerCase()}
                 </Link>
               </article>

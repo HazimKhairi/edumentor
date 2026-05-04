@@ -15,9 +15,9 @@ const COLS = [
   {
     title: "Teach",
     links: [
-      { label: "Become a mentor", href: "/login" },
+      { label: "Become a mentor (CGPA 3.20+)", href: "/register" },
       { label: "Mentor handbook", href: "#" },
-      { label: "Create a course", href: "#" },
+      { label: "Create a course", href: "/admin/courses/new" },
       { label: "Community guidelines", href: "#" },
     ],
   },

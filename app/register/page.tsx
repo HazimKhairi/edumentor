@@ -29,6 +29,7 @@ export default function RegisterPage() {
           <ul className="mt-8 space-y-3 text-sm">
             {[
               "Free for UiTM staff and students",
+              "Mentor applicants need CGPA 3.20 or above",
               "Approval typically within one academic day",
               "Email confirmation sent on submission",
             ].map((b) => (
@@ -136,6 +137,60 @@ export default function RegisterPage() {
               </div>
               <p className="text-xs text-ink-muted mt-2">
                 Mentor and Admin accounts require approval before activation.
+              </p>
+            </div>
+
+            {/* Mentor eligibility */}
+            <div className="rounded-md border border-rule bg-paper-dark/40 p-4 space-y-4">
+              <div>
+                <p className="text-sm font-semibold text-ink mb-1">
+                  Applying as a Mentor?
+                </p>
+                <p className="text-xs text-ink-muted leading-relaxed">
+                  Mentor applicants must have a current CGPA of <span className="font-semibold text-ink">3.20 or higher</span>.
+                  Faculty staff are exempt. Fields below are reviewed by the registrar.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-12 gap-3">
+                <div className="col-span-12 sm:col-span-5">
+                  <label className="block text-sm font-medium text-ink mb-1.5">Current CGPA</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="4"
+                    placeholder="3.74"
+                    className="input"
+                  />
+                  <p className="text-xs text-ink-muted mt-1.5">Out of 4.00.</p>
+                </div>
+                <div className="col-span-12 sm:col-span-7">
+                  <label className="block text-sm font-medium text-ink mb-1.5">Latest semester</label>
+                  <select className="input">
+                    <option>Semester 02 / 2026</option>
+                    <option>Semester 01 / 2026</option>
+                    <option>Semester 02 / 2025</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-ink mb-1.5">Transcript or staff letter</label>
+                <div className="border-2 border-dashed border-rule rounded-md p-4 text-center bg-bone">
+                  <p className="text-sm text-ink-muted mb-2">
+                    Upload your latest transcript (PDF) or faculty staff letter.
+                  </p>
+                  <button type="button" className="btn btn-ghost btn-sm">
+                    Browse files
+                  </button>
+                  <p className="text-xs text-ink-muted mt-2">PDF only, up to 5 MB</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-ink-muted">
+                Applications below 3.20 will be declined automatically.
+                Decisions are emailed within one academic day.
               </p>
             </div>
 
