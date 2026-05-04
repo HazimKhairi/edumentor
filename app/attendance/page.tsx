@@ -44,35 +44,70 @@ export default function AttendancePage() {
                 <h2 className="font-semibold text-lg">{live.course} — {live.room}</h2>
               </div>
 
-              <div className="card p-3 overflow-hidden">
-                <div className="relative aspect-[5/4] rounded-md overflow-hidden bg-gradient-to-br from-ink to-ink-soft">
-                  <div className="absolute inset-6 border border-bone/20 rounded-sm">
-                    {[
-                      { x: 6, y: 12, w: 22, h: 28, name: "Aiman Hakimi", id: "2023607832", ok: true },
-                      { x: 36, y: 10, w: 22, h: 30, name: "Nur Sofea", id: "2023608112", ok: true },
-                      { x: 68, y: 16, w: 20, h: 26, name: "Faris Adlan", id: "2023611901", ok: true },
-                      { x: 10, y: 56, w: 22, h: 28, name: "Liyana Aziz", id: "2023612200", ok: false },
-                      { x: 42, y: 60, w: 22, h: 28, name: "Hafiz Ridzwan", id: "2023612555", ok: true },
-                      { x: 70, y: 58, w: 20, h: 26, name: "Iman Yusoff", id: "2023612823", ok: false },
-                    ].map((b) => (
-                      <div
-                        key={b.id}
-                        className={`absolute border-2 rounded-sm ${b.ok ? "border-saffron" : "border-bone/40 border-dashed"}`}
-                        style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%` }}
-                      >
-                        <div className={`absolute -top-5 left-0 right-0 flex items-center justify-between text-[10px] font-semibold ${b.ok ? "text-saffron" : "text-bone/60"}`}>
-                          <span>{b.name}</span>
-                          <span>{b.ok ? "✓" : "?"}</span>
-                        </div>
-                      </div>
-                    ))}
+              {/* Info notice */}
+              <div className="card p-4 mb-4 bg-oxblood/[0.04] border-oxblood/20 flex items-start gap-3">
+                <span className="size-8 rounded-full bg-oxblood/15 text-oxblood flex items-center justify-center shrink-0 text-base">
+                  ℹ
+                </span>
+                <div className="text-sm">
+                  <p className="font-semibold text-ink mb-1">How face recognition works</p>
+                  <p className="text-ink-muted leading-relaxed">
+                    Point the classroom camera at the cohort. The system
+                    matches each face against the roster on the right and
+                    marks them <span className="font-semibold text-fern">Present</span>{" "}
+                    automatically. Unmatched students stay <span className="font-semibold">Awaiting</span>{" "}
+                    until the mentor confirms manually.
+                  </p>
+                </div>
+              </div>
+
+              <div className="card p-0 overflow-hidden">
+                {/* Camera header */}
+                <div className="flex items-center justify-between px-4 py-3 border-b border-rule bg-paper-dark/40">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-oxblood">
+                      <span aria-hidden>📷</span>
+                      Camera 01 · {live.room}
+                    </span>
                   </div>
-                  <div className="absolute top-3 left-4 text-xs font-medium text-bone/80 flex items-center gap-2">
+                  <span className="inline-flex items-center gap-2 text-xs text-ink-muted">
                     <span className="size-1.5 rounded-full bg-oxblood blink" />
-                    Recognising · {checkedCount}/{ROSTER.length} matched
+                    Recording
+                  </span>
+                </div>
+
+                {/* Video preview area */}
+                <div className="relative aspect-[16/9] bg-gradient-to-br from-slate-900 to-slate-700 flex items-center justify-center">
+                  {/* center camera icon — placeholder for real video */}
+                  <div className="text-center text-bone/70">
+                    <div className="text-5xl mb-2">📹</div>
+                    <p className="text-sm">Live camera feed placeholder</p>
+                    <p className="text-xs text-bone/50 mt-1">In production this shows the classroom camera</p>
                   </div>
-                  <div className="absolute bottom-3 right-4 text-xs text-bone/60">
-                    {live.room} · {live.time}
+
+                  {/* match indicator overlays */}
+                  <div className="absolute top-3 left-3 inline-flex items-center gap-2 bg-bone/95 px-2.5 py-1 rounded-sm text-xs font-semibold">
+                    <span className="size-1.5 rounded-full bg-oxblood blink" />
+                    {checkedCount}/{ROSTER.length} matched · {Math.round((checkedCount / ROSTER.length) * 100)}% accuracy
+                  </div>
+                  <div className="absolute bottom-3 right-3 text-xs text-bone/70 font-mono tabular">
+                    {live.time} · {live.date}
+                  </div>
+                </div>
+
+                {/* Match progress strip */}
+                <div className="px-4 py-3 border-t border-rule">
+                  <div className="flex items-center justify-between text-sm mb-1.5">
+                    <span className="text-ink-muted">Recognition progress</span>
+                    <span className="font-semibold tabular">
+                      {checkedCount} of {ROSTER.length} matched
+                    </span>
+                  </div>
+                  <div className="h-2 rounded-full bg-paper-dark overflow-hidden">
+                    <div
+                      className="h-full bg-oxblood rounded-full transition-all"
+                      style={{ width: `${(checkedCount / ROSTER.length) * 100}%` }}
+                    />
                   </div>
                 </div>
               </div>
@@ -82,6 +117,9 @@ export default function AttendancePage() {
                 <button className="btn btn-ghost">Re-scan</button>
                 <button className="btn btn-ghost">Manual override</button>
               </div>
+              <p className="text-xs text-ink-muted mt-3">
+                Filing the roll saves today&apos;s attendance to the registrar audit log. Re-scan retries face matching for awaiting students.
+              </p>
             </div>
 
             <aside className="col-span-12 lg:col-span-5">
