@@ -1,27 +1,26 @@
-import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { RuleLabel } from "@/components/rule-label";
+import { StarRating } from "@/components/star-rating";
 import { COURSES, FEEDBACK_ENTRIES, STATS } from "@/lib/data";
 
 export const metadata = {
   title: "Reports — EduMentor",
-  description: "The administrator's broadsheet: term metrics and audits.",
+  description: "Term metrics and audits for the registrar.",
 };
 
 const SPARK = [42, 48, 51, 56, 49, 58, 63, 60, 67, 71, 68, 74];
 
 const ISSUES = [
-  { code: "OP-014", t: "Mentor unread queue > 48h", c: "Encik Faiz Rashid", sev: "Med" },
+  { code: "OP-014", t: "Mentor unread queue > 48h", c: "Encik Faiz Rashid", sev: "Medium" },
   { code: "OP-015", t: "Cohort capacity at 90%", c: "MAT CS110", sev: "Low" },
   { code: "OP-016", t: "Two mentees on probation", c: "STA 116", sev: "High" },
-  { code: "OP-017", t: "Camera offline last Mon", c: "Lab 2", sev: "Med" },
+  { code: "OP-017", t: "Camera offline last Mon", c: "Lab 2", sev: "Medium" },
 ];
 
-const sevTone: Record<string, string> = {
-  Low: "bg-bone border border-rule",
-  Med: "bg-saffron text-ink",
-  High: "bg-oxblood text-bone",
+const sevBadge: Record<string, string> = {
+  Low: "badge badge-muted",
+  Medium: "badge badge-saffron",
+  High: "badge badge-oxblood",
 };
 
 export default function ReportsPage() {
@@ -33,212 +32,161 @@ export default function ReportsPage() {
     <>
       <SiteNav />
 
-      <section className="border-b-2 border-ink">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-x-6 px-6 pt-12 pb-12">
-          <aside className="col-span-12 md:col-span-3 md:border-r md:border-rule md:pr-6">
-            <div className="numeral mb-3">№ 04 / Section 07</div>
-            <p className="eyebrow-italic text-[18px] leading-snug text-ink">
-              The administrator&apos;s
-              <br /> broadsheet.
-            </p>
-            <div className="rule mt-6" />
-            <dl className="mt-6 space-y-4 text-xs font-medium uppercase tracking-wide">
-              <div className="flex justify-between"><dt className="text-ink-muted">Period</dt><dd>Sem 02 / 26</dd></div>
-              <div className="flex justify-between"><dt className="text-ink-muted">Issued</dt><dd>04 May 26</dd></div>
-              <div className="flex justify-between"><dt className="text-ink-muted">Author</dt><dd className="text-right">Registrar</dd></div>
-              <div className="flex justify-between"><dt className="text-ink-muted">Confidential</dt><dd>No</dd></div>
-            </dl>
-          </aside>
-
-          <div className="col-span-12 md:col-span-9 md:pl-6">
-            <h1 className="display text-[clamp(56px,10vw,160px)] leading-[0.86] tracking-[-0.045em]">
-              The{" "}
-              <span className="display-italic text-oxblood">report.</span>
-            </h1>
-            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
-              A weekly broadsheet for the registrar. Cohort health, mentor
-              workloads, attendance accuracy, and the open issues that
-              need a quiet word before next session.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-2">
-              <button className="px-3 py-1.5 text-xs font-medium uppercase tracking-wide border border-ink bg-ink text-bone">
-                This week
-              </button>
-              <button className="px-3 py-1.5 text-xs font-medium uppercase tracking-wide border border-rule hover:border-ink transition-colors">
-                Last 4 weeks
-              </button>
-              <button className="px-3 py-1.5 text-xs font-medium uppercase tracking-wide border border-rule hover:border-ink transition-colors">
-                Term
-              </button>
-              <button className="ml-auto px-3 py-1.5 text-xs font-medium uppercase tracking-wide border border-rule hover:border-ink transition-colors">
-                Export PDF →
-              </button>
-            </div>
+      <section className="bg-bone border-b border-rule">
+        <div className="mx-auto max-w-[1400px] px-6 py-10">
+          <div className="text-sm text-ink-muted mb-2">
+            <span>Home</span> / <span className="text-ink">Reports</span>
           </div>
-        </div>
-      </section>
+          <h1 className="display text-4xl md:text-5xl">Term reports</h1>
+          <p className="mt-3 text-ink-soft">
+            For Semester 02 / 2026 · Filed by Registrar · 04 May 2026
+          </p>
 
-      {/* Metric grid */}
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-12">
-          <RuleLabel numeral="Section A" label="Term metrics" caption="four numbers, briefly" />
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-0 border-y border-ink">
-            {STATS.map((s, i) => (
-              <div key={s.label} className={`p-6 ${i !== 0 ? "border-l border-rule" : ""} ${i >= 2 ? "border-t md:border-t-0" : ""}`}>
-                <div className="label">{s.label}</div>
-                <div className="display text-[56px] leading-none mt-3 tracking-[-0.04em]">{s.value}</div>
-                <div className="text-sm text-ink-muted mt-2">{s.caption}</div>
-              </div>
+          <div className="mt-6 flex items-center gap-2 flex-wrap">
+            {["This week", "Last 4 weeks", "Term"].map((p, i) => (
+              <button
+                key={p}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  i === 0 ? "bg-ink text-bone" : "bg-bone text-ink-soft border border-rule hover:border-ink"
+                }`}
+              >
+                {p}
+              </button>
             ))}
+            <button className="btn btn-ghost btn-sm ml-auto">Export PDF →</button>
           </div>
         </div>
       </section>
 
-      {/* Charts */}
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-12 grid grid-cols-12 gap-6">
-          <div className="col-span-12 md:col-span-7">
-            <RuleLabel numeral="Section B" label="Attendance, by week" caption="last 12 weeks" />
-            <div className="mt-8 border border-ink p-6 bg-bone">
-              <div className="flex items-end justify-between gap-2 h-56">
+      <section>
+        <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {STATS.map((s) => (
+            <div key={s.label} className="card p-5">
+              <div className="text-sm text-ink-muted">{s.label}</div>
+              <div className="display text-4xl mt-2">{s.value}</div>
+              <div className="text-xs text-ink-muted mt-1">{s.caption}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-7">
+            <div className="card p-6">
+              <div className="flex items-baseline justify-between mb-1">
+                <h3 className="font-semibold text-lg">Attendance, by week</h3>
+                <span className="text-xs text-ink-muted">Last 12 weeks</span>
+              </div>
+              <p className="text-sm text-ink-muted mb-6">
+                Average <span className="font-semibold text-ink tabular">59%</span> · Trend{" "}
+                <span className="font-semibold text-fern">↗ +18 pp</span>
+              </p>
+              <div className="flex items-end justify-between gap-2 h-48">
                 {SPARK.map((v, i) => (
                   <div key={i} className="flex-1 flex flex-col items-center gap-2">
                     <div
-                      className={`w-full ${i === SPARK.length - 1 ? "bg-oxblood" : "bg-ink"}`}
+                      className={`w-full rounded-sm ${
+                        i === SPARK.length - 1 ? "bg-oxblood" : "bg-paper-dark"
+                      }`}
                       style={{ height: `${v}%` }}
                     />
-                    <span className="text-xs font-mono text-ink-muted">W{i + 1}</span>
+                    <span className="text-xs text-ink-muted tabular">W{i + 1}</span>
                   </div>
                 ))}
-              </div>
-              <div className="rule-thick mt-6" />
-              <div className="grid grid-cols-3 mt-4 text-xs font-medium uppercase tracking-wider">
-                <div>
-                  <div className="text-ink-muted">Avg</div>
-                  <div className="text-ink mt-1 text-[14px] tracking-normal">59%</div>
-                </div>
-                <div>
-                  <div className="text-ink-muted">Peak</div>
-                  <div className="text-ink mt-1 text-[14px] tracking-normal">74% · W12</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-ink-muted">Trend</div>
-                  <div className="text-oxblood mt-1 text-[14px] tracking-normal">↗ +18 pp</div>
-                </div>
               </div>
             </div>
           </div>
 
-          <aside className="col-span-12 md:col-span-5">
-            <RuleLabel numeral="Section C" label="Cohort fill" caption={`${fillPct}%`} />
-            <div className="mt-8 border border-ink p-6 bg-bone">
-              <div className="display text-[88px] leading-none tracking-[-0.04em]">
-                {fillPct}<span className="display-italic text-oxblood text-[40px]">%</span>
-              </div>
-              <div className="numeral mt-2">
-                {totalEnrolled} of {totalCapacity} seats taken
-              </div>
-              <div className="rule mt-6" />
+          <div className="col-span-12 lg:col-span-5">
+            <div className="card p-6">
+              <h3 className="font-semibold text-lg">Cohort fill</h3>
+              <p className="text-sm text-ink-muted mb-4">
+                {totalEnrolled} of {totalCapacity} seats · {fillPct}%
+              </p>
+              <div className="display text-5xl text-oxblood">{fillPct}%</div>
               <ul className="mt-6 space-y-3">
                 {COURSES.map((c) => {
                   const pct = Math.round((c.enrolled / c.capacity) * 100);
                   return (
                     <li key={c.id}>
-                      <div className="flex items-baseline justify-between text-xs font-medium uppercase tracking-wide">
-                        <span>{c.code}</span>
-                        <span>{pct}%</span>
+                      <div className="flex items-baseline justify-between text-sm mb-1">
+                        <span className="font-medium">{c.code}</span>
+                        <span className="text-ink-muted tabular">{pct}% · {c.enrolled}/{c.capacity}</span>
                       </div>
-                      <div className="h-[2px] bg-rule mt-1.5">
-                        <div className="h-full bg-ink" style={{ width: `${pct}%` }} />
+                      <div className="h-1.5 rounded-full bg-paper-dark overflow-hidden">
+                        <div className="h-full bg-oxblood rounded-full" style={{ width: `${pct}%` }} />
                       </div>
                     </li>
                   );
                 })}
               </ul>
             </div>
-          </aside>
+          </div>
         </div>
       </section>
 
-      {/* Mentor scores + Issues */}
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-12 grid grid-cols-12 gap-6">
-          <div className="col-span-12 md:col-span-7">
-            <RuleLabel numeral="Section D" label="Mentor evaluations" caption={`${FEEDBACK_ENTRIES.length} on file`} />
-            <ul className="mt-8 border-t border-ink">
-              {FEEDBACK_ENTRIES.map((f) => (
-                <li key={f.id} className="grid grid-cols-12 gap-4 items-baseline border-b border-rule py-5">
-                  <div className="col-span-2 numeral">{f.course}</div>
-                  <div className="col-span-5">
-                    <div className="display text-[22px] leading-tight tracking-[-0.02em]">
-                      {f.mentor}
-                    </div>
-                    <p className="text-sm leading-snug text-ink-soft mt-1 italic">
-                      &ldquo;{f.comment}&rdquo;
-                    </p>
+      <section className="bg-paper-dark/30 border-t border-rule">
+        <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-7">
+            <h2 className="font-semibold text-lg mb-4">Mentor evaluations</h2>
+            <div className="card p-0 overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-paper-dark/50 text-xs text-ink-muted">
+                  <tr className="text-left">
+                    <th className="px-4 py-3 font-semibold">Course</th>
+                    <th className="px-4 py-3 font-semibold">Mentor</th>
+                    <th className="px-4 py-3 font-semibold">Rating</th>
+                    <th className="px-4 py-3 font-semibold text-right">Responses</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-rule">
+                  {FEEDBACK_ENTRIES.map((f) => (
+                    <tr key={f.id} className="hover:bg-paper-dark/30">
+                      <td className="px-4 py-3 font-medium">{f.course}</td>
+                      <td className="px-4 py-3">{f.mentor}</td>
+                      <td className="px-4 py-3"><StarRating value={f.score} size="xs" /></td>
+                      <td className="px-4 py-3 text-right tabular text-ink-muted">{f.n}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="col-span-12 lg:col-span-5">
+            <h2 className="font-semibold text-lg mb-4">Open issues</h2>
+            <ul className="space-y-3">
+              {ISSUES.map((i) => (
+                <li key={i.code} className="card p-4 flex items-start gap-3">
+                  <span className="badge badge-muted text-[11px]">{i.code}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm">{i.t}</div>
+                    <div className="text-xs text-ink-muted mt-0.5">{i.c}</div>
                   </div>
-                  <div className="col-span-3">
-                    <div className="numeral">Score</div>
-                    <div className="display text-[28px] leading-none tracking-[-0.02em] mt-1">
-                      {f.score.toFixed(1)}
-                      <span className="display-italic text-[16px] text-oxblood ml-1">/5</span>
-                    </div>
-                  </div>
-                  <div className="col-span-2 text-right">
-                    <div className="numeral">n = {f.n}</div>
-                    <Link href="#" className="block mt-2 link-reveal text-xs font-medium uppercase tracking-wider">
-                      Open →
-                    </Link>
-                  </div>
+                  <span className={sevBadge[i.sev]}>{i.sev}</span>
                 </li>
               ))}
             </ul>
           </div>
-
-          <aside className="col-span-12 md:col-span-5">
-            <RuleLabel numeral="Section E" label="Open issues" caption={`${ISSUES.length} on the desk`} />
-            <ul className="mt-8 border-t border-ink">
-              {ISSUES.map((i) => (
-                <li key={i.code} className="border-b border-rule py-4 grid grid-cols-12 gap-3 items-baseline">
-                  <div className="col-span-2 numeral">{i.code}</div>
-                  <div className="col-span-7">
-                    <div className="text-[14px]">{i.t}</div>
-                    <div className="numeral mt-1">{i.c}</div>
-                  </div>
-                  <div className="col-span-3 text-right">
-                    <span className={`inline-block px-2 py-1 text-xs font-medium uppercase tracking-wider ${sevTone[i.sev]}`}>
-                      {i.sev}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <Link href="#" className="mt-6 inline-flex items-center gap-2 link-reveal text-xs font-medium uppercase tracking-wider">
-              Read the full audit log →
-            </Link>
-          </aside>
         </div>
       </section>
 
-      {/* Sign-off */}
       <section>
-        <div className="mx-auto max-w-[1400px] px-6 py-16">
-          <div className="grid grid-cols-12 gap-6">
+        <div className="mx-auto max-w-[1400px] px-6 py-12">
+          <div className="card p-6 md:p-8 grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-9">
-              <div className="label">Editor&apos;s note</div>
-              <p className="display text-[clamp(36px,5vw,72px)] leading-[0.95] tracking-[-0.03em] mt-6">
-                The term is{" "}
-                <span className="display-italic text-oxblood">on schedule.</span>{" "}
-                Two cohorts will need additional office-hour slots before the midterm.
-                One camera fault is scheduled for replacement on Friday.
-              </p>
+              <p className="text-sm font-semibold text-oxblood mb-2">Editor&apos;s note</p>
+              <h3 className="display text-2xl md:text-3xl leading-snug">
+                The term is on schedule. Two cohorts will need additional
+                office-hour slots before the midterm. One camera fault is
+                scheduled for replacement on Friday.
+              </h3>
             </div>
-            <div className="col-span-12 md:col-span-3 md:border-l md:border-rule md:pl-6 numeral">
-              Filed by Registrar
-              <br />
-              04 May 2026, 14:42
-              <div className="rule mt-4" />
-              <div className="mt-4 text-ink">— EduMentor</div>
+            <div className="col-span-12 md:col-span-3 md:border-l md:border-rule md:pl-6 text-sm text-ink-muted">
+              <div>Filed by Registrar</div>
+              <div>04 May 2026, 14:42</div>
+              <div className="mt-3 font-semibold text-ink">— EduMentor</div>
             </div>
           </div>
         </div>

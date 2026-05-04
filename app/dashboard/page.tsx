@@ -1,391 +1,334 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { RuleLabel } from "@/components/rule-label";
+import { CourseCard } from "@/components/course-card";
+import { SectionHeading } from "@/components/section-heading";
+import { StarRating } from "@/components/star-rating";
 import {
   ASSIGNMENTS,
   ATTENDANCE_SESSIONS,
   COURSES,
   EVENTS,
+  FEEDBACK_ENTRIES,
   MESSAGES,
   ROOMS,
-  STATS,
-  SUBJECT,
 } from "@/lib/data";
 
 export const metadata = {
-  title: "The Desk — EduMentor",
-  description: "Today on the editor's desk: events, assignments, attendance.",
+  title: "My learning — EduMentor",
+  description: "Continue learning, today's events, assignments due.",
 };
 
-const eventState: Record<string, { tone: string; label: string }> = {
-  now: { tone: "bg-oxblood text-bone", label: "Live" },
-  soon: { tone: "bg-saffron text-ink", label: "Soon" },
-  later: { tone: "bg-bone text-ink border border-rule", label: "Later" },
+const stateBadge: Record<string, string> = {
+  now: "badge badge-oxblood",
+  soon: "badge badge-saffron",
+  later: "badge badge-muted",
 };
+
+function ratingFor(courseCode: string) {
+  const fb = FEEDBACK_ENTRIES.find((f) => f.course === courseCode);
+  if (fb) return { rating: fb.score, reviews: fb.n * 11 };
+  return { rating: 4.5, reviews: 84 };
+}
 
 export default function DashboardPage() {
-  const liveSession = ATTENDANCE_SESSIONS.find((s) => s.state === "Live");
+  const live = ATTENDANCE_SESSIONS.find((s) => s.state === "Live");
   const openAssignments = ASSIGNMENTS.filter((a) => a.status !== "Closed");
-  const pinnedRooms = ROOMS.filter((r) => r.pinned);
+  const pinned = ROOMS.filter((r) => r.pinned);
+  const continueCourse = COURSES[0];
 
   return (
     <>
       <SiteNav />
 
-      {/* Desk masthead */}
-      <section className="border-b-2 border-ink">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-x-6 px-6 pt-10 pb-8">
+      <section className="bg-bone border-b border-rule">
+        <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-12 gap-6 items-center">
           <div className="col-span-12 md:col-span-8">
-            <div className="numeral mb-4">
-              The desk · Edition 04 May 2026 · Folio 01
-            </div>
-            <h1 className="display text-[clamp(56px,9vw,140px)] leading-[0.86] tracking-[-0.045em]">
-              Good afternoon,
-              <br />
-              <span className="display-italic text-oxblood">Aiman.</span>
+            <p className="text-sm font-medium text-oxblood mb-1">Sunday, 04 May 2026</p>
+            <h1 className="display text-4xl md:text-5xl">
+              Welcome back, <span className="display-italic text-oxblood">Aiman</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft">
-              You are signed in as a mentee on{" "}
-              <span className="eyebrow-italic text-ink">{SUBJECT.code}</span>.
-              The class is in session, with strong induction on the
-              board. Your <span className="eyebrow-italic">PS-04</span>{" "}
-              is due in two days.
+            <p className="text-ink-soft mt-2">
+              You&apos;re 64% through MAT CS110. PS-04 is due in 2 days.
             </p>
           </div>
-          <aside className="col-span-12 md:col-span-4 md:border-l md:border-rule md:pl-6 mt-10 md:mt-0">
-            <div className="label mb-3">Your card</div>
-            <div className="border border-ink bg-bone p-5">
-              <div className="flex items-baseline justify-between">
-                <span className="numeral">Mentee · MNE</span>
-                <span className="numeral text-oxblood">Active</span>
+          <aside className="col-span-12 md:col-span-4 md:justify-self-end">
+            <div className="card p-4 flex items-center gap-4">
+              <div className="size-14 rounded-full bg-oxblood text-bone flex items-center justify-center font-display italic text-2xl">
+                A
               </div>
-              <div className="display text-[34px] leading-tight tracking-[-0.025em] mt-3">
-                Aiman Hakimi
+              <div className="flex-1">
+                <div className="font-semibold">Aiman Hakimi</div>
+                <div className="text-xs text-ink-muted">2023607832 · Mentee</div>
               </div>
-              <div className="mt-1 text-[12px] font-mono text-ink-muted">
-                2023607832 · B.Sc. CS, Y1
-              </div>
-              <div className="rule mt-4" />
-              <div className="grid grid-cols-3 mt-4 text-xs font-medium uppercase tracking-wider">
-                <div>
-                  <div className="text-ink-muted">Term GPA</div>
-                  <div className="text-ink mt-1 text-[14px] tracking-normal">3.74</div>
-                </div>
-                <div>
-                  <div className="text-ink-muted">Attended</div>
-                  <div className="text-ink mt-1 text-[14px] tracking-normal">96%</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-ink-muted">Streak</div>
-                  <div className="text-ink mt-1 text-[14px] tracking-normal">14d</div>
-                </div>
+              <div className="text-right">
+                <div className="text-xs text-ink-muted">GPA</div>
+                <div className="font-display text-xl tabular">3.74</div>
               </div>
             </div>
           </aside>
         </div>
       </section>
 
-      {/* Today panel */}
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-12">
-          <RuleLabel
-            numeral="Section A"
-            label="Today on the desk"
-            caption={`${EVENTS.length} entries`}
+      <section>
+        <div className="mx-auto max-w-[1400px] px-6 py-10">
+          <SectionHeading
+            eyebrow="Pick up where you left off"
+            title="Continue learning"
+            link={{ href: "/courses", label: "View all" }}
           />
-          <div className="mt-10 grid grid-cols-12 gap-6">
-            {/* Events column */}
-            <div className="col-span-12 md:col-span-7">
-              <ul className="border-t border-ink">
-                {EVENTS.map((e, i) => {
-                  const s = eventState[e.state];
-                  return (
-                    <li
-                      key={i}
-                      className="grid grid-cols-12 gap-3 items-baseline border-b border-rule py-5"
-                    >
-                      <div className="col-span-3 md:col-span-2">
-                        <span className="numeral">{e.when}</span>
-                      </div>
-                      <div className="col-span-9 md:col-span-7">
-                        <div className="numeral">{e.course}</div>
-                        <div className="display text-[24px] leading-[1.05] tracking-[-0.02em] mt-1">
-                          {e.title}
-                        </div>
-                        <div className="numeral mt-1">{e.place}</div>
-                      </div>
-                      <div className="col-span-12 md:col-span-3 md:text-right">
-                        <span
-                          className={`inline-flex items-center gap-2 px-3 py-1 text-xs font-medium uppercase tracking-wider ${s.tone}`}
-                        >
-                          {e.state === "now" ? (
-                            <span className="size-1.5 rounded-full bg-bone blink" />
-                          ) : null}
-                          {s.label}
-                        </span>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+
+          <div className="grid grid-cols-12 gap-6">
+            <div className="col-span-12 lg:col-span-8 card overflow-hidden p-0">
+              <div className="grid grid-cols-12">
+                <div className="col-span-12 md:col-span-5">
+                  <div className="aspect-video md:aspect-square bg-gradient-to-br from-oxblood to-oxblood-deep" />
+                </div>
+                <div className="col-span-12 md:col-span-7 p-6 md:p-8 flex flex-col">
+                  <span className="badge badge-oxblood w-fit mb-3">In progress</span>
+                  <h3 className="display text-2xl md:text-3xl mb-2">{continueCourse.title}</h3>
+                  <p className="text-sm text-ink-muted">
+                    {continueCourse.mentor} · {continueCourse.code}
+                  </p>
+                  <p className="text-base text-ink-soft mt-4 leading-relaxed flex-1">
+                    {continueCourse.abstract}
+                  </p>
+
+                  <div className="mt-5">
+                    <div className="flex items-center justify-between text-sm mb-1.5">
+                      <span className="text-ink-muted">Course progress</span>
+                      <span className="font-semibold tabular">{continueCourse.progress}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-paper-dark overflow-hidden">
+                      <div
+                        className="h-full bg-oxblood rounded-full"
+                        style={{ width: `${continueCourse.progress}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-3">
+                    <Link href="/discussion" className="btn btn-primary">
+                      Continue lesson →
+                    </Link>
+                    <Link href="/assignments" className="btn btn-ghost">
+                      View assignments
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Live class watch */}
-            <aside className="col-span-12 md:col-span-5 md:border-l md:border-rule md:pl-6">
-              <div className="label mb-4">Live class watch</div>
-              {liveSession ? (
-                <div className="border border-ink bg-ink text-bone p-6">
-                  <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wider text-bone/60">
-                    <span className="inline-flex items-center gap-2">
+            {live ? (
+              <aside className="col-span-12 lg:col-span-4">
+                <div className="card p-6 bg-ink text-bone border-ink h-full flex flex-col">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-saffron">
                       <span className="size-1.5 rounded-full bg-saffron blink" />
-                      Now
+                      Live now
                     </span>
-                    <span>{liveSession.room}</span>
+                    <span className="text-xs text-bone/60">{live.time}</span>
                   </div>
-                  <div className="display mt-4 text-[40px] leading-[0.95] tracking-[-0.03em]">
-                    {liveSession.course}
-                    <span className="block display-italic text-saffron text-[28px] mt-1">
-                      strong induction, trees
-                    </span>
-                  </div>
-                  <div className="mt-6 grid grid-cols-3 gap-2 text-xs font-medium uppercase tracking-wider text-bone/60">
+                  <h3 className="display text-2xl mb-1">{live.course}</h3>
+                  <p className="text-sm text-bone/70 mb-5">Strong induction, trees</p>
+
+                  <div className="grid grid-cols-3 gap-2 my-4 pb-4 border-b border-bone/15">
                     <div>
-                      <div>Expected</div>
-                      <div className="text-bone text-[20px] mt-1 tracking-normal">{liveSession.expected}</div>
+                      <div className="text-xs text-bone/60">Expected</div>
+                      <div className="font-display text-xl tabular">{live.expected}</div>
                     </div>
                     <div>
-                      <div>Present</div>
-                      <div className="text-bone text-[20px] mt-1 tracking-normal">42</div>
+                      <div className="text-xs text-bone/60">Present</div>
+                      <div className="font-display text-xl tabular">42</div>
                     </div>
-                    <div className="text-right">
-                      <div>Late</div>
-                      <div className="text-bone text-[20px] mt-1 tracking-normal">3</div>
+                    <div>
+                      <div className="text-xs text-bone/60">Late</div>
+                      <div className="font-display text-xl tabular">3</div>
                     </div>
                   </div>
-                  <div className="rule mt-6 bg-bone/20" />
-                  <div className="mt-6 flex items-center gap-3">
-                    <Link
-                      href="/attendance"
-                      className="inline-flex items-center gap-2 border border-bone bg-bone px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-ink hover:bg-saffron hover:border-saffron transition-colors"
-                    >
-                      Join the room →
-                    </Link>
-                    <Link
-                      href="/discussion"
-                      className="inline-flex items-center gap-2 border border-bone/40 px-4 py-2.5 text-xs font-medium uppercase tracking-wider hover:border-bone transition-colors"
-                    >
-                      Open chat
-                    </Link>
-                  </div>
+
+                  <p className="text-sm text-bone/70 mb-4">{live.room}</p>
+
+                  <Link
+                    href="/attendance"
+                    className="btn btn-lg mt-auto"
+                    style={{ background: "var(--color-saffron)", color: "var(--color-ink)" }}
+                  >
+                    Join the room →
+                  </Link>
                 </div>
-              ) : null}
-
-              {/* Stats strip */}
-              <div className="mt-8 grid grid-cols-2 gap-3">
-                {STATS.slice(0, 4).map((s) => (
-                  <div
-                    key={s.label}
-                    className="border border-rule bg-bone p-4"
-                  >
-                    <div className="label">{s.label}</div>
-                    <div className="display text-[36px] leading-none mt-2 tracking-[-0.03em]">
-                      {s.value}
-                    </div>
-                    <div className="text-xs text-ink-muted mt-1">{s.caption}</div>
-                  </div>
-                ))}
-              </div>
-            </aside>
+              </aside>
+            ) : null}
           </div>
         </div>
       </section>
 
-      {/* Assignments + Discussion */}
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-12 grid grid-cols-12 gap-6">
-          <div className="col-span-12 md:col-span-7">
-            <RuleLabel
-              numeral="Section B"
-              label="Assignments due"
-              caption={`${openAssignments.length} open`}
-            />
-            <ul className="mt-8 border-t border-ink">
-              {openAssignments.map((a) => {
-                const pct = Math.round((a.submissions / a.of) * 100);
-                return (
-                  <li
-                    key={a.id}
-                    className="border-b border-rule py-6 grid grid-cols-12 gap-3 items-baseline"
-                  >
-                    <div className="col-span-2">
-                      <div className="numeral">{a.code}</div>
-                      <div className="numeral mt-1">{a.weight}%</div>
-                    </div>
-                    <div className="col-span-7">
-                      <div className="numeral">{a.course} · {a.type}</div>
-                      <div className="display text-[24px] leading-[1.05] tracking-[-0.02em] mt-1">
-                        {a.title}
-                      </div>
-                      <p className="text-sm text-ink-soft mt-2 max-w-md leading-relaxed">
-                        {a.note}
-                      </p>
-                    </div>
-                    <div className="col-span-3 text-right">
-                      <div className="numeral">Due</div>
-                      <div className="display text-[28px] leading-none tracking-[-0.02em] mt-1">
-                        {a.due.split(" ")[1]}
-                        <span className="display-italic text-[18px] text-oxblood ml-1">
-                          {a.due.split(" ")[0].toLowerCase()}
-                        </span>
-                      </div>
-                      <div className="mt-3">
-                        <div className="h-[3px] bg-rule">
-                          <div
-                            className="h-full bg-ink"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <div className="numeral mt-2">
-                          {a.submissions}/{a.of} submitted
-                        </div>
-                      </div>
-                      <div className="numeral mt-2">
-                        <span className={a.status === "Closing soon" ? "text-oxblood" : ""}>
-                          {a.status}
-                        </span>
-                      </div>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-            <div className="mt-6">
-              <Link
-                href="/assignments"
-                className="link-reveal text-xs font-medium uppercase tracking-wider"
-              >
-                Open the assignments folio →
-              </Link>
-            </div>
-          </div>
-
-          <aside className="col-span-12 md:col-span-5 md:border-l md:border-rule md:pl-6">
-            <RuleLabel numeral="Section C" label="On the floor" caption="Discussion" />
-            <ul className="mt-8 space-y-1 border-t border-ink">
-              {pinnedRooms.map((r) => (
-                <li key={r.id} className="border-b border-rule py-4">
-                  <div className="flex items-baseline justify-between">
-                    <span className="numeral">{r.course} · pinned</span>
-                    <span className="numeral">{r.last}</span>
-                  </div>
-                  <div className="display text-[22px] leading-tight tracking-[-0.02em] mt-1">
-                    {r.title}
-                  </div>
-                  <p className="text-sm text-ink-soft mt-2 leading-relaxed">{r.excerpt}</p>
-                  <div className="mt-2 flex items-center justify-between text-xs font-medium uppercase tracking-wide text-ink-muted">
-                    <span>by {r.starter} · {r.role}</span>
-                    <span>{r.posts} posts · {r.members} in</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-6 border border-ink bg-bone p-5">
-              <div className="numeral">Latest from the room</div>
-              <ul className="mt-4 space-y-3">
-                {MESSAGES.slice(-3).map((m) => (
-                  <li key={m.id} className="grid grid-cols-12 gap-3 items-baseline">
-                    <span className="col-span-2 numeral">{m.time}</span>
-                    <div className="col-span-10">
-                      <div className="text-xs font-medium uppercase tracking-wide">
-                        <span className={m.role === "Mentor" ? "text-oxblood" : ""}>
-                          {m.author}
-                        </span>
-                      </div>
-                      <p className="text-base leading-snug mt-1">{m.body}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href="/discussion"
-                className="inline-flex mt-4 items-center gap-2 link-reveal text-xs font-medium uppercase tracking-wider"
-              >
-                Read the room →
-              </Link>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      {/* My courses */}
-      <section className="border-b border-rule bg-paper-dark/40">
-        <div className="mx-auto max-w-[1400px] px-6 py-16">
-          <RuleLabel
-            numeral="Section D"
-            label="Enrolled courses"
-            caption={`${COURSES.length} on the shelf`}
+      <section>
+        <div className="mx-auto max-w-[1400px] px-6 py-10">
+          <SectionHeading
+            title="My courses"
+            description={`You're enrolled in ${COURSES.length} courses this term.`}
+            link={{ href: "/courses", label: "Browse catalogue" }}
           />
-          <div className="mt-10 grid grid-cols-12 gap-6">
-            {COURSES.map((c, i) => (
-              <article key={c.id} className="col-span-12 md:col-span-6 lg:col-span-3 deck p-6 flex flex-col">
-                <div className="flex items-baseline justify-between">
-                  <span className="numeral">№ 0{i + 1}</span>
-                  <span className="numeral text-oxblood">{c.code}</span>
-                </div>
-                <h3 className="display mt-4 text-[26px] leading-[1.05] tracking-[-0.025em]">
-                  {c.title}
-                </h3>
-                <p className="text-sm text-ink-muted mt-1 eyebrow-italic">
-                  {c.mentor}
-                </p>
-                <p className="text-sm text-ink-soft mt-4 leading-relaxed flex-1">
-                  {c.abstract}
-                </p>
-                <div className="mt-6">
-                  <div className="flex items-baseline justify-between">
-                    <span className="numeral">Progress</span>
-                    <span className="numeral">{c.progress}%</span>
-                  </div>
-                  <div className="h-[2px] bg-rule mt-2">
-                    <div className="h-full bg-ink" style={{ width: `${c.progress}%` }} />
-                  </div>
-                </div>
-                <div className="mt-4 flex items-center justify-between text-xs font-medium uppercase tracking-wider text-ink-muted">
-                  <span>{c.pace}</span>
-                  <span>{c.enrolled}/{c.capacity}</span>
-                </div>
-              </article>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {COURSES.map((c) => (
+              <CourseCard
+                key={c.id}
+                id={c.id}
+                code={c.code}
+                title={c.title}
+                mentor={c.mentor}
+                color={c.color as never}
+                progress={c.progress}
+                {...ratingFor(c.code)}
+              />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Footer rail — quick actions */}
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-12 grid grid-cols-12 gap-3">
+      <section className="bg-paper-dark/30 border-y border-rule">
+        <div className="mx-auto max-w-[1400px] px-6 py-12 grid grid-cols-12 gap-6">
+          <div className="col-span-12 lg:col-span-4">
+            <h3 className="font-semibold text-lg mb-4">Today&apos;s schedule</h3>
+            <ul className="space-y-3">
+              {EVENTS.map((e, i) => (
+                <li key={i} className="card p-4 flex items-start gap-3">
+                  <div className="shrink-0 text-center min-w-[60px]">
+                    <div className="text-xs text-ink-muted">{e.when.split(",")[0]}</div>
+                    <div className="font-display text-lg tabular leading-tight">
+                      {e.when.split(",")[1]?.trim() || ""}
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-ink-muted mb-0.5">{e.course}</div>
+                    <div className="font-semibold text-sm leading-snug">{e.title}</div>
+                    <div className="text-xs text-ink-muted mt-1">{e.place}</div>
+                  </div>
+                  <span className={stateBadge[e.state]}>
+                    {e.state === "now" ? "Live" : e.state === "soon" ? "Soon" : "Later"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="col-span-12 lg:col-span-4">
+            <h3 className="font-semibold text-lg mb-4">Due this week</h3>
+            <ul className="space-y-3">
+              {openAssignments.slice(0, 3).map((a) => {
+                const pct = Math.round((a.submissions / a.of) * 100);
+                return (
+                  <li key={a.id} className="card p-4">
+                    <div className="flex items-baseline justify-between mb-1">
+                      <span className="text-xs text-ink-muted">{a.code} · {a.course}</span>
+                      <span className="badge badge-saffron">{a.weight}%</span>
+                    </div>
+                    <div className="font-semibold text-sm leading-snug mb-2">{a.title}</div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-ink-muted">Due {a.due}</span>
+                      <span className="text-ink-muted">{pct}% submitted</span>
+                    </div>
+                    <Link href="/assignments" className="btn btn-ghost btn-sm w-full mt-3">
+                      Submit →
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <div className="col-span-12 lg:col-span-4">
+            <h3 className="font-semibold text-lg mb-4">From the rooms</h3>
+            <ul className="space-y-3">
+              {pinned.map((r) => (
+                <li key={r.id} className="card p-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="badge badge-oxblood">Pinned</span>
+                    <span className="text-xs text-ink-muted">{r.last}</span>
+                  </div>
+                  <div className="font-semibold text-sm leading-snug">{r.title}</div>
+                  <p className="text-xs text-ink-muted mt-1.5 line-clamp-2">{r.excerpt}</p>
+                  <div className="text-xs text-ink-muted mt-2">
+                    {r.starter} · {r.posts} posts · {r.members} in
+                  </div>
+                </li>
+              ))}
+              {MESSAGES.length ? (
+                <li className="card p-4">
+                  <div className="text-xs text-ink-muted mb-2">Latest reply</div>
+                  <div className="text-sm">
+                    <span className="font-semibold text-oxblood">{MESSAGES.at(-1)?.author}</span>
+                    <span className="text-ink-muted"> · {MESSAGES.at(-1)?.time}</span>
+                  </div>
+                  <p className="text-sm mt-1.5 line-clamp-2">{MESSAGES.at(-1)?.body}</p>
+                </li>
+              ) : null}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mx-auto max-w-[1400px] px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { href: "/discussion", n: "01", t: "Open discussion", b: "Read the room and reply." },
-            { href: "/assignments", n: "02", t: "Submit work", b: "Drop your PS-04 here." },
-            { href: "/attendance", n: "03", t: "Mark attendance", b: "Confirm your face for today." },
-            { href: "/feedback", n: "04", t: "Leave feedback", b: "End-of-term mentor review." },
-          ].map((q) => (
-            <Link
-              key={q.href}
-              href={q.href}
-              className="col-span-12 md:col-span-3 group block border border-rule bg-bone p-6 hover:border-ink transition-colors"
-            >
-              <div className="flex items-baseline justify-between">
-                <span className="numeral">{q.n}</span>
-                <span className="numeral group-hover:text-oxblood transition-colors">→</span>
-              </div>
-              <div className="display text-[26px] leading-tight tracking-[-0.025em] mt-3">
-                {q.t}
-              </div>
-              <p className="text-sm text-ink-soft mt-2 leading-relaxed">{q.b}</p>
-            </Link>
+            { label: "Courses enrolled", value: "4", caption: "this term" },
+            { label: "Average grade", value: "B+", caption: "across all courses" },
+            { label: "Attendance rate", value: "96%", caption: "30-day rolling" },
+            { label: "Streak", value: "14d", caption: "consecutive sessions" },
+          ].map((s) => (
+            <div key={s.label} className="card p-5">
+              <div className="text-sm text-ink-muted">{s.label}</div>
+              <div className="display text-3xl mt-2">{s.value}</div>
+              <div className="text-xs text-ink-muted mt-1">{s.caption}</div>
+            </div>
           ))}
+        </div>
+      </section>
+
+      <section className="bg-paper-dark/30 border-t border-rule">
+        <div className="mx-auto max-w-[1400px] px-6 py-12">
+          <SectionHeading
+            eyebrow="Recommended"
+            title="Mentees like you also enrolled in"
+            link={{ href: "/courses", label: "Browse all" }}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {COURSES.slice().reverse().map((c) => (
+              <CourseCard
+                key={`rec-${c.id}`}
+                id={c.id}
+                code={c.code}
+                title={c.title}
+                mentor={c.mentor}
+                cohort={c.cohort}
+                pace={c.pace}
+                color={c.color as never}
+                {...ratingFor(c.code)}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="mx-auto max-w-[1400px] px-6 py-12">
+          <div className="card p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center">
+            <div className="size-20 rounded-full bg-gradient-to-br from-oxblood to-oxblood-deep flex items-center justify-center text-bone font-display italic text-3xl shrink-0">
+              A
+            </div>
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-oxblood mb-1">Rate your mentor</div>
+              <h3 className="display text-2xl">How was Dr. Aishah this week?</h3>
+              <p className="text-sm text-ink-muted mt-1">
+                Quick anonymous review — takes 30 seconds.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <StarRating value={0} size="md" />
+              <Link href="/feedback" className="btn btn-secondary">Leave review</Link>
+            </div>
+          </div>
         </div>
       </section>
 

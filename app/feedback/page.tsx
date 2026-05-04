@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { RuleLabel } from "@/components/rule-label";
+import { StarRating } from "@/components/star-rating";
 import { FEEDBACK_ENTRIES } from "@/lib/data";
 
 export const metadata = {
-  title: "Feedback — EduMentor",
-  description: "End-of-term mentor evaluation. Anonymous, recorded, public.",
+  title: "Reviews — EduMentor",
+  description: "End-of-term mentor evaluations.",
 };
 
 const RUBRIC = [
@@ -17,158 +17,148 @@ const RUBRIC = [
   { key: "Fairness in grading", value: 4 },
 ];
 
-function Stars({ n }: { n: number }) {
-  return (
-    <span className="inline-flex items-center gap-1 text-[14px]">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span key={i} className={i < n ? "text-oxblood" : "text-rule"}>
-          ★
-        </span>
-      ))}
-    </span>
-  );
-}
-
 export default function FeedbackPage() {
-  const avg =
-    FEEDBACK_ENTRIES.reduce((s, f) => s + f.score, 0) /
-    FEEDBACK_ENTRIES.length;
+  const avg = FEEDBACK_ENTRIES.reduce((s, f) => s + f.score, 0) / FEEDBACK_ENTRIES.length;
 
   return (
     <>
       <SiteNav />
 
-      <section className="border-b-2 border-ink">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-x-6 px-6 pt-12 pb-12">
-          <aside className="col-span-12 md:col-span-3 md:border-r md:border-rule md:pr-6">
-            <div className="numeral mb-3">№ 04 / Section 06</div>
-            <p className="eyebrow-italic text-[18px] leading-snug text-ink">
-              The mentee
-              <br /> evaluates the mentor.
-            </p>
-            <div className="rule mt-6" />
-            <p className="mt-6 text-base leading-relaxed text-ink-soft">
-              At term&apos;s end the mentee writes the review. Names are
-              redacted, scores are kept. A teacher who survives criticism
-              with grace is one worth keeping on the masthead.
-            </p>
-          </aside>
-
-          <div className="col-span-12 md:col-span-9 md:pl-6">
-            <h1 className="display text-[clamp(56px,10vw,160px)] leading-[0.86] tracking-[-0.045em]">
-              The{" "}
-              <span className="display-italic text-oxblood">review.</span>
-            </h1>
-            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
-              You are reviewing{" "}
-              <span className="eyebrow-italic">Dr. Aishah Mokhtar</span>{" "}
-              for MAT CS110, Sem 02 / 2026. Your name will not be
-              attached to the score; your words may be quoted in the
-              term report.
-            </p>
+      <section className="bg-bone border-b border-rule">
+        <div className="mx-auto max-w-[1400px] px-6 py-10">
+          <div className="text-sm text-ink-muted mb-2">
+            <span>Home</span> / <span className="text-ink">Reviews</span>
           </div>
+          <h1 className="display text-4xl md:text-5xl">Mentor reviews</h1>
+          <p className="mt-3 text-ink-soft">
+            Anonymous, recorded, and considered by the registrar at term&apos;s end.
+          </p>
         </div>
       </section>
 
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-12 grid grid-cols-12 gap-6">
+      <section>
+        <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-12 gap-8">
           {/* Form */}
-          <form className="col-span-12 md:col-span-7">
-            <RuleLabel numeral="Form 6A" label="Mentor evaluation" caption="MAT CS110" />
-
-            <div className="mt-8 space-y-8 border border-ink bg-bone p-8">
-              <div>
-                <div className="numeral">Subject of review</div>
-                <div className="display text-[40px] leading-tight tracking-[-0.025em] mt-1">
-                  Dr. Aishah Mokhtar
+          <div className="col-span-12 lg:col-span-7">
+            <div className="card p-6 md:p-8">
+              <div className="flex items-center gap-4 pb-5 border-b border-rule mb-6">
+                <div className="size-14 rounded-full bg-gradient-to-br from-oxblood to-oxblood-deep flex items-center justify-center text-bone font-display italic text-2xl">
+                  A
                 </div>
-                <div className="text-xs font-medium uppercase tracking-wide text-ink-muted mt-1">
-                  MAT CS110 · Discrete Structures · 24 sessions
+                <div>
+                  <p className="text-sm text-ink-muted">You&apos;re reviewing</p>
+                  <h2 className="font-semibold text-lg">Dr. Aishah Mokhtar</h2>
+                  <p className="text-xs text-ink-muted">MAT CS110 · Discrete Structures · 24 sessions</p>
                 </div>
               </div>
 
-              <div>
-                <div className="label mb-3">Rubric</div>
-                <ul className="divide-y divide-rule border-y border-rule">
-                  {RUBRIC.map((r) => (
-                    <li key={r.key} className="grid grid-cols-12 gap-3 items-center py-4">
-                      <span className="col-span-7 text-[15px]">{r.key}</span>
-                      <div className="col-span-5 flex items-center justify-end gap-1">
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <button
-                            key={n}
-                            type="button"
-                            className={`size-8 border ${n <= r.value ? "border-ink bg-ink text-bone" : "border-rule text-ink-muted hover:border-ink"} text-[12px] font-mono`}
-                          >
-                            {n}
-                          </button>
-                        ))}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <div className="numeral mt-2">1 — disagree, 5 — agree</div>
-              </div>
+              <form className="space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold mb-2">Overall rating</label>
+                  <div className="flex items-center gap-2">
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        className={`text-3xl transition-transform hover:scale-110 ${
+                          n <= 5 ? "text-saffron" : "text-rule"
+                        }`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                    <span className="ml-3 text-sm text-ink-muted">5.0 · Excellent</span>
+                  </div>
+                </div>
 
-              <div>
-                <label className="label block mb-3">A kind word</label>
-                <textarea
-                  rows={3}
-                  defaultValue="Patient and rigorous. The induction worksheets were the most useful resource of the term."
-                  className="w-full bg-paper border border-rule p-4 text-base leading-relaxed outline-none focus:border-ink"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-3">Detailed rubric</label>
+                  <ul className="space-y-3">
+                    {RUBRIC.map((r) => (
+                      <li key={r.key} className="grid grid-cols-12 gap-3 items-center">
+                        <span className="col-span-12 sm:col-span-6 text-sm">{r.key}</span>
+                        <div className="col-span-12 sm:col-span-6 flex items-center gap-1 sm:justify-end">
+                          {[1, 2, 3, 4, 5].map((n) => (
+                            <button
+                              key={n}
+                              type="button"
+                              className={`size-9 rounded-sm border text-sm font-medium transition-colors ${
+                                n <= r.value
+                                  ? "border-oxblood bg-oxblood text-bone"
+                                  : "border-rule text-ink-muted hover:border-ink"
+                              }`}
+                            >
+                              {n}
+                            </button>
+                          ))}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-xs text-ink-muted mt-3">1 — disagree · 5 — strongly agree</p>
+                </div>
 
-              <div>
-                <label className="label block mb-3">A useful criticism</label>
-                <textarea
-                  rows={3}
-                  defaultValue="Office hours filled up quickly in week 8. A second slot would have helped before the midterm."
-                  className="w-full bg-paper border border-rule p-4 text-base leading-relaxed outline-none focus:border-ink"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">A kind word</label>
+                  <textarea
+                    rows={3}
+                    defaultValue="Patient and rigorous. The induction worksheets were the most useful resource of the term."
+                    className="input"
+                    style={{ fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
+                  />
+                </div>
 
-              <div className="flex items-center justify-between gap-3 pt-2 border-t-2 border-ink">
-                <label className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-ink-soft cursor-pointer mt-6">
-                  <input type="checkbox" className="size-3 accent-ink" defaultChecked />
-                  <span>File anonymously</span>
+                <div>
+                  <label className="block text-sm font-semibold mb-2">A useful criticism</label>
+                  <textarea
+                    rows={3}
+                    defaultValue="Office hours filled up quickly in week 8. A second slot would have helped before the midterm."
+                    className="input"
+                    style={{ fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
+                  />
+                </div>
+
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="checkbox" className="size-4 accent-oxblood" defaultChecked />
+                  <span>Submit anonymously (recommended)</span>
                 </label>
-                <Link href="/dashboard" className="inline-flex items-center gap-2 border border-ink bg-ink px-5 py-3 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors mt-6">
-                  Submit review →
-                </Link>
-              </div>
+
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
+                  <Link href="/dashboard" className="btn btn-ghost">Cancel</Link>
+                  <Link href="/dashboard" className="btn btn-primary">Submit review →</Link>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
 
           {/* Aggregate */}
-          <aside className="col-span-12 md:col-span-5 md:border-l md:border-rule md:pl-6">
-            <RuleLabel numeral="Aggregate" label="Term scores" caption={`${FEEDBACK_ENTRIES.length} mentors`} />
-            <div className="mt-8 border border-ink p-6">
-              <div className="numeral">Term average</div>
-              <div className="display text-[88px] leading-none tracking-[-0.04em] mt-2">
+          <aside className="col-span-12 lg:col-span-5">
+            <div className="card p-6 mb-4 bg-gradient-to-br from-oxblood to-oxblood-deep text-bone">
+              <p className="text-sm text-saffron font-semibold mb-2">Term average</p>
+              <div className="display text-6xl">
                 {avg.toFixed(1)}
-                <span className="display-italic text-oxblood text-[40px] ml-1">/5</span>
+                <span className="text-saffron text-3xl ml-1">/ 5</span>
               </div>
-              <div className="rule-thick mt-4" />
-              <div className="numeral mt-4">
-                {FEEDBACK_ENTRIES.reduce((s, f) => s + f.n, 0)} responses on file
-              </div>
+              <p className="text-sm text-bone/80 mt-2">
+                {FEEDBACK_ENTRIES.reduce((s, f) => s + f.n, 0)} responses across {FEEDBACK_ENTRIES.length} mentors
+              </p>
             </div>
 
-            <ul className="mt-8 border-t border-ink">
+            <h3 className="font-semibold text-base mb-3 mt-6">Recent reviews</h3>
+            <ul className="space-y-3">
               {FEEDBACK_ENTRIES.map((f) => (
-                <li key={f.id} className="border-b border-rule py-5">
-                  <div className="flex items-baseline justify-between">
-                    <span className="numeral">{f.course}</span>
-                    <Stars n={Math.round(f.score)} />
+                <li key={f.id} className="card p-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-ink-muted">{f.course}</span>
+                    <StarRating value={f.score} size="xs" />
                   </div>
-                  <div className="display text-[20px] leading-tight tracking-[-0.02em] mt-1">
-                    {f.mentor}
-                  </div>
-                  <p className="text-sm leading-relaxed text-ink-soft mt-2 italic">
+                  <h4 className="font-semibold text-sm mb-2">{f.mentor}</h4>
+                  <p className="text-sm text-ink-soft leading-relaxed italic">
                     &ldquo;{f.comment}&rdquo;
                   </p>
-                  <div className="numeral mt-2">{f.by} · n = {f.n}</div>
+                  <div className="text-xs text-ink-muted mt-3 pt-3 border-t border-rule">
+                    {f.by} · n = {f.n}
+                  </div>
                 </li>
               ))}
             </ul>

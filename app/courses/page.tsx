@@ -1,140 +1,178 @@
-import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { RuleLabel } from "@/components/rule-label";
-import { COURSES } from "@/lib/data";
+import { CourseCard } from "@/components/course-card";
+import { COURSES, FEEDBACK_ENTRIES } from "@/lib/data";
 
 export const metadata = {
-  title: "Catalogue — EduMentor",
-  description: "The full course catalogue for the term.",
+  title: "Courses — EduMentor",
+  description: "Browse the full course catalogue for the term.",
 };
 
-const colorMap: Record<string, string> = {
-  oxblood: "bg-oxblood text-bone",
-  fern: "bg-fern text-bone",
-  saffron: "bg-saffron text-ink",
-  ink: "bg-ink text-bone",
-};
+const FILTERS = [
+  {
+    title: "Subject",
+    options: [
+      { label: "Computer Science", count: 2 },
+      { label: "Mathematics", count: 1 },
+      { label: "Statistics", count: 1 },
+      { label: "Foundation", count: 1 },
+    ],
+  },
+  {
+    title: "Level",
+    options: [
+      { label: "Foundation", count: 1 },
+      { label: "Year 1", count: 1 },
+      { label: "Year 2", count: 2 },
+      { label: "Year 3", count: 0 },
+    ],
+  },
+  {
+    title: "Schedule",
+    options: [
+      { label: "Mornings", count: 2 },
+      { label: "Afternoons", count: 2 },
+      { label: "Online available", count: 4 },
+    ],
+  },
+  {
+    title: "Mentor",
+    options: [
+      { label: "Dr. Aishah Mokhtar", count: 2 },
+      { label: "Encik Faiz Rashid", count: 1 },
+      { label: "Pn. Liyana Hashim", count: 1 },
+    ],
+  },
+];
+
+function ratingFor(courseCode: string) {
+  const fb = FEEDBACK_ENTRIES.find((f) => f.course === courseCode);
+  if (fb) return { rating: fb.score, reviews: fb.n * 11 };
+  return { rating: 4.5, reviews: 84 };
+}
 
 export default function CoursesPage() {
   return (
     <>
       <SiteNav />
 
-      <section className="border-b-2 border-ink">
-        <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-x-6 px-6 pt-12 pb-12">
-          <aside className="col-span-12 md:col-span-3 md:border-r md:border-rule md:pr-6">
-            <div className="numeral mb-3">№ 04 / Section 02</div>
-            <p className="eyebrow-italic text-[18px] leading-snug text-ink">
-              The reading list,
-              <br /> bound for the term.
-            </p>
-            <div className="rule mt-6" />
-            <dl className="mt-6 space-y-4 text-xs font-medium uppercase tracking-wide">
-              <div className="flex justify-between"><dt className="text-ink-muted">Term</dt><dd>Sem 02 / 26</dd></div>
-              <div className="flex justify-between"><dt className="text-ink-muted">Open</dt><dd>{COURSES.length}</dd></div>
-              <div className="flex justify-between"><dt className="text-ink-muted">Capacity</dt><dd>220</dd></div>
-              <div className="flex justify-between"><dt className="text-ink-muted">Filled</dt><dd>{COURSES.reduce((s, c) => s + c.enrolled, 0)}</dd></div>
-            </dl>
-          </aside>
-          <div className="col-span-12 md:col-span-9 md:pl-6">
-            <h1 className="display text-[clamp(56px,10vw,160px)] leading-[0.86] tracking-[-0.045em]">
-              The{" "}
-              <span className="display-italic text-oxblood">catalogue.</span>
-            </h1>
-            <p className="mt-8 max-w-2xl text-lg leading-relaxed text-ink-soft">
-              Each course is a folio of its own — a mentor, a cohort,
-              a syllabus, a pace. Browse by code or by faculty. Enrol
-              with a click; un-enrol the same way.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-2">
-              {["All", "MAT", "CSC", "STA", "Year 1", "Year 2", "Foundation"].map((f, i) => (
-                <button
-                  key={f}
-                  className={`px-3 py-1.5 text-xs font-medium uppercase tracking-wide border ${i === 0 ? "border-ink bg-ink text-bone" : "border-rule hover:border-ink"} transition-colors`}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
+      <section className="bg-bone border-b border-rule">
+        <div className="mx-auto max-w-[1400px] px-6 py-10">
+          <div className="text-sm text-ink-muted mb-2">
+            <span>Home</span> / <span className="text-ink">Courses</span>
           </div>
+          <h1 className="display text-4xl md:text-5xl">Course catalogue</h1>
+          <p className="mt-3 text-ink-soft max-w-2xl">
+            {COURSES.length} courses · open for Semester 02 / 2026 · taught by 12 mentors.
+          </p>
+
+          <form className="mt-6 flex items-center gap-2 max-w-xl">
+            <label className="relative flex-1">
+              <span aria-hidden className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted">⌕</span>
+              <input
+                type="search"
+                placeholder="Search by title, code, or mentor"
+                className="input pl-10 py-2.5"
+              />
+            </label>
+            <button className="btn btn-primary">Search</button>
+          </form>
         </div>
       </section>
 
-      <section className="border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-12">
-          <RuleLabel numeral="Section A" label="On the shelf" caption={`${COURSES.length} courses`} />
-          <ul className="mt-10 border-t border-ink">
-            {COURSES.map((c, i) => (
-              <li key={c.id} className="border-b border-rule">
-                <article className="grid grid-cols-12 gap-6 py-10">
-                  <div className="col-span-12 md:col-span-1">
-                    <div className="numeral">№ 0{i + 1}</div>
-                  </div>
-                  <div className="col-span-12 md:col-span-2">
-                    <span className={`inline-block px-2 py-1 text-xs font-medium uppercase tracking-wider ${colorMap[c.color]}`}>
-                      {c.code}
-                    </span>
-                    <div className="numeral mt-3">{c.cohort}</div>
-                  </div>
-                  <div className="col-span-12 md:col-span-6">
-                    <h3 className="display text-[44px] leading-[0.95] tracking-[-0.03em]">
-                      {c.title}
-                    </h3>
-                    <p className="mt-3 eyebrow-italic text-[16px] text-ink-soft">
-                      Conducted by {c.mentor}
-                    </p>
-                    <p className="mt-4 text-base leading-relaxed text-ink-soft max-w-xl">
-                      {c.abstract}
-                    </p>
-                    <div className="mt-6 flex flex-wrap items-center gap-3">
-                      <Link
-                        href="/dashboard"
-                        className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
-                      >
-                        Open course →
-                      </Link>
-                      <Link
-                        href="/discussion"
-                        className="link-reveal text-xs font-medium uppercase tracking-wider"
-                      >
-                        Discussion
-                      </Link>
-                      <Link
-                        href="/assignments"
-                        className="link-reveal text-xs font-medium uppercase tracking-wider"
-                      >
-                        Assignments
-                      </Link>
-                    </div>
-                  </div>
-                  <div className="col-span-12 md:col-span-3 md:border-l md:border-rule md:pl-6 grid grid-cols-2 gap-y-5">
-                    <div>
-                      <div className="numeral">Pace</div>
-                      <div className="text-[14px] mt-1">{c.pace}</div>
-                    </div>
-                    <div>
-                      <div className="numeral">Sessions</div>
-                      <div className="text-[14px] mt-1">{c.sessions}</div>
-                    </div>
-                    <div>
-                      <div className="numeral">Enrolled</div>
-                      <div className="text-[14px] mt-1">{c.enrolled} / {c.capacity}</div>
-                    </div>
-                    <div>
-                      <div className="numeral">Progress</div>
-                      <div className="text-[14px] mt-1">{c.progress}%</div>
-                    </div>
-                    <div className="col-span-2">
-                      <div className="h-[2px] bg-rule">
-                        <div className="h-full bg-ink" style={{ width: `${c.progress}%` }} />
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              </li>
-            ))}
-          </ul>
+      <section>
+        <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-12 gap-8">
+          <aside className="col-span-12 lg:col-span-3">
+            <div className="lg:sticky lg:top-32 space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-base">Filters</h2>
+                <button className="text-sm text-oxblood hover:text-oxblood-deep font-medium">
+                  Clear all
+                </button>
+              </div>
+
+              {FILTERS.map((f) => (
+                <details key={f.title} open className="border-b border-rule pb-4 group">
+                  <summary className="list-none cursor-pointer flex items-center justify-between mb-3">
+                    <span className="font-semibold text-sm">{f.title}</span>
+                    <span aria-hidden className="text-ink-muted group-open:rotate-180 transition-transform">▾</span>
+                  </summary>
+                  <ul className="space-y-2">
+                    {f.options.map((o) => (
+                      <li key={o.label}>
+                        <label className="flex items-center justify-between gap-2 cursor-pointer text-sm">
+                          <span className="flex items-center gap-2">
+                            <input type="checkbox" className="size-4 accent-oxblood" />
+                            <span>{o.label}</span>
+                          </span>
+                          <span className="text-xs text-ink-muted">({o.count})</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
+
+              <div className="border-b border-rule pb-4">
+                <h3 className="font-semibold text-sm mb-3">Rating</h3>
+                <ul className="space-y-2">
+                  {[4.5, 4.0, 3.5].map((r) => (
+                    <li key={r}>
+                      <label className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input type="radio" name="rating" className="size-4 accent-oxblood" />
+                        <span className="text-saffron">
+                          {"★".repeat(Math.floor(r))}
+                          {"☆".repeat(5 - Math.floor(r))}
+                        </span>
+                        <span>{r}+ &amp; up</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </aside>
+
+          <div className="col-span-12 lg:col-span-9">
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-sm text-ink-muted">
+                Showing <span className="font-semibold text-ink">{COURSES.length}</span> courses
+              </p>
+              <select className="input max-w-[200px] py-2 text-sm">
+                <option>Most popular</option>
+                <option>Newest</option>
+                <option>Highest rated</option>
+                <option>A → Z</option>
+              </select>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              {COURSES.map((c) => (
+                <CourseCard
+                  key={c.id}
+                  id={c.id}
+                  code={c.code}
+                  title={c.title}
+                  mentor={c.mentor}
+                  cohort={c.cohort}
+                  pace={c.pace}
+                  enrolled={c.enrolled}
+                  capacity={c.capacity}
+                  sessions={c.sessions}
+                  color={c.color as never}
+                  {...ratingFor(c.code)}
+                />
+              ))}
+            </div>
+
+            <div className="flex items-center justify-center gap-2 mt-12">
+              <button className="btn btn-ghost btn-sm" disabled>← Prev</button>
+              <button className="size-9 rounded-sm border border-ink bg-ink text-bone text-sm font-semibold">1</button>
+              <button className="size-9 rounded-sm border border-rule hover:border-ink text-sm">2</button>
+              <button className="size-9 rounded-sm border border-rule hover:border-ink text-sm">3</button>
+              <button className="btn btn-ghost btn-sm">Next →</button>
+            </div>
+          </div>
         </div>
       </section>
 

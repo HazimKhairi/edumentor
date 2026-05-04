@@ -1,92 +1,94 @@
 import Image from "next/image";
 import Link from "next/link";
-import { NAV, SUBJECT } from "@/lib/data";
+import { NAV } from "@/lib/data";
+
+const CATEGORIES = [
+  { label: "Computer Science", href: "/courses?cat=cs" },
+  { label: "Mathematics", href: "/courses?cat=math" },
+  { label: "Statistics", href: "/courses?cat=stats" },
+  { label: "Foundation", href: "/courses?cat=foundation" },
+];
 
 export function SiteNav() {
   return (
-    <header className="sticky top-0 z-50 bg-paper/85 backdrop-blur supports-[backdrop-filter]:bg-paper/70">
-      {/* Folio strip */}
-      <div className="border-b border-rule">
-        <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-2 text-xs font-medium uppercase tracking-wider text-ink-muted">
-          <div className="flex items-center gap-6">
-            <span className="font-mono">Vol. I — Issue 04</span>
-            <span className="hidden md:inline font-mono">{SUBJECT.semester}</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <span className="hidden sm:inline font-mono">Kuala Lumpur, MY</span>
-            <span className="inline-flex items-center gap-2 font-mono">
-              <span className="size-1.5 rounded-full bg-oxblood blink" />
-              Live now
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Masthead */}
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-8 px-6 pt-6 pb-3">
-        <Link href="/" className="group flex items-end gap-4">
-          <span className="relative size-12 shrink-0 overflow-hidden">
-            <Image
-              src="/logo.svg"
-              alt="EduMentor"
-              width={48}
-              height={48}
-              className="size-full object-contain"
-              priority
-            />
-          </span>
-          <span className="display text-[44px] leading-none tracking-[-0.04em]">
-            Edu<span className="display-italic text-oxblood">Mentor</span>
-          </span>
-          <span className="hidden md:inline-block translate-y-[-4px] border-l border-rule pl-3 text-xs font-medium uppercase tracking-wider text-ink-muted">
-            The Mentorship
-            <br />
-            Periodical
-          </span>
+    <header className="sticky top-0 z-50 bg-bone/95 backdrop-blur supports-[backdrop-filter]:bg-bone/85 border-b border-rule">
+      {/* Top row: logo, search, auth */}
+      <div className="mx-auto flex max-w-[1400px] items-center gap-4 px-6 py-3">
+        <Link href="/" className="flex items-center shrink-0">
+          <Image
+            src="/logo.png"
+            alt="EduMentor"
+            width={160}
+            height={48}
+            className="h-10 md:h-11 w-auto"
+            priority
+          />
         </Link>
 
-        <div className="hidden lg:flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-ink-muted">
-          <kbd className="rounded-sm border border-rule bg-bone px-1.5 py-0.5 text-xs">⌘</kbd>
-          <kbd className="rounded-sm border border-rule bg-bone px-1.5 py-0.5 text-xs">K</kbd>
-          <span>Search the desk</span>
-        </div>
+        {/* Categories dropdown trigger (visible md+) */}
+        <details className="hidden md:block relative">
+          <summary className="list-none cursor-pointer px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink rounded-sm flex items-center gap-1">
+            Categories
+            <span aria-hidden className="text-xs">▾</span>
+          </summary>
+          <div className="absolute top-full left-0 mt-1 w-64 bg-bone border border-rule rounded-md shadow-lg p-2">
+            {CATEGORIES.map((c) => (
+              <Link
+                key={c.href}
+                href={c.href}
+                className="block px-3 py-2 text-sm hover:bg-paper-dark rounded-sm"
+              >
+                {c.label}
+              </Link>
+            ))}
+          </div>
+        </details>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="link-reveal text-xs font-medium uppercase tracking-wider"
-          >
+        {/* Search */}
+        <form className="flex-1 max-w-2xl hidden sm:block">
+          <label className="relative flex items-center">
+            <span aria-hidden className="absolute left-3 text-ink-muted">⌕</span>
+            <input
+              type="search"
+              placeholder="Search courses, mentors, topics…"
+              className="input pl-9 rounded-full bg-paper-dark/60"
+            />
+          </label>
+        </form>
+
+        <nav className="hidden lg:flex items-center gap-1">
+          <Link href="/dashboard" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
+            My learning
+          </Link>
+          <Link href="/discussion" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
+            Discussion
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-2 ml-auto lg:ml-0">
+          <Link href="/login" className="btn btn-ghost btn-sm hidden sm:inline-flex">
             Sign in
           </Link>
-          <Link
-            href="/login"
-            className="inline-flex items-center gap-2 border border-ink bg-ink px-4 py-2 text-xs font-medium uppercase tracking-wider text-bone hover:bg-oxblood hover:border-oxblood transition-colors"
-          >
-            Begin enrolment
-            <span aria-hidden>→</span>
+          <Link href="/login" className="btn btn-primary btn-sm">
+            Get started
           </Link>
         </div>
       </div>
 
-      {/* Nav rail */}
-      <nav className="border-t border-b border-rule">
-        <div className="mx-auto flex max-w-[1400px] items-stretch overflow-x-auto px-2">
+      {/* Sub-row: section nav (visible md+) */}
+      <div className="border-t border-rule hidden md:block">
+        <div className="mx-auto max-w-[1400px] px-6 flex items-center gap-1 overflow-x-auto">
           {NAV.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="group flex items-center gap-2 whitespace-nowrap px-4 py-3 text-sm font-medium text-ink-soft hover:bg-bone hover:text-ink transition-colors border-r border-rule last:border-r-0"
+              className="shrink-0 px-3 py-2.5 text-sm font-medium text-ink-soft hover:text-oxblood transition-colors"
             >
-              <span className="text-xs text-ink-muted font-normal">{item.numeral}</span>
-              <span>{item.label}</span>
+              {item.label}
             </Link>
           ))}
-          <div className="ml-auto hidden md:flex items-center gap-3 px-4 text-xs font-medium uppercase tracking-wider text-ink-muted">
-            <span>Today</span>
-            <span className="text-ink">04 May 2026</span>
-          </div>
         </div>
-      </nav>
+      </div>
     </header>
   );
 }
