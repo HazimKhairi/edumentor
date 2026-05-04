@@ -76,13 +76,13 @@ export default function AssignmentsPage() {
                   <p className="text-sm text-ink-soft leading-relaxed max-w-xl">{a.note}</p>
 
                   <div className="mt-4 flex items-center gap-3">
-                    <Link href="#" className="btn btn-primary btn-sm">
+                    <Link href={`/assignments/${a.id}#submit`} className="btn btn-primary btn-sm">
                       Submit work
                     </Link>
-                    <Link href="#" className="btn btn-ghost btn-sm">
+                    <Link href={`/assignments/${a.id}`} className="btn btn-ghost btn-sm">
                       View brief
                     </Link>
-                    <Link href="#" className="text-sm text-oxblood hover:text-oxblood-deep font-medium">
+                    <Link href={`/assignments/${a.id}`} className="text-sm text-oxblood hover:text-oxblood-deep font-medium">
                       Rubric
                     </Link>
                   </div>

@@ -398,3 +398,55 @@ export const STATS = [
   { label: "Mentors on roster", value: "12", caption: "permanent and visiting" },
   { label: "Attendance accuracy", value: "98.4%", caption: "face recognition, last 30 days" },
 ];
+
+export const USERS = [
+  { id: "u-001", name: "Aiman Hakimi", identity: "2023607832", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
+  { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
+  { id: "u-003", name: "Faris Adlan", identity: "2023611901", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
+  { id: "u-004", name: "Liyana Aziz", identity: "2023612200", role: "Mentee" as Role, status: "Probation", joined: "2024-09-01" },
+  { id: "u-005", name: "Hafiz Ridzwan", identity: "2023612555", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
+  { id: "u-006", name: "Dr. Aishah Mokhtar", identity: "FCMS-184", role: "Mentor" as Role, status: "Active", joined: "2018-02-12" },
+  { id: "u-007", name: "Encik Faiz Rashid", identity: "FCMS-209", role: "Mentor" as Role, status: "Active", joined: "2020-08-04" },
+  { id: "u-008", name: "Pn. Liyana Hashim", identity: "FCMS-232", role: "Mentor" as Role, status: "Active", joined: "2022-01-10" },
+  { id: "u-009", name: "Registrar Office", identity: "ADM-001", role: "Admin" as Role, status: "Active", joined: "2017-06-01" },
+];
+
+export const EVALUATION_RUBRICS = [
+  {
+    id: "rub-01",
+    title: "End-of-term mentor evaluation",
+    target: "Mentor",
+    items: [
+      "Pacing of lectures",
+      "Clarity of explanation",
+      "Quality of feedback on work",
+      "Availability outside class",
+      "Fairness in grading",
+    ],
+    scale: 5,
+    active: true,
+  },
+  {
+    id: "rub-02",
+    title: "Peer review (mentee to mentee)",
+    target: "Mentee",
+    items: ["Contribution to group", "Communication", "Reliability"],
+    scale: 5,
+    active: true,
+  },
+  {
+    id: "rub-03",
+    title: "Course quality survey",
+    target: "Course",
+    items: ["Difficulty appropriate", "Workload reasonable", "Materials helpful"],
+    scale: 5,
+    active: false,
+  },
+];
+
+export const CLASSES = [
+  { id: "cls-01", course: "MAT CS110", topic: "Strong induction on trees", date: "2026-05-04", time: "14:00", room: "BD-3, Block A", state: "Live" },
+  { id: "cls-02", course: "MAT CS110", topic: "Bijective proofs walkthrough", date: "2026-05-06", time: "14:00", room: "BD-3, Block A", state: "Scheduled" },
+  { id: "cls-03", course: "CSC 234", topic: "Topological sort lab", date: "2026-05-07", time: "10:00", room: "Lab 2", state: "Scheduled" },
+  { id: "cls-04", course: "MAT CS110", topic: "Office hours", date: "2026-05-08", time: "14:00", room: "Room 4-08", state: "Scheduled" },
+];

@@ -19,7 +19,7 @@ export function CourseCard({
   rating,
   reviews,
   progress,
-  href = "/courses",
+  href,
   className,
   compact,
 }: {
@@ -42,7 +42,7 @@ export function CourseCard({
 }) {
   return (
     <Link
-      href={href}
+      href={href ?? `/courses/${id}`}
       className={clsx(
         "card card-hover group flex flex-col overflow-hidden",
         className

@@ -65,12 +65,12 @@ export default function LoginPage() {
           </Link>
 
           <div className="flex border-b border-rule mb-8">
-            <button className="flex-1 pb-3 font-semibold text-base text-ink border-b-2 border-oxblood">
+            <span className="flex-1 pb-3 font-semibold text-base text-ink border-b-2 border-oxblood text-center">
               Sign in
-            </button>
-            <button className="flex-1 pb-3 font-semibold text-base text-ink-muted hover:text-ink">
-              Sign up
-            </button>
+            </span>
+            <Link href="/register" className="flex-1 pb-3 font-semibold text-base text-ink-muted hover:text-ink text-center">
+              Create account
+            </Link>
           </div>
 
           <h1 className="display text-3xl mb-2">Welcome back</h1>
@@ -157,7 +157,7 @@ export default function LoginPage() {
 
           <p className="mt-8 text-center text-sm text-ink-muted">
             New here?{" "}
-            <Link href="#" className="text-oxblood hover:text-oxblood-deep font-semibold">
+            <Link href="/register" className="text-oxblood hover:text-oxblood-deep font-semibold">
               Apply for an account
             </Link>
           </p>

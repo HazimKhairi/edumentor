@@ -70,7 +70,7 @@ export function SiteNav() {
           <Link href="/login" className="btn btn-ghost btn-sm hidden sm:inline-flex">
             Sign in
           </Link>
-          <Link href="/login" className="btn btn-primary btn-sm">
+          <Link href="/register" className="btn btn-primary btn-sm">
             Get started
           </Link>
         </div>
