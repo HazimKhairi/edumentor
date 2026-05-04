@@ -25,13 +25,13 @@ export function SiteNav() {
       {/* Masthead */}
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-8 px-6 pt-6 pb-3">
         <Link href="/" className="group flex items-end gap-4">
-          <span className="relative size-12 shrink-0 overflow-hidden border border-ink bg-bone">
+          <span className="relative size-12 shrink-0 overflow-hidden">
             <Image
-              src="/logo.jpeg"
+              src="/logo.svg"
               alt="EduMentor"
-              fill
-              sizes="48px"
-              className="object-cover"
+              width={48}
+              height={48}
+              className="size-full object-contain"
               priority
             />
           </span>

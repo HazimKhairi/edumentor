@@ -27,13 +27,13 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[1400px] grid-cols-12 gap-y-12 gap-x-6 px-6 py-16">
         <div className="col-span-12 md:col-span-5">
           <div className="flex items-end gap-5">
-            <span className="relative size-20 shrink-0 overflow-hidden border border-ink bg-bone">
+            <span className="relative size-20 shrink-0 overflow-hidden">
               <Image
-                src="/logo.jpeg"
+                src="/logo.svg"
                 alt="EduMentor"
-                fill
-                sizes="80px"
-                className="object-cover"
+                width={80}
+                height={80}
+                className="size-full object-contain"
               />
             </span>
             <div className="display text-[88px] leading-[0.85] tracking-[-0.045em]">
