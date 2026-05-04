@@ -30,9 +30,6 @@ export default function HomePage() {
       <section className="bg-bone border-b border-rule">
         <div className="mx-auto max-w-[1400px] px-6 py-16 md:py-20 grid grid-cols-12 gap-8 items-center">
           <div className="col-span-12 lg:col-span-7">
-            <div className="inline-flex items-center gap-2 badge badge-saffron mb-5">
-              <span className="size-1.5 rounded-full bg-saffron" /> Term enrolment is open
-            </div>
             <h1 className="text-2xl md:text-3xl font-bold text-ink">
               Learn from mentors who actually{" "}
               <span className="display-italic text-oxblood">care</span>.
