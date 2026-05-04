@@ -37,7 +37,7 @@ export default function ReportsPage() {
           <div className="text-sm text-ink-muted mb-2">
             <span>Home</span> / <span className="text-ink">Reports</span>
           </div>
-          <h1 className="display text-4xl md:text-5xl">Term reports</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Term reports</h1>
           <p className="mt-3 text-ink-soft">
             For Semester 02 / 2026 · Filed by Registrar · 04 May 2026
           </p>
@@ -177,7 +177,7 @@ export default function ReportsPage() {
           <div className="card p-6 md:p-8 grid grid-cols-12 gap-6">
             <div className="col-span-12 md:col-span-9">
               <p className="text-sm font-semibold text-oxblood mb-2">Editor&apos;s note</p>
-              <h3 className="display text-2xl md:text-3xl leading-snug">
+              <h3 className="text-2xl md:text-3xl font-bold leading-snug">
                 The term is on schedule. Two cohorts will need additional
                 office-hour slots before the midterm. One camera fault is
                 scheduled for replacement on Friday.

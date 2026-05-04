@@ -61,7 +61,7 @@ export default function CoursesPage() {
           <div className="text-sm text-ink-muted mb-2">
             <span>Home</span> / <span className="text-ink">Courses</span>
           </div>
-          <h1 className="display text-4xl md:text-5xl">Course catalogue</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Course catalogue</h1>
           <p className="mt-3 text-ink-soft max-w-2xl">
             {COURSES.length} courses · open for Semester 02 / 2026 · taught by 12 mentors.
           </p>

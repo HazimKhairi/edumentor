@@ -26,7 +26,7 @@ export default function AttendancePage() {
           <div className="text-sm text-ink-muted mb-2">
             <span>Home</span> / <span className="text-ink">Attendance</span>
           </div>
-          <h1 className="display text-4xl md:text-5xl">Attendance</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Attendance</h1>
           <p className="mt-3 text-ink-soft">
             Roll called by camera, confirmed by mentor. {checkedCount} of {ROSTER.length} matched today.
           </p>

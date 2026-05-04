@@ -32,7 +32,7 @@ export default function HomePage() {
             <div className="inline-flex items-center gap-2 badge badge-saffron mb-5">
               <span className="size-1.5 rounded-full bg-saffron" /> Term enrolment is open
             </div>
-            <h1 className="display text-5xl md:text-6xl lg:text-7xl text-ink">
+            <h1 className="text-2xl md:text-3xl font-bold text-ink">
               Learn from mentors who actually{" "}
               <span className="display-italic text-oxblood">care</span>.
             </h1>
@@ -67,31 +67,14 @@ export default function HomePage() {
           </div>
 
           <div className="col-span-12 lg:col-span-5">
-            <div className="relative">
-              <div className="absolute -top-4 -right-4 hidden md:block rotate-3 z-0">
-                <CourseCard
-                  id={COURSES[1].id}
-                  code={COURSES[1].code}
-                  title={COURSES[1].title}
-                  mentor={COURSES[1].mentor}
-                  color={COURSES[1].color as never}
-                  {...ratingFor(COURSES[1].code)}
-                  className="w-72 shadow-lg"
-                  compact
-                />
-              </div>
-              <div className="-rotate-2 relative z-10">
-                <CourseCard
-                  id={COURSES[0].id}
-                  code={COURSES[0].code}
-                  title={COURSES[0].title}
-                  mentor={COURSES[0].mentor}
-                  color={COURSES[0].color as never}
-                  {...ratingFor(COURSES[0].code)}
-                  className="shadow-2xl"
-                />
-              </div>
-            </div>
+            <CourseCard
+              id={COURSES[0].id}
+              code={COURSES[0].code}
+              title={COURSES[0].title}
+              mentor={COURSES[0].mentor}
+              color={COURSES[0].color as never}
+              {...ratingFor(COURSES[0].code)}
+            />
           </div>
         </div>
       </section>
@@ -101,7 +84,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1400px] px-6 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
           {STATS.map((s) => (
             <div key={s.label} className="text-center md:text-left">
-              <div className="display text-3xl md:text-4xl text-ink">{s.value}</div>
+              <div className="text-2xl md:text-3xl font-bold text-ink">{s.value}</div>
               <div className="text-sm font-semibold text-ink mt-1">{s.label}</div>
               <div className="text-xs text-ink-muted">{s.caption}</div>
             </div>
@@ -212,7 +195,7 @@ export default function HomePage() {
               eyebrow="Mentor spotlight"
               title="Patient. Rigorous. Always on time for office hours."
             />
-            <blockquote className="display text-2xl md:text-3xl text-ink-soft leading-snug">
+            <blockquote className="text-2xl md:text-3xl font-bold text-ink-soft leading-snug">
               <span className="display-italic text-oxblood">“</span>
               The aim of a good classroom is to make criticism feel like
               kindness, and kindness feel like rigour.
@@ -264,7 +247,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1400px] px-6 py-16 grid grid-cols-12 gap-8 items-center">
           <div className="col-span-12 md:col-span-6">
             <div className="text-sm font-semibold text-oxblood mb-3">Smart attendance</div>
-            <h2 className="display text-3xl md:text-4xl text-ink">
+            <h2 className="text-2xl md:text-3xl font-bold text-ink">
               The roll, called by the camera.
             </h2>
             <p className="mt-4 text-ink-soft leading-relaxed max-w-md">

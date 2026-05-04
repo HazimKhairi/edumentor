@@ -29,7 +29,7 @@ export default function FeedbackPage() {
           <div className="text-sm text-ink-muted mb-2">
             <span>Home</span> / <span className="text-ink">Reviews</span>
           </div>
-          <h1 className="display text-4xl md:text-5xl">Mentor reviews</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Mentor reviews</h1>
           <p className="mt-3 text-ink-soft">
             Anonymous, recorded, and considered by the registrar at term&apos;s end.
           </p>

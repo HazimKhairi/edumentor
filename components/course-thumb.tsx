@@ -1,10 +1,10 @@
 import clsx from "clsx";
 
 const palettes: Record<string, { from: string; to: string; ink: string; tag: string }> = {
-  oxblood: { from: "#7a1f1f", to: "#3d0f0f", ink: "#fbf3e8", tag: "#c98729" },
-  fern:    { from: "#2f4a3a", to: "#152419", ink: "#fbf3e8", tag: "#c98729" },
-  saffron: { from: "#e0a651", to: "#9b6116", ink: "#1c1a17", tag: "#7a1f1f" },
-  ink:     { from: "#2b2723", to: "#0d0c0a", ink: "#fbf3e8", tag: "#c98729" },
+  oxblood: { from: "#4f46e5", to: "#3730a3", ink: "#ffffff", tag: "#fbbf24" },
+  fern:    { from: "#0ea5e9", to: "#0369a1", ink: "#ffffff", tag: "#fbbf24" },
+  saffron: { from: "#a855f7", to: "#7e22ce", ink: "#ffffff", tag: "#fbbf24" },
+  ink:     { from: "#1e293b", to: "#0f172a", ink: "#ffffff", tag: "#a855f7" },
 };
 
 export function CourseThumb({

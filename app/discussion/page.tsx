@@ -20,7 +20,7 @@ export default function DiscussionPage() {
           <div className="text-sm text-ink-muted mb-2">
             <span>Home</span> / <span className="text-ink">Discussion</span>
           </div>
-          <h1 className="display text-4xl md:text-5xl">Questions & discussion</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Questions & discussion</h1>
           <p className="mt-3 text-ink-soft">
             Ask, answer, and search through the room. Mentors pin what shouldn&apos;t drift.
           </p>

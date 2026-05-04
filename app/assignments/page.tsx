@@ -34,7 +34,7 @@ export default function AssignmentsPage() {
           <div className="text-sm text-ink-muted mb-2">
             <span>Home</span> / <span className="text-ink">Assignments</span>
           </div>
-          <h1 className="display text-4xl md:text-5xl">My assignments</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">My assignments</h1>
           <p className="mt-3 text-ink-soft">
             {open.length} open · {closed.length} closed · Late submissions lose 2 points/day.
           </p>

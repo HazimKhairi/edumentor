@@ -45,7 +45,7 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-12 gap-6 items-center">
           <div className="col-span-12 md:col-span-8">
             <p className="text-sm font-medium text-oxblood mb-1">Sunday, 04 May 2026</p>
-            <h1 className="display text-4xl md:text-5xl">
+            <h1 className="text-2xl md:text-3xl font-bold">
               Welcome back, <span className="display-italic text-oxblood">Aiman</span>
             </h1>
             <p className="text-ink-soft mt-2">
@@ -86,7 +86,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="col-span-12 md:col-span-7 p-6 md:p-8 flex flex-col">
                   <span className="badge badge-oxblood w-fit mb-3">In progress</span>
-                  <h3 className="display text-2xl md:text-3xl mb-2">{continueCourse.title}</h3>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">{continueCourse.title}</h3>
                   <p className="text-sm text-ink-muted">
                     {continueCourse.mentor} · {continueCourse.code}
                   </p>
