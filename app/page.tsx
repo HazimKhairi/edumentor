@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
 import { SectionHeading } from "@/components/section-heading";
 import { StarRating } from "@/components/star-rating";
+import { IllustrationMentor } from "@/components/illustrations";
 import { COURSES, FEEDBACK_ENTRIES, ROLES, STATS } from "@/lib/data";
 
 const CATEGORIES = [
@@ -185,12 +186,20 @@ export default function HomePage() {
       <section>
         <div className="mx-auto max-w-[1400px] px-6 py-16 grid grid-cols-12 gap-8 items-center">
           <div className="col-span-12 md:col-span-5">
-            <div className="card p-2 bg-oxblood text-bone overflow-hidden">
-              <div className="aspect-square rounded-md bg-gradient-to-br from-oxblood to-oxblood-deep flex items-end p-8">
-                <div>
-                  <div className="text-sm font-semibold text-saffron mb-2">Mentor of the term</div>
-                  <div className="display text-4xl">Dr. Aishah <span className="display-italic">Mokhtar</span></div>
-                  <p className="text-sm mt-3 opacity-80">MAT CS110 , Discrete Structures</p>
+            <div className="card p-0 overflow-hidden">
+              <div className="relative aspect-square">
+                <IllustrationMentor className="absolute inset-0 w-full h-full" />
+                <div
+                  className="absolute inset-x-0 bottom-0 p-6"
+                  style={{ background: "linear-gradient(to top, rgba(28,26,23,0.85), rgba(28,26,23,0))", color: "var(--color-bone)" }}
+                >
+                  <div className="text-sm font-semibold mb-1" style={{ color: "var(--color-saffron)" }}>
+                    Mentor of the term
+                  </div>
+                  <div className="text-2xl font-bold">Dr. Aishah Mokhtar</div>
+                  <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.8)" }}>
+                    MAT CS110, Discrete Structures
+                  </p>
                 </div>
               </div>
             </div>

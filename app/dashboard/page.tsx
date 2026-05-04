@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
 import { SectionHeading } from "@/components/section-heading";
 import { StarRating } from "@/components/star-rating";
+import { IllustrationLearning } from "@/components/illustrations";
 import {
   ASSIGNMENTS,
   ATTENDANCE_SESSIONS,
@@ -82,7 +83,9 @@ export default function DashboardPage() {
             <div className="col-span-12 lg:col-span-8 card overflow-hidden p-0">
               <div className="grid grid-cols-12">
                 <div className="col-span-12 md:col-span-5">
-                  <div className="aspect-video md:aspect-square bg-gradient-to-br from-oxblood to-oxblood-deep" />
+                  <div className="aspect-video md:aspect-square overflow-hidden">
+                    <IllustrationLearning className="w-full h-full" />
+                  </div>
                 </div>
                 <div className="col-span-12 md:col-span-7 p-6 md:p-8 flex flex-col">
                   <span className="badge badge-oxblood w-fit mb-3">In progress</span>
