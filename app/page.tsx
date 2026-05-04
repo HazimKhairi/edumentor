@@ -277,36 +277,54 @@ export default function HomePage() {
           </div>
 
           <div className="col-span-12 md:col-span-6">
-            <div className="card p-3 overflow-hidden">
-              <div className="relative aspect-[5/4] rounded-md overflow-hidden bg-gradient-to-br from-ink to-ink-soft">
-                <div className="absolute inset-6 border border-bone/20 rounded-sm">
-                  {[
-                    { x: 8, y: 12, w: 22, h: 28, name: "Aiman", ok: true },
-                    { x: 38, y: 10, w: 22, h: 30, name: "Sofea", ok: true },
-                    { x: 70, y: 16, w: 20, h: 26, name: "Faris", ok: true },
-                    { x: 12, y: 56, w: 22, h: 28, name: "Liyana", ok: false },
-                    { x: 44, y: 60, w: 22, h: 28, name: "Hafiz", ok: true },
-                    { x: 72, y: 58, w: 20, h: 26, name: "Iman", ok: true },
-                  ].map((b) => (
-                    <div
-                      key={b.name}
-                      className={`absolute border ${b.ok ? "border-saffron" : "border-bone/40 border-dashed"} rounded-sm`}
-                      style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%` }}
-                    >
-                      <div className={`absolute -top-5 left-0 text-[10px] font-semibold flex items-center gap-1 ${b.ok ? "text-saffron" : "text-bone/60"}`}>
-                        <span>{b.name}</span>
-                        {b.ok ? <Check size={10} /> : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="absolute top-3 left-4 text-xs font-medium text-bone/80 flex items-center gap-2">
+            {/* Live attendance preview card */}
+            <div className="card p-0 overflow-hidden shadow-sm">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-rule bg-paper-dark/50">
+                <div className="text-sm font-semibold">MAT CS110, Live class</div>
+                <span className="inline-flex items-center gap-2 text-xs font-semibold text-oxblood">
                   <span className="size-1.5 rounded-full bg-oxblood blink" />
-                  Live , 5 / 6 matched
+                  Live now
+                </span>
+              </div>
+
+              <div className="p-5">
+                <div className="flex items-baseline justify-between mb-3">
+                  <span className="text-sm text-ink-muted">Recognised today</span>
+                  <span className="text-sm font-semibold tabular">5 of 6 matched</span>
                 </div>
-                <div className="absolute bottom-3 right-4 text-xs text-bone/60">
-                  BD-3, Block A , 14:02
+                <div className="h-2 rounded-full bg-paper-dark overflow-hidden mb-5">
+                  <div className="h-full bg-oxblood rounded-full" style={{ width: "83%" }} />
                 </div>
+
+                <ul className="divide-y divide-rule">
+                  {[
+                    { name: "Aiman Hakimi", matric: "2023607832", ok: true },
+                    { name: "Nur Sofea", matric: "2023608112", ok: true },
+                    { name: "Faris Adlan", matric: "2023611901", ok: true },
+                    { name: "Liyana Aziz", matric: "2023612200", ok: false },
+                    { name: "Hafiz Ridzwan", matric: "2023612555", ok: true },
+                    { name: "Iman Yusoff", matric: "2023612823", ok: true },
+                  ].map((s) => (
+                    <li key={s.matric} className="flex items-center gap-3 py-2.5">
+                      <div className={`size-8 rounded-full flex items-center justify-center text-xs font-semibold ${
+                        s.ok ? "bg-fern/15 text-fern" : "bg-paper-dark text-ink-muted"
+                      }`}>
+                        {s.name.split(" ").map((p) => p[0]).slice(0, 2).join("")}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{s.name}</div>
+                        <div className="text-xs text-ink-muted tabular">{s.matric}</div>
+                      </div>
+                      {s.ok ? (
+                        <span className="badge badge-fern inline-flex items-center gap-1">
+                          <Check size={12} /> Present
+                        </span>
+                      ) : (
+                        <span className="badge badge-muted">Awaiting</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
@@ -316,29 +334,35 @@ export default function HomePage() {
       {/* CTA */}
       <section>
         <div className="mx-auto max-w-[1400px] px-6 pb-16">
-          <div className="card bg-ink text-bone p-10 md:p-14 grid grid-cols-12 gap-6 items-center border-ink">
+          <div
+            className="rounded-md p-10 md:p-14 grid grid-cols-12 gap-6 items-center"
+            style={{ backgroundColor: "var(--color-ink)", color: "var(--color-bone)" }}
+          >
             <div className="col-span-12 md:col-span-8">
-              <h2 className="display text-3xl md:text-5xl">
-                Ready to take a seat at the{" "}
-                <span className="display-italic text-saffron">desk?</span>
+              <h2 className="text-2xl md:text-3xl font-bold" style={{ color: "var(--color-bone)" }}>
+                Ready to start learning with EduMentor?
               </h2>
-              <p className="mt-4 text-bone/80 max-w-xl leading-relaxed">
+              <p className="mt-4 max-w-xl leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>
                 Sign in with your matric or staff number and pick a role.
-                The demo classroom is open | no payment, no permission slip.
+                The demo classroom is open, no payment, no permission slip.
               </p>
             </div>
             <div className="col-span-12 md:col-span-4 flex flex-wrap md:justify-end gap-3">
               <Link
                 href="/login"
                 className="btn btn-lg"
-                style={{ background: "var(--color-saffron)", color: "var(--color-ink)" }}
+                style={{ backgroundColor: "var(--color-saffron)", color: "#ffffff" }}
               >
                 Sign in
               </Link>
               <Link
                 href="/courses"
                 className="btn btn-lg"
-                style={{ borderColor: "rgba(255,255,255,0.3)", color: "var(--color-bone)", border: "1px solid rgba(255,255,255,0.3)" }}
+                style={{
+                  border: "1px solid rgba(255,255,255,0.3)",
+                  color: "var(--color-bone)",
+                  backgroundColor: "transparent",
+                }}
               >
                 Browse courses
               </Link>

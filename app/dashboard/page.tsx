@@ -121,38 +121,41 @@ export default function DashboardPage() {
 
             {live ? (
               <aside className="col-span-12 lg:col-span-4">
-                <div className="card p-6 bg-ink text-bone border-ink h-full flex flex-col">
+                <div
+                  className="rounded-md p-6 h-full flex flex-col"
+                  style={{ backgroundColor: "var(--color-ink)", color: "var(--color-bone)" }}
+                >
                   <div className="flex items-center justify-between mb-3">
-                    <span className="inline-flex items-center gap-2 text-sm font-semibold text-saffron">
-                      <span className="size-1.5 rounded-full bg-saffron blink" />
+                    <span className="inline-flex items-center gap-2 text-sm font-semibold" style={{ color: "var(--color-saffron)" }}>
+                      <span className="size-1.5 rounded-full blink" style={{ backgroundColor: "var(--color-saffron)" }} />
                       Live now
                     </span>
-                    <span className="text-xs text-bone/60">{live.time}</span>
+                    <span className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>{live.time}</span>
                   </div>
-                  <h3 className="display text-2xl mb-1">{live.course}</h3>
-                  <p className="text-sm text-bone/70 mb-5">Strong induction, trees</p>
+                  <h3 className="text-xl font-bold mb-1">{live.course}</h3>
+                  <p className="text-sm mb-5" style={{ color: "rgba(255,255,255,0.7)" }}>Strong induction, trees</p>
 
-                  <div className="grid grid-cols-3 gap-2 my-4 pb-4 border-b border-bone/15">
+                  <div className="grid grid-cols-3 gap-2 my-4 pb-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
                     <div>
-                      <div className="text-xs text-bone/60">Expected</div>
-                      <div className="font-display text-xl tabular">{live.expected}</div>
+                      <div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>Expected</div>
+                      <div className="text-xl font-bold tabular">{live.expected}</div>
                     </div>
                     <div>
-                      <div className="text-xs text-bone/60">Present</div>
-                      <div className="font-display text-xl tabular">42</div>
+                      <div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>Present</div>
+                      <div className="text-xl font-bold tabular">42</div>
                     </div>
                     <div>
-                      <div className="text-xs text-bone/60">Late</div>
-                      <div className="font-display text-xl tabular">3</div>
+                      <div className="text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>Late</div>
+                      <div className="text-xl font-bold tabular">3</div>
                     </div>
                   </div>
 
-                  <p className="text-sm text-bone/70 mb-4">{live.room}</p>
+                  <p className="text-sm mb-4" style={{ color: "rgba(255,255,255,0.7)" }}>{live.room}</p>
 
                   <Link
                     href="/attendance"
                     className="btn btn-lg mt-auto"
-                    style={{ background: "var(--color-saffron)", color: "var(--color-ink)" }}
+                    style={{ backgroundColor: "var(--color-saffron)", color: "#ffffff" }}
                   >
                     Join the room
                   </Link>

@@ -133,13 +133,16 @@ export default function FeedbackPage() {
 
           {/* Aggregate */}
           <aside className="col-span-12 lg:col-span-5">
-            <div className="card p-6 mb-4 bg-gradient-to-br from-oxblood to-oxblood-deep text-bone">
-              <p className="text-sm text-saffron font-semibold mb-2">Term average</p>
-              <div className="display text-6xl">
+            <div
+              className="rounded-md p-6 mb-4"
+              style={{ backgroundColor: "var(--color-oxblood)", color: "var(--color-bone)" }}
+            >
+              <p className="text-sm font-semibold mb-2" style={{ color: "var(--color-saffron)" }}>Term average</p>
+              <div className="text-5xl font-bold">
                 {avg.toFixed(1)}
-                <span className="text-saffron text-3xl ml-1">/ 5</span>
+                <span className="text-2xl ml-1" style={{ color: "var(--color-saffron)" }}>/ 5</span>
               </div>
-              <p className="text-sm text-bone/80 mt-2">
+              <p className="text-sm mt-2" style={{ color: "rgba(255,255,255,0.8)" }}>
                 {FEEDBACK_ENTRIES.reduce((s, f) => s + f.n, 0)} responses across {FEEDBACK_ENTRIES.length} mentors
               </p>
             </div>
