@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, LogOut, Search, ShieldCheck, UserCog } from "lucide-react";
 import { NAV } from "@/lib/data";
 
 const CATEGORIES = [
@@ -61,12 +61,6 @@ export function SiteNav() {
           <Link href="/dashboard" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
             My learning
           </Link>
-          <Link href="/mentor" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
-            Mentor
-          </Link>
-          <Link href="/admin" className="px-3 py-2 text-sm font-medium text-ink-soft hover:text-ink">
-            Admin
-          </Link>
         </nav>
 
         <div className="flex items-center gap-2 ml-auto lg:ml-0">
@@ -76,6 +70,46 @@ export function SiteNav() {
           <Link href="/register" className="btn btn-primary btn-sm">
             Get started
           </Link>
+
+          {/* Account dropdown — gates role-specific consoles behind a
+              user menu instead of exposing them as top-level nav items */}
+          <details className="relative">
+            <summary
+              className="list-none cursor-pointer flex items-center gap-2 pl-1 pr-2 py-1 rounded-full border border-rule hover:border-ink"
+              aria-label="Account menu"
+            >
+              <span className="size-7 rounded-full bg-oxblood text-bone flex items-center justify-center text-xs font-semibold">
+                AH
+              </span>
+              <ChevronDown size={14} className="text-ink-muted" />
+            </summary>
+            <div className="absolute right-0 top-full mt-1 w-60 bg-bone border border-rule rounded-md shadow-lg py-1 z-50">
+              <div className="px-3 py-2 border-b border-rule mb-1">
+                <div className="text-sm font-semibold">Aiman Hakimi</div>
+                <div className="text-xs text-ink-muted">2023607832, Mentee</div>
+              </div>
+              <Link href="/dashboard" className="block px-3 py-2 text-sm hover:bg-paper-dark">
+                My learning
+              </Link>
+              <Link href="/feedback" className="block px-3 py-2 text-sm hover:bg-paper-dark">
+                Reviews
+              </Link>
+              <div className="border-t border-rule my-1" />
+              <div className="px-3 pt-2 pb-1 text-xs text-ink-muted uppercase tracking-wide">
+                Switch console
+              </div>
+              <Link href="/mentor" className="px-3 py-2 text-sm hover:bg-paper-dark flex items-center gap-2">
+                <UserCog size={14} className="text-ink-muted" /> Mentor console
+              </Link>
+              <Link href="/admin" className="px-3 py-2 text-sm hover:bg-paper-dark flex items-center gap-2">
+                <ShieldCheck size={14} className="text-ink-muted" /> Admin console
+              </Link>
+              <div className="border-t border-rule my-1" />
+              <Link href="/login" className="px-3 py-2 text-sm hover:bg-paper-dark flex items-center gap-2 text-ink-muted">
+                <LogOut size={14} /> Sign out
+              </Link>
+            </div>
+          </details>
         </div>
       </div>
 
