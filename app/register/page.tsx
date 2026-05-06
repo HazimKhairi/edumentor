@@ -65,7 +65,7 @@ export default function RegisterPage() {
 
           <h1 className="text-2xl font-bold mb-2">Create your account</h1>
           <p className="text-ink-muted text-sm mb-8">
-            Students sign up with matric, lecturers with FCMS staff number.
+            For UiTM students. Lecturer (admin) accounts are issued by the registrar.
           </p>
 
           <form className="space-y-5">
@@ -98,7 +98,7 @@ export default function RegisterPage() {
                 autoComplete="username"
               />
               <p className="text-xs text-ink-muted mt-1.5">
-                Mentee or mentor, your matric. Admin (lecturer) accounts use FCMS staff number and are issued by the registrar.
+                Both mentee and mentor sign up with their UiTM matric number.
               </p>
             </div>
 
@@ -117,8 +117,8 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-medium text-ink mb-2">I am signing up as</label>
-              <div className="grid grid-cols-3 gap-2">
-                {ROLES.map((r) => (
+              <div className="grid grid-cols-2 gap-2">
+                {ROLES.filter((r) => r.key !== "Admin").map((r) => (
                   <label
                     key={r.key}
                     className="relative flex flex-col items-center gap-1 p-3 rounded-md border border-rule cursor-pointer hover:border-ink has-[:checked]:border-oxblood has-[:checked]:bg-oxblood/[0.04] transition-colors"
@@ -136,7 +136,7 @@ export default function RegisterPage() {
                 ))}
               </div>
               <p className="text-xs text-ink-muted mt-2">
-                Mentor applications need CGPA proof. Admin accounts are issued by the registrar to faculty lecturers.
+                Mentor applications need CGPA proof. Admin (lecturer) accounts are issued internally by the registrar and cannot self-register.
               </p>
             </div>
 
