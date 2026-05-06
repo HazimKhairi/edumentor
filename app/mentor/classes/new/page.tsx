@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { ClassFormatPicker } from "@/components/class-format-picker";
 
 export const metadata = {
   title: "Create class | Mentor",
@@ -74,19 +75,7 @@ export default function NewClassPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Format</label>
-              <div className="flex flex-wrap gap-2">
-                {["In person", "Online", "Hybrid"].map((f, i) => (
-                  <label key={f} className="cursor-pointer">
-                    <input type="radio" name="format" defaultChecked={i === 0} className="sr-only peer" />
-                    <span className="px-3 py-1.5 rounded-full text-sm border border-rule peer-checked:bg-ink peer-checked:text-bone peer-checked:border-ink">
-                      {f}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            <ClassFormatPicker />
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Notes for junior students</label>

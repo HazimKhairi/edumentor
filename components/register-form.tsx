@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Camera,
   Check,
@@ -10,7 +10,16 @@ import {
   Video,
   VideoOff,
 } from "lucide-react";
-import { ROLES } from "@/lib/data";
+import {
+  COURSES,
+  MENTOR_MIN_CGPA,
+  MENTOR_SUBJECT_CAP,
+  ROLES,
+  SEMESTERS,
+  type Semester,
+  coursesForMentee,
+  coursesForMentor,
+} from "@/lib/data";
 
 type FaceApi = typeof import("@vladmandic/face-api");
 
@@ -21,7 +30,14 @@ type RoleKey = "Mentor" | "Mentee";
 export function RegisterForm() {
   const [matric, setMatric] = useState("");
   const [role, setRole] = useState<RoleKey>("Mentee");
+  const [semester, setSemester] = useState<Semester>(1);
+  const [pickedCourses, setPickedCourses] = useState<string[]>([]);
   const [faceCaptured, setFaceCaptured] = useState(false);
+
+  // Reset course picks when role or semester changes — they may no longer be eligible.
+  useEffect(() => {
+    setPickedCourses([]);
+  }, [role, semester]);
 
   return (
     <form className="space-y-4">
@@ -77,35 +93,57 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <div>
-        <label className="block text-xs font-medium text-ink mb-1.5">
-          I am signing up as
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {ROLES.filter((r) => r.key !== "Admin").map((r) => (
-            <label
-              key={r.key}
-              className="relative flex items-center gap-2 px-3 py-2 rounded-md border border-rule cursor-pointer hover:border-ink has-[:checked]:border-oxblood has-[:checked]:bg-oxblood/[0.04] transition-colors"
-            >
-              <input
-                type="radio"
-                name="role"
-                value={r.key}
-                checked={role === r.key}
-                onChange={() => setRole(r.key as RoleKey)}
-                className="sr-only"
-              />
-              <span className="text-[10px] text-ink-muted font-semibold">
-                {r.abbr}
-              </span>
-              <span className="text-sm font-medium">{r.key}</span>
-            </label>
-          ))}
+      <div className="grid grid-cols-12 gap-3">
+        <div className="col-span-7">
+          <label className="block text-xs font-medium text-ink mb-1.5">
+            I am signing up as
+          </label>
+          <div className="grid grid-cols-2 gap-2">
+            {ROLES.filter((r) => r.key !== "Admin").map((r) => (
+              <label
+                key={r.key}
+                className="relative flex items-center gap-2 px-3 py-2 rounded-md border border-rule cursor-pointer hover:border-ink has-[:checked]:border-oxblood has-[:checked]:bg-oxblood/[0.04] transition-colors"
+              >
+                <input
+                  type="radio"
+                  name="role"
+                  value={r.key}
+                  checked={role === r.key}
+                  onChange={() => setRole(r.key as RoleKey)}
+                  className="sr-only"
+                />
+                <span className="text-[10px] text-ink-muted font-semibold">
+                  {r.abbr}
+                </span>
+                <span className="text-sm font-medium">{r.key}</span>
+              </label>
+            ))}
+          </div>
         </div>
-        <p className="text-[11px] text-ink-muted mt-1.5">
-          Admin (lecturer) accounts are issued internally and cannot self-register.
-        </p>
+        <div className="col-span-5">
+          <label className="block text-xs font-medium text-ink mb-1.5">
+            Current semester
+          </label>
+          <select
+            value={semester}
+            onChange={(e) => setSemester(Number(e.target.value) as Semester)}
+            className="input py-2 text-sm"
+          >
+            {SEMESTERS.map((s) => (
+              <option key={s} value={s}>
+                Semester {s}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+
+      <CoursePicker
+        role={role}
+        semester={semester}
+        picked={pickedCourses}
+        onChange={setPickedCourses}
+      />
 
       <FaceCaptureStep
         matric={matric}
@@ -134,7 +172,105 @@ export function RegisterForm() {
       <Link href="/login" className="btn btn-primary w-full">
         Create account
       </Link>
+
+      <p className="text-[11px] text-ink-muted text-center">
+        Admin (lecturer) accounts are issued internally and cannot self-register.
+      </p>
     </form>
+  );
+}
+
+function CoursePicker({
+  role,
+  semester,
+  picked,
+  onChange,
+}: {
+  role: RoleKey;
+  semester: Semester;
+  picked: string[];
+  onChange: (next: string[]) => void;
+}) {
+  const eligible = useMemo(
+    () =>
+      role === "Mentor"
+        ? coursesForMentor(semester)
+        : coursesForMentee(semester),
+    [role, semester],
+  );
+
+  const cap = role === "Mentor" ? MENTOR_SUBJECT_CAP : COURSES.length;
+  const reachedCap = picked.length >= cap;
+
+  const toggle = (id: string) => {
+    if (picked.includes(id)) {
+      onChange(picked.filter((x) => x !== id));
+      return;
+    }
+    if (reachedCap) return;
+    onChange([...picked, id]);
+  };
+
+  const helper =
+    role === "Mentor"
+      ? `Pick up to ${MENTOR_SUBJECT_CAP} subjects from semesters you have already passed.`
+      : "Pick the subjects you are taking this semester.";
+
+  return (
+    <div className="rounded-md border border-rule bg-paper-dark/40 p-3 space-y-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <label className="block text-xs font-semibold text-ink">
+          {role === "Mentor" ? "Subjects to mentor" : "Subjects to join"}
+        </label>
+        <span className="text-[11px] text-ink-muted tabular">
+          {picked.length} / {role === "Mentor" ? MENTOR_SUBJECT_CAP : eligible.length}
+        </span>
+      </div>
+      <p className="text-[11px] text-ink-muted">{helper}</p>
+
+      {eligible.length === 0 ? (
+        <p className="text-[11px] text-ink-soft py-2">
+          {role === "Mentor"
+            ? "No earlier-semester subjects available, mentors must have passed at least one semester."
+            : "No subjects offered for this semester yet."}
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+          {eligible.map((c) => {
+            const isPicked = picked.includes(c.id);
+            const disabled = !isPicked && reachedCap;
+            return (
+              <label
+                key={c.id}
+                className={`flex items-start gap-2 px-2.5 py-2 rounded-md border text-xs cursor-pointer transition-colors ${
+                  isPicked
+                    ? "border-oxblood bg-oxblood/[0.05]"
+                    : disabled
+                      ? "border-rule opacity-50 cursor-not-allowed"
+                      : "border-rule hover:border-ink"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={isPicked}
+                  onChange={() => toggle(c.id)}
+                  disabled={disabled}
+                  className="size-3.5 mt-0.5 accent-oxblood shrink-0"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block font-semibold text-ink truncate">
+                    {c.code}
+                  </span>
+                  <span className="block text-[10px] text-ink-muted truncate">
+                    Sem {c.semester} | {c.title}
+                  </span>
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -143,8 +279,10 @@ function MentorEligibilityFields() {
     <div className="rounded-md border border-rule bg-paper-dark/40 p-3 space-y-3">
       <p className="text-xs text-ink-muted leading-relaxed">
         Mentor applicants need a current CGPA of{" "}
-        <span className="font-semibold text-ink">3.20 or higher</span>.
-        Reviewed by the registrar.
+        <span className="font-semibold text-ink">
+          {MENTOR_MIN_CGPA.toFixed(2)} or higher
+        </span>
+        . Reviewed by the registrar.
       </p>
 
       <div className="grid grid-cols-12 gap-2">
@@ -163,26 +301,15 @@ function MentorEligibilityFields() {
         </div>
         <div className="col-span-7">
           <label className="block text-xs font-medium text-ink mb-1">
-            Latest semester
+            Latest transcript (PDF)
           </label>
-          <select className="input py-2 text-sm">
-            <option>Semester 02 / 2026</option>
-            <option>Semester 01 / 2026</option>
-            <option>Semester 02 / 2025</option>
-          </select>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm w-full justify-center border border-dashed border-rule"
+          >
+            Browse files, up to 5 MB
+          </button>
         </div>
-      </div>
-
-      <div>
-        <label className="block text-xs font-medium text-ink mb-1">
-          Latest transcript (PDF)
-        </label>
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm w-full justify-center border border-dashed border-rule"
-        >
-          Browse files , up to 5 MB
-        </button>
       </div>
     </div>
   );

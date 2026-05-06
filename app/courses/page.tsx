@@ -2,47 +2,49 @@ import { ChevronDown, Search, Star } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
-import { COURSES, FEEDBACK_ENTRIES } from "@/lib/data";
+import { COURSES, FEEDBACK_ENTRIES, SEMESTERS } from "@/lib/data";
 
 export const metadata = {
   title: "Courses | EduMentor",
   description: "Browse the full course catalogue for the term.",
 };
 
+const semesterCounts = SEMESTERS.map((s) => ({
+  label: `Semester ${s}`,
+  count: COURSES.filter((c) => c.semester === s).length,
+}));
+
+const mentorCounts = Array.from(
+  COURSES.reduce<Map<string, number>>((acc, c) => {
+    acc.set(c.mentor, (acc.get(c.mentor) ?? 0) + 1);
+    return acc;
+  }, new Map()),
+).map(([label, count]) => ({ label, count }));
+
 const FILTERS = [
   {
     title: "Subject",
     options: [
-      { label: "Computer Science", count: 2 },
-      { label: "Mathematics", count: 1 },
-      { label: "Statistics", count: 1 },
-      { label: "Foundation", count: 1 },
+      { label: "Computer Science", count: COURSES.filter((c) => c.code.startsWith("CS")).length },
+      { label: "Mathematics",      count: COURSES.filter((c) => c.code.startsWith("MAT")).length },
+      { label: "Statistics",       count: COURSES.filter((c) => c.code.startsWith("STA")).length },
     ],
   },
   {
-    title: "Level",
-    options: [
-      { label: "Foundation", count: 1 },
-      { label: "Year 1", count: 1 },
-      { label: "Year 2", count: 2 },
-      { label: "Year 3", count: 0 },
-    ],
+    title: "Semester",
+    options: semesterCounts,
   },
   {
     title: "Schedule",
     options: [
-      { label: "Mornings", count: 2 },
-      { label: "Afternoons", count: 2 },
-      { label: "Online available", count: 4 },
+      { label: "Mornings", count: COURSES.filter((c) => /\b0?[7-9]:|\b1[01]:/.test(c.pace)).length },
+      { label: "Afternoons", count: COURSES.filter((c) => /\b1[2-7]:/.test(c.pace)).length },
+      { label: "Online available", count: COURSES.length },
     ],
   },
   {
     title: "Mentor (senior student)",
-    options: [
-      { label: "Adam Iskandar Razak", count: 2 },
-      { label: "Nadia Aiman Zulkifli", count: 1 },
-      { label: "Daniel Hakimi Othman", count: 1 },
-    ],
+    options: mentorCounts,
   },
 ];
 

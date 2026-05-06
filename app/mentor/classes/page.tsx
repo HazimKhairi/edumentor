@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, Plus, Camera } from "lucide-react";
+import { Plus, Camera, Video } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CLASSES } from "@/lib/data";
@@ -52,8 +52,18 @@ export default function MentorClassesPage() {
               </span>
               <div className="flex-1 min-w-[200px]">
                 <h2 className="font-semibold text-lg">{live.course}, {live.topic}</h2>
-                <p className="text-sm text-ink-muted">{live.room} | {live.time} | {live.date}</p>
+                <p className="text-sm text-ink-muted">{live.room} | {live.time} | {live.date} | {live.format}</p>
               </div>
+              {live.meetingLink ? (
+                <a
+                  href={live.meetingLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary"
+                >
+                  <Video size={16} /> Join Google Meet
+                </a>
+              ) : null}
               <Link href="/attendance" className="btn btn-primary">
                 <Camera size={16} /> Open attendance
               </Link>
@@ -73,7 +83,8 @@ export default function MentorClassesPage() {
                   <th className="px-4 py-3 font-semibold">Time</th>
                   <th className="px-4 py-3 font-semibold">Course</th>
                   <th className="px-4 py-3 font-semibold">Topic</th>
-                  <th className="px-4 py-3 font-semibold">Room</th>
+                  <th className="px-4 py-3 font-semibold">Format</th>
+                  <th className="px-4 py-3 font-semibold">Room / Link</th>
                   <th className="px-4 py-3 font-semibold">State</th>
                   <th className="px-4 py-3 font-semibold text-right">Actions</th>
                 </tr>
@@ -85,7 +96,21 @@ export default function MentorClassesPage() {
                     <td className="px-4 py-3 tabular">{c.time}</td>
                     <td className="px-4 py-3 font-medium">{c.course}</td>
                     <td className="px-4 py-3">{c.topic}</td>
-                    <td className="px-4 py-3 text-ink-muted">{c.room}</td>
+                    <td className="px-4 py-3 text-ink-muted">{c.format}</td>
+                    <td className="px-4 py-3 text-ink-muted">
+                      {c.meetingLink ? (
+                        <a
+                          href={c.meetingLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-oxblood font-medium hover:text-oxblood-deep"
+                        >
+                          <Video size={12} /> Google Meet
+                        </a>
+                      ) : (
+                        c.room
+                      )}
+                    </td>
                     <td className="px-4 py-3"><span className={stateBadge[c.state]}>{c.state}</span></td>
                     <td className="px-4 py-3 text-right">
                       {c.state === "Live" ? (

@@ -9,6 +9,15 @@ export const SUBJECT = {
   semester: "Semester 02 / 2026",
 };
 
+// B.Sc. (Hons) Computer Science is a 6-semester programme at FCMS.
+export const SEMESTERS = [1, 2, 3, 4, 5, 6] as const;
+export type Semester = (typeof SEMESTERS)[number];
+
+// A mentor cannot mentor more than this many subjects at once.
+export const MENTOR_SUBJECT_CAP = 3;
+// Mentors must hold this CGPA or above.
+export const MENTOR_MIN_CGPA = 3.2;
+
 export const ROLES: {
   key: Role;
   abbr: string;
@@ -59,7 +68,24 @@ export const NAV = [
   { href: "/feedback", label: "Feedback", numeral: "06" },
 ];
 
-export const COURSES = [
+export type Course = {
+  id: string;
+  code: string;
+  title: string;
+  mentor: string;
+  lecturer: string;
+  cohort: string;
+  semester: Semester;
+  enrolled: number;
+  capacity: number;
+  sessions: number;
+  pace: string;
+  color: string;
+  abstract: string;
+  progress: number;
+};
+
+export const COURSES: Course[] = [
   {
     id: "cs110",
     code: "MAT CS110",
@@ -67,6 +93,7 @@ export const COURSES = [
     mentor: "Adam Iskandar Razak",
     lecturer: "Dr. Aishah Mokhtar",
     cohort: "B.Sc. CS, Year 1",
+    semester: 1,
     enrolled: 48,
     capacity: 60,
     sessions: 24,
@@ -77,12 +104,30 @@ export const COURSES = [
     progress: 64,
   },
   {
+    id: "stat101",
+    code: "STA 116",
+    title: "Statistical Reasoning",
+    mentor: "Adam Iskandar Razak",
+    lecturer: "Dr. Aishah Mokhtar",
+    cohort: "B.Sc. CS, Year 1",
+    semester: 1,
+    enrolled: 51,
+    capacity: 80,
+    sessions: 22,
+    pace: "Wed, 11:00",
+    color: "ink",
+    abstract:
+      "Sampling, inference, and elementary Bayesian thinking with R-based labs.",
+    progress: 73,
+  },
+  {
     id: "cs220",
     code: "CSC 234",
     title: "Algorithms in Practice",
     mentor: "Nadia Aiman Zulkifli",
     lecturer: "Dr. Faiz Rashid",
     cohort: "B.Sc. CS, Year 2",
+    semester: 3,
     enrolled: 32,
     capacity: 40,
     sessions: 20,
@@ -99,6 +144,7 @@ export const COURSES = [
     mentor: "Daniel Hakimi Othman",
     lecturer: "Pn. Liyana Hashim",
     cohort: "B.Sc. CS, Year 2",
+    semester: 4,
     enrolled: 27,
     capacity: 40,
     sessions: 18,
@@ -108,23 +154,17 @@ export const COURSES = [
       "Matrices, vector spaces, eigenstructure, and PCA, oriented toward machine learning intuition.",
     progress: 28,
   },
-  {
-    id: "stat101",
-    code: "STA 116",
-    title: "Statistical Reasoning",
-    mentor: "Adam Iskandar Razak",
-    lecturer: "Dr. Aishah Mokhtar",
-    cohort: "Foundation",
-    enrolled: 51,
-    capacity: 80,
-    sessions: 22,
-    pace: "Wed, 11:00",
-    color: "ink",
-    abstract:
-      "Sampling, inference, and elementary Bayesian thinking with R-based labs.",
-    progress: 73,
-  },
 ];
+
+// Mentees can only join subjects taught in their current semester.
+export function coursesForMentee(semester: Semester) {
+  return COURSES.filter((c) => c.semester === semester);
+}
+
+// Mentors can only mentor subjects from semesters they have already passed.
+export function coursesForMentor(semester: Semester) {
+  return COURSES.filter((c) => c.semester < semester);
+}
 
 export const ROOMS = [
   {
@@ -403,21 +443,37 @@ export const STATS = [
   { label: "Attendance accuracy", value: "98.4%", caption: "face recognition, last 30 days" },
 ];
 
-export const USERS = [
-  // Junior students (Mentees)
-  { id: "u-001", name: "Aiman Hakimi", identity: "2023607832", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
-  { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
-  { id: "u-003", name: "Faris Adlan", identity: "2023611901", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
-  { id: "u-004", name: "Liyana Aziz", identity: "2023612200", role: "Mentee" as Role, status: "Probation", joined: "2024-09-01" },
-  { id: "u-005", name: "Hafiz Ridzwan", identity: "2023612555", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
-  // Senior students (Mentors), matric numbers from earlier intakes (2021/2022)
-  { id: "u-006", name: "Adam Iskandar Razak", identity: "2022613001", role: "Mentor" as Role, status: "Active", joined: "2022-09-01" },
-  { id: "u-007", name: "Nadia Aiman Zulkifli", identity: "2022613055", role: "Mentor" as Role, status: "Active", joined: "2022-09-01" },
-  { id: "u-008", name: "Daniel Hakimi Othman", identity: "2021607123", role: "Mentor" as Role, status: "Active", joined: "2021-09-01" },
-  // Lecturers (Admins), FCMS staff numbers
-  { id: "u-009", name: "Dr. Aishah Mokhtar", identity: "FCMS-184", role: "Admin" as Role, status: "Active", joined: "2018-02-12" },
-  { id: "u-010", name: "Dr. Faiz Rashid", identity: "FCMS-209", role: "Admin" as Role, status: "Active", joined: "2020-08-04" },
-  { id: "u-011", name: "Pn. Liyana Hashim", identity: "FCMS-232", role: "Admin" as Role, status: "Active", joined: "2022-01-10" },
+export type AppUser = {
+  id: string;
+  name: string;
+  identity: string;
+  role: Role;
+  status: string;
+  joined: string;
+  // Current semester for students (mentees and mentors). Lecturers omit this.
+  semester?: Semester;
+  // Course IDs the user is paired with this term.
+  // Mentees: subjects they joined (must match their semester).
+  // Mentors: subjects they mentor (must be from semesters they passed).
+  courses?: string[];
+};
+
+export const USERS: AppUser[] = [
+  // Junior students (Mentees), all in semester 1.
+  { id: "u-001", name: "Aiman Hakimi",     identity: "2023607832", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110", "stat101"] },
+  { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110"] },
+  { id: "u-003", name: "Faris Adlan",      identity: "2023611901", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110", "stat101"] },
+  { id: "u-004", name: "Liyana Aziz",      identity: "2023612200", role: "Mentee", status: "Probation", joined: "2024-09-01", semester: 1, courses: ["stat101"] },
+  { id: "u-005", name: "Hafiz Ridzwan",    identity: "2023612555", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110"] },
+  // Senior students (Mentors), matric from earlier intakes (2021/2022).
+  // Adam (sem 3) mentors sem 1 subjects, Nadia (sem 5) mentors sem 3, Daniel (sem 6) mentors sem 4.
+  { id: "u-006", name: "Adam Iskandar Razak",  identity: "2022613001", role: "Mentor", status: "Active", joined: "2022-09-01", semester: 3, courses: ["cs110", "stat101"] },
+  { id: "u-007", name: "Nadia Aiman Zulkifli", identity: "2022613055", role: "Mentor", status: "Active", joined: "2022-09-01", semester: 5, courses: ["cs220"] },
+  { id: "u-008", name: "Daniel Hakimi Othman", identity: "2021607123", role: "Mentor", status: "Active", joined: "2021-09-01", semester: 6, courses: ["mat210"] },
+  // Lecturers (Admins), FCMS staff numbers.
+  { id: "u-009", name: "Dr. Aishah Mokhtar",   identity: "FCMS-184", role: "Admin", status: "Active", joined: "2018-02-12" },
+  { id: "u-010", name: "Dr. Faiz Rashid",      identity: "FCMS-209", role: "Admin", status: "Active", joined: "2020-08-04" },
+  { id: "u-011", name: "Pn. Liyana Hashim",    identity: "FCMS-232", role: "Admin", status: "Active", joined: "2022-01-10" },
 ];
 
 export const EVALUATION_RUBRICS = [
@@ -453,9 +509,23 @@ export const EVALUATION_RUBRICS = [
   },
 ];
 
-export const CLASSES = [
-  { id: "cls-01", course: "MAT CS110", topic: "Strong induction on trees", date: "2026-05-04", time: "14:00", room: "BD-3, Block A", state: "Live" },
-  { id: "cls-02", course: "MAT CS110", topic: "Bijective proofs walkthrough", date: "2026-05-06", time: "14:00", room: "BD-3, Block A", state: "Scheduled" },
-  { id: "cls-03", course: "CSC 234", topic: "Topological sort lab", date: "2026-05-07", time: "10:00", room: "Lab 2", state: "Scheduled" },
-  { id: "cls-04", course: "MAT CS110", topic: "Peer office hours", date: "2026-05-08", time: "14:00", room: "Room 4-08", state: "Scheduled" },
+export type ClassFormat = "In person" | "Online" | "Hybrid";
+
+export type ClassSession = {
+  id: string;
+  course: string;
+  topic: string;
+  date: string;
+  time: string;
+  room: string;
+  state: "Live" | "Scheduled" | "Closed";
+  format: ClassFormat;
+  meetingLink?: string;
+};
+
+export const CLASSES: ClassSession[] = [
+  { id: "cls-01", course: "MAT CS110", topic: "Strong induction on trees",   date: "2026-05-04", time: "14:00", room: "BD-3, Block A", state: "Live",      format: "In person" },
+  { id: "cls-02", course: "MAT CS110", topic: "Bijective proofs walkthrough", date: "2026-05-06", time: "14:00", room: "Online",        state: "Scheduled", format: "Online", meetingLink: "https://meet.google.com/abc-defg-hij" },
+  { id: "cls-03", course: "CSC 234",   topic: "Topological sort lab",         date: "2026-05-07", time: "10:00", room: "Lab 2",          state: "Scheduled", format: "Hybrid", meetingLink: "https://meet.google.com/xyz-pqrs-tuv" },
+  { id: "cls-04", course: "MAT CS110", topic: "Peer office hours",            date: "2026-05-08", time: "14:00", room: "Room 4-08",      state: "Scheduled", format: "In person" },
 ];
