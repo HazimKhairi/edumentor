@@ -29,7 +29,7 @@ type Session = {
   expected: number;
 };
 
-const STORAGE_KEY = "edumentor:enrolled-faces:v1";
+const STORAGE_KEY = "edumentor:enrolled-faces:v2";
 const MATCH_THRESHOLD = 0.55;
 const DETECT_INTERVAL_MS = 250;
 
@@ -43,6 +43,8 @@ export function FaceAttendance({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const faceapiRef = useRef<FaceApi | null>(null);
+  // Descriptors are keyed by matric so this storage is shared with the
+  // register page (face capture happens at signup, KYC-style).
   const enrolledRef = useRef<Record<string, Float32Array>>({});
   const detectingRef = useRef(false);
 
@@ -52,8 +54,10 @@ export function FaceAttendance({
   const [cameraStatus, setCameraStatus] = useState<
     "idle" | "requesting" | "live" | "denied" | "error"
   >("idle");
-  const [enrolledIds, setEnrolledIds] = useState<Set<string>>(new Set());
-  const [presentIds, setPresentIds] = useState<Set<string>>(new Set());
+  const [enrolledMatrics, setEnrolledMatrics] = useState<Set<string>>(
+    new Set(),
+  );
+  const [presentMatrics, setPresentMatrics] = useState<Set<string>>(new Set());
   const [detectedFaceCount, setDetectedFaceCount] = useState(0);
   const [enrolling, setEnrolling] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -82,7 +86,7 @@ export function FaceAttendance({
     };
   }, []);
 
-  // Restore enrolled descriptors from localStorage
+  // Restore enrolled descriptors from localStorage (shared with register form)
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -90,12 +94,12 @@ export function FaceAttendance({
       if (!raw) return;
       const parsed = JSON.parse(raw) as Record<string, number[]>;
       const map: Record<string, Float32Array> = {};
-      for (const [id, arr] of Object.entries(parsed)) {
-        map[id] = new Float32Array(arr);
+      for (const [matric, arr] of Object.entries(parsed)) {
+        map[matric] = new Float32Array(arr);
       }
       enrolledRef.current = map;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from localStorage; SSR cannot access it during render
-      setEnrolledIds(new Set(Object.keys(map)));
+      setEnrolledMatrics(new Set(Object.keys(map)));
     } catch (e) {
       console.warn("failed to restore enrolled faces", e);
     }
@@ -104,8 +108,8 @@ export function FaceAttendance({
   const persistEnrolled = useCallback(() => {
     if (typeof window === "undefined") return;
     const obj: Record<string, number[]> = {};
-    for (const [id, d] of Object.entries(enrolledRef.current)) {
-      obj[id] = Array.from(d);
+    for (const [matric, d] of Object.entries(enrolledRef.current)) {
+      obj[matric] = Array.from(d);
     }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
   }, []);
@@ -180,29 +184,29 @@ export function FaceAttendance({
         const matchedThisFrame = new Set<string>();
 
         for (const det of detections) {
-          let bestId: string | null = null;
+          let bestMatric: string | null = null;
           let bestDist = Infinity;
-          for (const [id, desc] of enrolledEntries) {
+          for (const [matric, desc] of enrolledEntries) {
             const dist = faceapi.euclideanDistance(det.descriptor, desc);
             if (dist < bestDist) {
               bestDist = dist;
-              bestId = id;
+              bestMatric = matric;
             }
           }
-          const matched = bestId !== null && bestDist < MATCH_THRESHOLD;
+          const matched = bestMatric !== null && bestDist < MATCH_THRESHOLD;
           const student = matched
-            ? roster.find((r) => r.id === bestId)
+            ? roster.find((r) => r.matric === bestMatric)
             : null;
-          if (matched && bestId) matchedThisFrame.add(bestId);
+          if (matched && bestMatric) matchedThisFrame.add(bestMatric);
 
           const { x, y, width, height } = det.detection.box;
           ctx.lineWidth = 3;
           ctx.strokeStyle = matched ? "#15803d" : "#b91c1c";
           ctx.strokeRect(x, y, width, height);
 
-          const label = student?.name ?? "Unknown";
+          const label = student?.name ?? (matched ? "Enrolled (off-roster)" : "Unknown");
           const sub = matched
-            ? `${student?.matric}, dist ${bestDist.toFixed(2)}`
+            ? `${bestMatric}, dist ${bestDist.toFixed(2)}`
             : "Not enrolled";
           ctx.font = "600 14px sans-serif";
           const padding = 6;
@@ -220,12 +224,12 @@ export function FaceAttendance({
         }
 
         if (matchedThisFrame.size > 0) {
-          setPresentIds((prev) => {
+          setPresentMatrics((prev) => {
             let changed = false;
             const next = new Set(prev);
-            for (const id of matchedThisFrame) {
-              if (!next.has(id)) {
-                next.add(id);
+            for (const matric of matchedThisFrame) {
+              if (!next.has(matric)) {
+                next.add(matric);
                 changed = true;
               }
             }
@@ -250,7 +254,8 @@ export function FaceAttendance({
     async (studentId: string) => {
       const faceapi = faceapiRef.current;
       const video = videoRef.current;
-      if (!faceapi || !video || cameraStatus !== "live") {
+      const student = roster.find((r) => r.id === studentId);
+      if (!faceapi || !video || cameraStatus !== "live" || !student) {
         setStatusMessage("Start the camera first.");
         window.setTimeout(() => setStatusMessage(null), 3000);
         return;
@@ -275,12 +280,11 @@ export function FaceAttendance({
         }
         enrolledRef.current = {
           ...enrolledRef.current,
-          [studentId]: detection.descriptor,
+          [student.matric]: detection.descriptor,
         };
         persistEnrolled();
-        setEnrolledIds((prev) => new Set(prev).add(studentId));
-        const student = roster.find((r) => r.id === studentId);
-        setStatusMessage(`Enrolled ${student?.name ?? studentId}.`);
+        setEnrolledMatrics((prev) => new Set(prev).add(student.matric));
+        setStatusMessage(`Enrolled ${student.name} (${student.matric}).`);
       } catch (e) {
         console.error("enroll failed", e);
         setStatusMessage("Enrolment failed, try again.");
@@ -294,15 +298,15 @@ export function FaceAttendance({
 
   const clearEnrolment = useCallback(() => {
     enrolledRef.current = {};
-    setEnrolledIds(new Set());
-    setPresentIds(new Set());
+    setEnrolledMatrics(new Set());
+    setPresentMatrics(new Set());
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
-  const presentCount = presentIds.size;
-  const enrolledCount = enrolledIds.size;
+  const presentCount = presentMatrics.size;
+  const enrolledCount = enrolledMatrics.size;
 
   return (
     <section>
@@ -326,12 +330,14 @@ export function FaceAttendance({
                 Browser-only face recognition
               </p>
               <p className="text-ink-muted leading-relaxed">
-                Powered by face-api.js. Each student is enrolled once
-                (the model captures a 128-dimension face descriptor),
-                then the camera matches every face on screen against
-                the roster. Recognised students are marked{" "}
+                Powered by face-api.js. Students capture their face once at
+                registration (KYC-style); the camera here matches every face
+                on screen against those descriptors and marks recognised
+                students{" "}
                 <span className="font-semibold text-fern">Present</span>{" "}
-                automatically. Nothing leaves the browser.
+                automatically. Use the per-student button below for fallback
+                re-enrolment if a face was never captured. Nothing leaves
+                the browser.
               </p>
             </div>
           </div>
@@ -446,7 +452,7 @@ export function FaceAttendance({
               onClick={clearEnrolment}
               className="btn btn-ghost btn-sm"
             >
-              Clear enrolments ({enrolledCount})
+              Clear all enrolments ({enrolledCount})
             </button>
             {statusMessage ? (
               <span className="text-sm text-ink-soft">{statusMessage}</span>
@@ -465,13 +471,14 @@ export function FaceAttendance({
             Roster , {roster.length} students
           </h2>
           <p className="text-xs text-ink-muted mb-4">
-            Enrol each student once with their face, then re-scan during the
-            session to mark present.
+            Face capture happens at registration. The button below is a
+            mentor-supervised fallback for anyone whose face was never
+            captured.
           </p>
           <ul className="card divide-y divide-rule p-0 overflow-hidden">
             {roster.map((s, i) => {
-              const enrolled = enrolledIds.has(s.id);
-              const present = presentIds.has(s.id);
+              const enrolled = enrolledMatrics.has(s.matric);
+              const present = presentMatrics.has(s.matric);
               return (
                 <li key={s.id} className="flex items-center gap-3 px-4 py-3">
                   <span className="text-xs text-ink-muted w-6 tabular">
@@ -511,7 +518,7 @@ export function FaceAttendance({
                     disabled={cameraStatus !== "live" || enrolling === s.id}
                     className="size-8 rounded-sm border border-rule hover:border-ink disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
                     aria-label={`Enrol ${s.name}`}
-                    title={enrolled ? "Re-enrol face" : "Enrol face"}
+                    title={enrolled ? "Re-capture face" : "Capture face (fallback)"}
                   >
                     {enrolling === s.id ? (
                       <Loader2 size={14} className="animate-spin" />

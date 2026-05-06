@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
-import { ROLES } from "@/lib/data";
+import { RegisterForm } from "@/components/register-form";
 
 export const metadata = {
   title: "Create account | EduMentor",
@@ -22,16 +22,16 @@ export default function RegisterPage() {
             Open the desk in three minutes.
           </h2>
           <p className="mt-5 max-w-md leading-relaxed" style={{ color: "rgba(255,255,255,0.8)" }}>
-            Tell us who you are, what you teach or study, and the desk
-            arranges itself accordingly.
+            Tell us who you are, capture your face for attendance, and the
+            desk arranges itself accordingly.
           </p>
 
           <ul className="mt-8 space-y-3 text-sm">
             {[
               "Free for UiTM students and faculty lecturers",
               "Senior students need CGPA 3.20 or above to mentor",
+              "One-time face capture, KYC-style, kept on-device",
               "Approval typically within one academic day",
-              "Email confirmation sent on submission",
             ].map((b) => (
               <li key={b} className="flex items-start gap-3">
                 <span className="size-5 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: "rgba(201, 135, 41, 0.25)", color: "var(--color-saffron)" }}>
@@ -68,146 +68,7 @@ export default function RegisterPage() {
             For UiTM students. Lecturer (admin) accounts are issued by the registrar.
           </p>
 
-          <form className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1.5">Full name</label>
-              <input
-                type="text"
-                placeholder="Aiman Hakimi"
-                className="input"
-                autoComplete="name"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1.5">UiTM email</label>
-              <input
-                type="email"
-                placeholder="2023607832@student.uitm.edu.my"
-                className="input"
-                autoComplete="email"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1.5">Identity number</label>
-              <input
-                type="text"
-                placeholder="Matric or staff number"
-                className="input"
-                autoComplete="username"
-              />
-              <p className="text-xs text-ink-muted mt-1.5">
-                Both mentee and mentor sign up with their UiTM matric number.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-1.5">Password</label>
-              <input
-                type="password"
-                placeholder="Choose a strong password"
-                className="input"
-                autoComplete="new-password"
-              />
-              <p className="text-xs text-ink-muted mt-1.5">
-                Minimum 10 characters with one number.
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-ink mb-2">I am signing up as</label>
-              <div className="grid grid-cols-2 gap-2">
-                {ROLES.filter((r) => r.key !== "Admin").map((r) => (
-                  <label
-                    key={r.key}
-                    className="relative flex flex-col items-center gap-1 p-3 rounded-md border border-rule cursor-pointer hover:border-ink has-[:checked]:border-oxblood has-[:checked]:bg-oxblood/[0.04] transition-colors"
-                  >
-                    <input
-                      type="radio"
-                      name="role"
-                      value={r.key}
-                      defaultChecked={r.key === "Mentee"}
-                      className="sr-only"
-                    />
-                    <span className="text-xs text-ink-muted font-semibold">{r.abbr}</span>
-                    <span className="text-sm font-medium">{r.key}</span>
-                  </label>
-                ))}
-              </div>
-              <p className="text-xs text-ink-muted mt-2">
-                Mentor applications need CGPA proof. Admin (lecturer) accounts are issued internally by the registrar and cannot self-register.
-              </p>
-            </div>
-
-            {/* Mentor eligibility */}
-            <div className="rounded-md border border-rule bg-paper-dark/40 p-4 space-y-4">
-              <div>
-                <p className="text-sm font-semibold text-ink mb-1">
-                  Applying as a Mentor?
-                </p>
-                <p className="text-xs text-ink-muted leading-relaxed">
-                  Senior students with a current CGPA of <span className="font-semibold text-ink">3.20 or higher</span> may
-                  mentor a junior cohort. Fields below are reviewed by the registrar.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-12 gap-3">
-                <div className="col-span-12 sm:col-span-5">
-                  <label className="block text-sm font-medium text-ink mb-1.5">Current CGPA</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="4"
-                    placeholder="3.74"
-                    className="input"
-                  />
-                  <p className="text-xs text-ink-muted mt-1.5">Out of 4.00.</p>
-                </div>
-                <div className="col-span-12 sm:col-span-7">
-                  <label className="block text-sm font-medium text-ink mb-1.5">Latest semester</label>
-                  <select className="input">
-                    <option>Semester 02 / 2026</option>
-                    <option>Semester 01 / 2026</option>
-                    <option>Semester 02 / 2025</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-ink mb-1.5">Latest transcript</label>
-                <div className="border-2 border-dashed border-rule rounded-md p-4 text-center bg-bone">
-                  <p className="text-sm text-ink-muted mb-2">
-                    Upload your latest UiTM transcript (PDF).
-                  </p>
-                  <button type="button" className="btn btn-ghost btn-sm">
-                    Browse files
-                  </button>
-                  <p className="text-xs text-ink-muted mt-2">PDF only, up to 5 MB</p>
-                </div>
-              </div>
-
-              <p className="text-xs text-ink-muted">
-                Applications below 3.20 will be declined automatically.
-                Decisions are emailed within one academic day.
-              </p>
-            </div>
-
-            <label className="flex items-start gap-2 text-sm text-ink-soft cursor-pointer">
-              <input type="checkbox" className="size-4 mt-0.5 accent-oxblood" />
-              <span>
-                I agree to the{" "}
-                <Link href="#" className="text-oxblood font-medium">terms of use</Link>{" "}
-                and{" "}
-                <Link href="#" className="text-oxblood font-medium">privacy policy</Link>.
-              </span>
-            </label>
-
-            <Link href="/login" className="btn btn-primary btn-lg w-full">
-              Create account
-            </Link>
-          </form>
+          <RegisterForm />
 
           <p className="mt-8 text-center text-sm text-ink-muted">
             Already have an account?{" "}
