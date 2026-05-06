@@ -33,7 +33,7 @@ export default function AttendancePage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Attendance</h1>
           <p className="mt-3 text-ink-soft">
-            Roll called by camera, confirmed by the senior student mentor.
+            Roll called by camera, confirmed by the mentor.
             Recognition runs in the browser with face-api.js.
           </p>
         </div>

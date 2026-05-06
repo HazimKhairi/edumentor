@@ -296,7 +296,7 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-[1400px] px-6 py-12">
           <SectionHeading
             eyebrow="Recommended"
-            title="Other junior students also enrolled in"
+            title="Other mentees also enrolled in"
             link={{ href: "/courses", label: "Browse all" }}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -327,7 +327,7 @@ export default function DashboardPage() {
               <div className="text-sm font-semibold text-oxblood mb-1">Rate your mentor</div>
               <h3 className="display text-2xl">How was Adam this week?</h3>
               <p className="text-sm text-ink-muted mt-1">
-                Quick anonymous review of your senior student mentor | takes 30 seconds.
+                Quick anonymous review of your mentor | takes 30 seconds.
               </p>
             </div>
             <div className="flex items-center gap-3">

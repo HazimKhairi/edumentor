@@ -43,7 +43,7 @@ const FILTERS = [
     ],
   },
   {
-    title: "Mentor (senior student)",
+    title: "Mentor",
     options: mentorCounts,
   },
 ];
@@ -66,7 +66,7 @@ export default function CoursesPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Course catalogue</h1>
           <p className="mt-3 text-ink-soft max-w-2xl">
-            {COURSES.length} courses , open for Semester 02 / 2026 , led by 12 senior student mentors.
+            {COURSES.length} courses , open for Semester 02 / 2026 , led by 12 student mentors.
           </p>
 
           <form className="mt-6 flex items-center gap-2 max-w-xl">

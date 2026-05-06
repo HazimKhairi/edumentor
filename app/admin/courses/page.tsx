@@ -58,7 +58,7 @@ export default function AdminCoursesPage() {
                 <tr className="text-left">
                   <th className="px-4 py-3 font-semibold">Code</th>
                   <th className="px-4 py-3 font-semibold">Title</th>
-                  <th className="px-4 py-3 font-semibold">Mentor (senior)</th>
+                  <th className="px-4 py-3 font-semibold">Mentor</th>
                   <th className="px-4 py-3 font-semibold">Cohort</th>
                   <th className="px-4 py-3 font-semibold">Enrolment</th>
                   <th className="px-4 py-3 font-semibold text-right">Actions</th>

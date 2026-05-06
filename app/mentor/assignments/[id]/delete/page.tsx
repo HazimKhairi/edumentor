@@ -51,7 +51,7 @@ export default async function DeleteAssignmentPage(props: PageProps<"/mentor/ass
             </div>
 
             <p className="text-sm text-ink-soft leading-relaxed mb-5">
-              Junior students will be notified by email. Submitted work and grades
+              Mentees will be notified by email. Submitted work and grades
               will be retained in archive for 12 months.
             </p>
 

@@ -6,7 +6,7 @@ import { ASSIGNMENTS, CLASSES, COURSES } from "@/lib/data";
 
 export const metadata = {
   title: "Mentor console | EduMentor",
-  description: "Senior student conductor of the mentee cohort.",
+  description: "Mentor console for the mentee cohort.",
 };
 
 const TILES = [

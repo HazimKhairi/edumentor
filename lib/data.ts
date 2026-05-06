@@ -38,7 +38,7 @@ export const ROLES: {
   {
     key: "Mentor",
     abbr: "MNT",
-    oneLiner: "Senior student conducting the mentee cohort.",
+    oneLiner: "Student leading the mentee cohort for subjects already passed.",
     duties: [
       "Run peer-led classes and study rooms",
       "Issue and review assignments",
@@ -49,7 +49,7 @@ export const ROLES: {
   {
     key: "Mentee",
     abbr: "MNE",
-    oneLiner: "Junior student keeping a personal study log.",
+    oneLiner: "Student keeping a personal study log under a peer mentor.",
     duties: [
       "Enroll in courses",
       "Submit assignments and reflections",
@@ -439,7 +439,7 @@ export const EVENTS = [
 export const STATS = [
   { label: "Active courses", value: "04", caption: "this semester" },
   { label: "Mentees enrolled", value: "158", caption: "across cohorts" },
-  { label: "Senior student mentors", value: "12", caption: "across all faculties" },
+  { label: "Student mentors", value: "12", caption: "across all faculties" },
   { label: "Attendance accuracy", value: "98.4%", caption: "face recognition, last 30 days" },
 ];
 
@@ -459,13 +459,13 @@ export type AppUser = {
 };
 
 export const USERS: AppUser[] = [
-  // Junior students (Mentees), all in semester 1.
+  // Mentees, all in semester 1.
   { id: "u-001", name: "Aiman Hakimi",     identity: "2023607832", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110", "stat101"] },
   { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110"] },
   { id: "u-003", name: "Faris Adlan",      identity: "2023611901", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110", "stat101"] },
   { id: "u-004", name: "Liyana Aziz",      identity: "2023612200", role: "Mentee", status: "Probation", joined: "2024-09-01", semester: 1, courses: ["stat101"] },
   { id: "u-005", name: "Hafiz Ridzwan",    identity: "2023612555", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110"] },
-  // Senior students (Mentors), matric from earlier intakes (2021/2022).
+  // Mentors, matric from earlier intakes (2021/2022).
   // Adam (sem 3) mentors sem 1 subjects, Nadia (sem 5) mentors sem 3, Daniel (sem 6) mentors sem 4.
   { id: "u-006", name: "Adam Iskandar Razak",  identity: "2022613001", role: "Mentor", status: "Active", joined: "2022-09-01", semester: 3, courses: ["cs110", "stat101"] },
   { id: "u-007", name: "Nadia Aiman Zulkifli", identity: "2022613055", role: "Mentor", status: "Active", joined: "2022-09-01", semester: 5, courses: ["cs220"] },

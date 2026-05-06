@@ -99,7 +99,7 @@ export function SiteNav() {
                 Switch console
               </div>
               <Link href="/mentor" className="px-3 py-2 text-sm hover:bg-paper-dark flex items-center gap-2">
-                <UserCog size={14} className="text-ink-muted" /> Mentor console (senior student)
+                <UserCog size={14} className="text-ink-muted" /> Mentor console
               </Link>
               <Link href="/admin" className="px-3 py-2 text-sm hover:bg-paper-dark flex items-center gap-2">
                 <ShieldCheck size={14} className="text-ink-muted" /> Admin console (lecturer)

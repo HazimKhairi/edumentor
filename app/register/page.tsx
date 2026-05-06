@@ -29,7 +29,7 @@ export default function RegisterPage() {
           <ul className="mt-8 space-y-3 text-sm">
             {[
               "Free for UiTM students and faculty lecturers",
-              "Senior students need CGPA 3.20 or above to mentor",
+              "Mentors need CGPA 3.20 or above and must have passed the subject",
               "One-time face capture, KYC-style, kept on-device",
               "Approval typically within one academic day",
             ].map((b) => (

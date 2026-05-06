@@ -29,7 +29,7 @@ export default function AddAssignmentPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Create an assignment</h1>
           <p className="mt-2 text-ink-soft">
-            Junior students enrolled in the selected course will be notified when this is published.
+            Mentees enrolled in the selected course will be notified when this is published.
           </p>
         </div>
       </section>
@@ -74,7 +74,7 @@ export default function AddAssignmentPage() {
               <label className="block text-sm font-medium mb-1.5">Brief</label>
               <textarea
                 rows={5}
-                placeholder="Describe what junior students need to do, what to submit, and what success looks like."
+                placeholder="Describe what mentees need to do, what to submit, and what success looks like."
                 className="input"
                 style={{ fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
               />
@@ -138,7 +138,7 @@ export default function AddAssignmentPage() {
 
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input type="checkbox" className="size-4 accent-oxblood" defaultChecked />
-              <span>Publish immediately and notify junior students</span>
+              <span>Publish immediately and notify mentees</span>
             </label>
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">

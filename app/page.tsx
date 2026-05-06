@@ -59,9 +59,9 @@ export default function HomePage() {
                 <span>average mentor rating</span>
               </div>
               <span className="hidden sm:inline">,</span>
-              <span><span className="font-semibold text-ink">158</span> junior students enrolled</span>
+              <span><span className="font-semibold text-ink">158</span> mentees enrolled</span>
               <span className="hidden sm:inline">,</span>
-              <span><span className="font-semibold text-ink">12</span> senior student mentors</span>
+              <span><span className="font-semibold text-ink">12</span> student mentors</span>
             </div>
           </div>
 
@@ -167,7 +167,7 @@ export default function HomePage() {
                 </ul>
                 {role.key === "Mentor" ? (
                   <p className="text-xs text-ink-muted mb-4 p-2 rounded-sm bg-paper-dark/50">
-                    <span className="font-semibold text-ink">Eligibility:</span> senior student with CGPA 3.20 or above.
+                    <span className="font-semibold text-ink">Eligibility:</span> student with CGPA 3.20 or above, having passed the subjects they will mentor.
                   </p>
                 ) : null}
                 {role.key === "Admin" ? (

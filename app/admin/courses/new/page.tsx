@@ -20,7 +20,7 @@ export default function AddCoursePage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Add a new course</h1>
           <p className="mt-2 text-ink-soft">
-            Add a course to the catalogue. Junior students can enrol once published, and a senior mentor will be assigned.
+            Add a course to the catalogue. Mentees can enrol once published, and a mentor will be assigned.
           </p>
         </div>
       </section>
@@ -52,7 +52,7 @@ export default function AddCoursePage() {
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Senior student mentor</label>
+                <label className="block text-sm font-medium mb-1.5">Mentor</label>
                 <select className="input">
                   <option>Select mentor</option>
                   <option>Adam Iskandar Razak</option>

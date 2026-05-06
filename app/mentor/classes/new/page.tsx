@@ -22,7 +22,7 @@ export default function NewClassPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Schedule a class</h1>
           <p className="mt-2 text-ink-soft">
-            Add a peer-led session to the timetable. Junior students in your cohort will see it on their dashboard.
+            Add a peer-led session to the timetable. Mentees in your cohort will see it on their dashboard.
           </p>
         </div>
       </section>
@@ -78,7 +78,7 @@ export default function NewClassPage() {
             <ClassFormatPicker />
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Notes for junior students</label>
+              <label className="block text-sm font-medium mb-1.5">Notes for mentees</label>
               <textarea
                 rows={3}
                 placeholder="What to bring, what to read beforehand, etc."
@@ -94,7 +94,7 @@ export default function NewClassPage() {
 
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input type="checkbox" className="size-4 accent-oxblood" defaultChecked />
-              <span>Notify enrolled junior students by email</span>
+              <span>Notify enrolled mentees by email</span>
             </label>
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">

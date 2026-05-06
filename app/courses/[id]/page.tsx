@@ -55,7 +55,7 @@ export default async function CourseDetailPage(props: PageProps<"/courses/[id]">
             <div className="mt-5 flex flex-wrap items-center gap-4 text-sm">
               <StarRating value={r.rating} count={r.reviews} size="sm" />
               <span className="text-ink-muted">|</span>
-              <span><span className="font-semibold tabular">{course.enrolled}</span> junior students enrolled</span>
+              <span><span className="font-semibold tabular">{course.enrolled}</span> mentees enrolled</span>
               <span className="text-ink-muted">|</span>
               <span>{course.sessions} sessions</span>
               <span className="text-ink-muted">|</span>
@@ -64,7 +64,7 @@ export default async function CourseDetailPage(props: PageProps<"/courses/[id]">
 
             <div className="mt-5 text-sm space-y-1">
               <div>
-                <span className="text-ink-muted">Senior mentor: </span>
+                <span className="text-ink-muted">Mentor: </span>
                 <span className="font-semibold">{course.mentor}</span>
               </div>
               <div>
@@ -156,7 +156,7 @@ export default async function CourseDetailPage(props: PageProps<"/courses/[id]">
             </div>
 
             <div>
-              <h2 className="text-xl font-bold mb-4">Senior student mentor</h2>
+              <h2 className="text-xl font-bold mb-4">Student mentor</h2>
               <div className="card p-6 flex items-start gap-4">
                 <div className="size-16 rounded-full bg-gradient-to-br from-oxblood to-oxblood-deep flex items-center justify-center text-bone text-xl font-bold shrink-0">
                   {course.mentor.split(" ").map((p) => p[0]).slice(0, 2).join("")}
@@ -164,7 +164,7 @@ export default async function CourseDetailPage(props: PageProps<"/courses/[id]">
                 <div>
                   <h3 className="font-semibold">{course.mentor}</h3>
                   <p className="text-xs text-ink-muted">
-                    Senior B.Sc. CS, CGPA 3.20+ , Faculty of Computer & Mathematical Sciences
+                    B.Sc. CS student, CGPA 3.20+ , Faculty of Computer & Mathematical Sciences
                   </p>
                   <div className="mt-2"><StarRating value={r.rating} count={r.reviews} size="sm" /></div>
                   <p className="text-sm mt-3 text-ink-soft leading-relaxed">

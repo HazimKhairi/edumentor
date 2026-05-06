@@ -49,7 +49,7 @@ export function ClassFormatPicker() {
             pattern="https?://.+"
           />
           <p className="text-xs text-ink-muted mt-1.5">
-            Junior students will see a Join button on their dashboard when the
+            Mentees will see a Join button on their dashboard when the
             session starts.
           </p>
         </div>
