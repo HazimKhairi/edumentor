@@ -37,11 +37,11 @@ const FILTERS = [
     ],
   },
   {
-    title: "Mentor",
+    title: "Mentor (senior student)",
     options: [
-      { label: "Dr. Aishah Mokhtar", count: 2 },
-      { label: "Encik Faiz Rashid", count: 1 },
-      { label: "Pn. Liyana Hashim", count: 1 },
+      { label: "Adam Iskandar Razak", count: 2 },
+      { label: "Nadia Aiman Zulkifli", count: 1 },
+      { label: "Daniel Hakimi Othman", count: 1 },
     ],
   },
 ];
@@ -64,7 +64,7 @@ export default function CoursesPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Course catalogue</h1>
           <p className="mt-3 text-ink-soft max-w-2xl">
-            {COURSES.length} courses , open for Semester 02 / 2026 , taught by 12 mentors.
+            {COURSES.length} courses , open for Semester 02 / 2026 , led by 12 senior student mentors.
           </p>
 
           <form className="mt-6 flex items-center gap-2 max-w-xl">

@@ -12,9 +12,9 @@ export const metadata = {
 const SPARK = [42, 48, 51, 56, 49, 58, 63, 60, 67, 71, 68, 74];
 
 const ISSUES = [
-  { code: "OP-014", t: "Mentor unread queue > 48h", c: "Encik Faiz Rashid", sev: "Medium" },
+  { code: "OP-014", t: "Mentor unread queue > 48h", c: "Nadia Aiman Zulkifli", sev: "Medium" },
   { code: "OP-015", t: "Cohort capacity at 90%", c: "MAT CS110", sev: "Low" },
-  { code: "OP-016", t: "Two mentees on probation", c: "STA 116", sev: "High" },
+  { code: "OP-016", t: "Two junior students on probation", c: "STA 116", sev: "High" },
   { code: "OP-017", t: "Camera offline last Mon", c: "Lab 2", sev: "Medium" },
 ];
 
@@ -139,7 +139,7 @@ export default function ReportsPage() {
                 <thead className="bg-paper-dark/50 text-xs text-ink-muted">
                   <tr className="text-left">
                     <th className="px-4 py-3 font-semibold">Course</th>
-                    <th className="px-4 py-3 font-semibold">Mentor</th>
+                    <th className="px-4 py-3 font-semibold">Senior mentor</th>
                     <th className="px-4 py-3 font-semibold">Rating</th>
                     <th className="px-4 py-3 font-semibold text-right">Responses</th>
                   </tr>

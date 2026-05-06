@@ -30,7 +30,7 @@ export default function AddEvaluationPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Create evaluation rubric</h1>
           <p className="mt-2 text-ink-soft">
-            Author the questions used in mentor or course reviews this term.
+            Author the questions junior students use to review their senior mentor or the course this term.
           </p>
         </div>
       </section>
@@ -91,7 +91,7 @@ export default function AddEvaluationPage() {
             <div>
               <label className="block text-sm font-medium mb-1.5">Open-ended prompts</label>
               <div className="space-y-2">
-                <input type="text" defaultValue="A kind word about your mentor" className="input" />
+                <input type="text" defaultValue="A kind word about your senior mentor" className="input" />
                 <input type="text" defaultValue="A useful criticism" className="input" />
               </div>
             </div>

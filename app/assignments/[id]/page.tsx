@@ -223,8 +223,8 @@ export default async function AssignmentDetailPage(props: PageProps<"/assignment
             <div className="card p-6">
               <h3 className="font-semibold text-base mb-3">Need help?</h3>
               <p className="text-sm text-ink-muted leading-relaxed mb-4">
-                Bring questions to the discussion room or to office hours
-                Thursday 14:00 to 16:00 in Room 4-08.
+                Bring questions to the discussion room or to peer office hours
+                with your senior mentor, Thursday 14:00 to 16:00 in Room 4-08.
               </p>
               <Link href="/discussion" className="btn btn-ghost btn-sm w-full">
                 Open discussion

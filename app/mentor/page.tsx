@@ -6,7 +6,7 @@ import { ASSIGNMENTS, CLASSES, COURSES } from "@/lib/data";
 
 export const metadata = {
   title: "Mentor console | EduMentor",
-  description: "Conductor of the mentee cohort.",
+  description: "Senior student conductor of the mentee cohort.",
 };
 
 const TILES = [
@@ -37,7 +37,7 @@ const TILES = [
 ];
 
 export default function MentorLanding() {
-  const myCourses = COURSES.filter((c) => c.mentor === "Dr. Aishah Mokhtar");
+  const myCourses = COURSES.filter((c) => c.mentor === "Adam Iskandar Razak");
   const myAssignments = ASSIGNMENTS.filter((a) => a.course === "MAT CS110");
   const upcoming = CLASSES.filter((c) => c.state === "Scheduled");
 
@@ -51,7 +51,7 @@ export default function MentorLanding() {
             <Link href="/" className="hover:text-ink">Home</Link>{" / "}
             <span className="text-ink">Mentor</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold">Welcome back, Dr. Aishah</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Welcome back, Adam</h1>
           <p className="mt-2 text-ink-soft">
             {myCourses.length} courses, {myAssignments.length} assignments, {upcoming.length} upcoming sessions.
           </p>
@@ -61,7 +61,7 @@ export default function MentorLanding() {
       <section>
         <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="card p-5">
-            <div className="text-sm text-ink-muted">Courses I teach</div>
+            <div className="text-sm text-ink-muted">Courses I mentor</div>
             <div className="text-3xl font-bold mt-1">{myCourses.length}</div>
           </div>
           <div className="card p-5">

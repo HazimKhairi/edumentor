@@ -55,11 +55,11 @@ export default async function EditCoursePage(props: PageProps<"/admin/courses/[i
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Mentor</label>
+                <label className="block text-sm font-medium mb-1.5">Senior student mentor</label>
                 <select className="input" defaultValue={c.mentor}>
-                  <option>Dr. Aishah Mokhtar</option>
-                  <option>Encik Faiz Rashid</option>
-                  <option>Pn. Liyana Hashim</option>
+                  <option>Adam Iskandar Razak</option>
+                  <option>Nadia Aiman Zulkifli</option>
+                  <option>Daniel Hakimi Othman</option>
                 </select>
               </div>
               <div className="col-span-12 md:col-span-6">

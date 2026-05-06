@@ -24,18 +24,18 @@ export default function LoginPage() {
           </h2>
           <p className="mt-5 text-bone/80 max-w-md leading-relaxed">
             Pick the role written on your card. The desk arranges itself
-            accordingly | admins see the catalogue, mentors see the cohort,
-            mentees see the reading.
+            accordingly | lecturers (admins) see the catalogue, senior student
+            mentors see the cohort, junior student mentees see the reading.
           </p>
 
           <div className="mt-10 grid grid-cols-3 gap-3 max-w-md">
             <div>
               <div className="display text-3xl">158</div>
-              <div className="text-xs text-bone/60 mt-1">Active mentees</div>
+              <div className="text-xs text-bone/60 mt-1">Junior students</div>
             </div>
             <div>
               <div className="display text-3xl">12</div>
-              <div className="text-xs text-bone/60 mt-1">Mentors</div>
+              <div className="text-xs text-bone/60 mt-1">Senior mentors</div>
             </div>
             <div>
               <div className="display text-3xl flex items-center gap-1">4.6 <Star size={20} className="text-amber-400" fill="currentColor" /></div>
@@ -75,7 +75,7 @@ export default function LoginPage() {
 
           <h1 className="display text-3xl mb-2">Welcome back</h1>
           <p className="text-ink-muted text-sm mb-8">
-            Sign in with your matric or staff number to continue.
+            Sign in with your matric (student) or FCMS staff number (lecturer).
           </p>
 
           <form className="space-y-5">
@@ -89,7 +89,7 @@ export default function LoginPage() {
                 autoComplete="username"
               />
               <p className="text-xs text-ink-muted mt-1.5">
-                Matric (mentee), staff number (mentor), or admin ID.
+                Matric for mentee or mentor (student). FCMS staff number for admin (lecturer).
               </p>
             </div>
 

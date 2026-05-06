@@ -59,9 +59,9 @@ export default function HomePage() {
                 <span>average mentor rating</span>
               </div>
               <span className="hidden sm:inline">,</span>
-              <span><span className="font-semibold text-ink">158</span> active mentees</span>
+              <span><span className="font-semibold text-ink">158</span> junior students enrolled</span>
               <span className="hidden sm:inline">,</span>
-              <span><span className="font-semibold text-ink">12</span> mentors on roster</span>
+              <span><span className="font-semibold text-ink">12</span> senior student mentors</span>
             </div>
           </div>
 
@@ -167,7 +167,12 @@ export default function HomePage() {
                 </ul>
                 {role.key === "Mentor" ? (
                   <p className="text-xs text-ink-muted mb-4 p-2 rounded-sm bg-paper-dark/50">
-                    <span className="font-semibold text-ink">Eligibility:</span> CGPA 3.20 or above, or faculty staff.
+                    <span className="font-semibold text-ink">Eligibility:</span> senior student with CGPA 3.20 or above.
+                  </p>
+                ) : null}
+                {role.key === "Admin" ? (
+                  <p className="text-xs text-ink-muted mb-4 p-2 rounded-sm bg-paper-dark/50">
+                    <span className="font-semibold text-ink">Eligibility:</span> faculty lecturer, account issued by registrar.
                   </p>
                 ) : null}
                 <Link
@@ -196,9 +201,9 @@ export default function HomePage() {
                   <div className="text-sm font-semibold mb-1" style={{ color: "var(--color-saffron)" }}>
                     Mentor of the term
                   </div>
-                  <div className="text-2xl font-bold">Dr. Aishah Mokhtar</div>
+                  <div className="text-2xl font-bold">Adam Iskandar Razak</div>
                   <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    MAT CS110, Discrete Structures
+                    Final-year B.Sc. CS, MAT CS110 peer mentor
                   </p>
                 </div>
               </div>

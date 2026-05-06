@@ -23,7 +23,7 @@ export default function DiscussionPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Questions & discussion</h1>
           <p className="mt-3 text-ink-soft">
-            Ask, answer, and search through the room. Mentors pin what shouldn&apos;t drift.
+            Ask, answer, and search through the room. Senior student mentors pin what shouldn&apos;t drift.
           </p>
         </div>
       </section>
@@ -79,7 +79,7 @@ export default function DiscussionPage() {
               </div>
               <h2 className="display text-2xl mb-2">Proof by induction, again</h2>
               <p className="text-ink-soft">
-                Started by Aiman Hakimi , 2 minutes ago , Pinned by Dr. Aishah
+                Started by Aiman Hakimi , 2 minutes ago , Pinned by Adam (senior mentor)
               </p>
             </div>
 

@@ -55,16 +55,22 @@ export default async function CourseDetailPage(props: PageProps<"/courses/[id]">
             <div className="mt-5 flex flex-wrap items-center gap-4 text-sm">
               <StarRating value={r.rating} count={r.reviews} size="sm" />
               <span className="text-ink-muted">|</span>
-              <span><span className="font-semibold tabular">{course.enrolled}</span> mentees enrolled</span>
+              <span><span className="font-semibold tabular">{course.enrolled}</span> junior students enrolled</span>
               <span className="text-ink-muted">|</span>
               <span>{course.sessions} sessions</span>
               <span className="text-ink-muted">|</span>
               <span>{course.cohort}</span>
             </div>
 
-            <div className="mt-5 text-sm">
-              <span className="text-ink-muted">Conducted by </span>
-              <span className="font-semibold">{course.mentor}</span>
+            <div className="mt-5 text-sm space-y-1">
+              <div>
+                <span className="text-ink-muted">Senior mentor: </span>
+                <span className="font-semibold">{course.mentor}</span>
+              </div>
+              <div>
+                <span className="text-ink-muted">Lecturer: </span>
+                <span className="font-semibold">{course.lecturer}</span>
+              </div>
             </div>
           </div>
 
@@ -150,18 +156,20 @@ export default async function CourseDetailPage(props: PageProps<"/courses/[id]">
             </div>
 
             <div>
-              <h2 className="text-xl font-bold mb-4">Mentor</h2>
+              <h2 className="text-xl font-bold mb-4">Senior student mentor</h2>
               <div className="card p-6 flex items-start gap-4">
                 <div className="size-16 rounded-full bg-gradient-to-br from-oxblood to-oxblood-deep flex items-center justify-center text-bone text-xl font-bold shrink-0">
                   {course.mentor.split(" ").map((p) => p[0]).slice(0, 2).join("")}
                 </div>
                 <div>
                   <h3 className="font-semibold">{course.mentor}</h3>
-                  <p className="text-xs text-ink-muted">Faculty of Computer & Mathematical Sciences</p>
+                  <p className="text-xs text-ink-muted">
+                    Senior B.Sc. CS, CGPA 3.20+ , Faculty of Computer & Mathematical Sciences
+                  </p>
                   <div className="mt-2"><StarRating value={r.rating} count={r.reviews} size="sm" /></div>
                   <p className="text-sm mt-3 text-ink-soft leading-relaxed">
-                    Patient and rigorous. Specialises in discrete mathematics
-                    and combinatorial reasoning. Office hours every Thursday.
+                    Patient and clear. Has already passed this course, runs peer
+                    sessions every Thursday under {course.lecturer}.
                   </p>
                 </div>
               </div>

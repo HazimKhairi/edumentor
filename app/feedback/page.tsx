@@ -32,7 +32,7 @@ export default function FeedbackPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Mentor reviews</h1>
           <p className="mt-3 text-ink-soft">
-            Anonymous, recorded, and considered by the registrar at term&apos;s end.
+            Junior students review senior mentors. Anonymous, recorded, and considered by the registrar at term&apos;s end.
           </p>
         </div>
       </section>
@@ -47,8 +47,8 @@ export default function FeedbackPage() {
                   A
                 </div>
                 <div>
-                  <p className="text-sm text-ink-muted">You&apos;re reviewing</p>
-                  <h2 className="font-semibold text-lg">Dr. Aishah Mokhtar</h2>
+                  <p className="text-sm text-ink-muted">You&apos;re reviewing your senior mentor</p>
+                  <h2 className="font-semibold text-lg">Adam Iskandar Razak</h2>
                   <p className="text-xs text-ink-muted">MAT CS110 , Discrete Structures , 24 sessions</p>
                 </div>
               </div>
@@ -102,7 +102,7 @@ export default function FeedbackPage() {
                   <label className="block text-sm font-semibold mb-2">A kind word</label>
                   <textarea
                     rows={3}
-                    defaultValue="Patient and rigorous. The induction worksheets were the most useful resource of the term."
+                    defaultValue="Patient and clear. The induction worksheets were the most useful resource of the term."
                     className="input"
                     style={{ fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
                   />
@@ -112,7 +112,7 @@ export default function FeedbackPage() {
                   <label className="block text-sm font-semibold mb-2">A useful criticism</label>
                   <textarea
                     rows={3}
-                    defaultValue="Office hours filled up quickly in week 8. A second slot would have helped before the midterm."
+                    defaultValue="Peer office hours filled up quickly in week 8. A second slot would have helped before the midterm."
                     className="input"
                     style={{ fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
                   />

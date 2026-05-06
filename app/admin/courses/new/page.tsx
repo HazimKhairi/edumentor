@@ -20,7 +20,7 @@ export default function AddCoursePage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Add a new course</h1>
           <p className="mt-2 text-ink-soft">
-            Add a course to the catalogue. Mentees will be able to enrol once published.
+            Add a course to the catalogue. Junior students can enrol once published, and a senior mentor will be assigned.
           </p>
         </div>
       </section>
@@ -52,12 +52,12 @@ export default function AddCoursePage() {
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Mentor</label>
+                <label className="block text-sm font-medium mb-1.5">Senior student mentor</label>
                 <select className="input">
                   <option>Select mentor</option>
-                  <option>Dr. Aishah Mokhtar</option>
-                  <option>Encik Faiz Rashid</option>
-                  <option>Pn. Liyana Hashim</option>
+                  <option>Adam Iskandar Razak</option>
+                  <option>Nadia Aiman Zulkifli</option>
+                  <option>Daniel Hakimi Othman</option>
                 </select>
               </div>
               <div className="col-span-12 md:col-span-6">

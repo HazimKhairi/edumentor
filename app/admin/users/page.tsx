@@ -41,7 +41,7 @@ export default function AdminUsersPage() {
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">Manage users</h1>
               <p className="mt-2 text-ink-soft">
-                {USERS.length} total, {counts.Mentee ?? 0} mentees, {counts.Mentor ?? 0} mentors, {counts.Admin ?? 0} admins.
+                {USERS.length} total, {counts.Mentee ?? 0} junior students, {counts.Mentor ?? 0} senior mentors, {counts.Admin ?? 0} lecturers.
               </p>
             </div>
             <button className="btn btn-primary">

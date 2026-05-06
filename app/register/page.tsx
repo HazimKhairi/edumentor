@@ -28,8 +28,8 @@ export default function RegisterPage() {
 
           <ul className="mt-8 space-y-3 text-sm">
             {[
-              "Free for UiTM staff and students",
-              "Mentor applicants need CGPA 3.20 or above",
+              "Free for UiTM students and faculty lecturers",
+              "Senior students need CGPA 3.20 or above to mentor",
               "Approval typically within one academic day",
               "Email confirmation sent on submission",
             ].map((b) => (
@@ -65,7 +65,7 @@ export default function RegisterPage() {
 
           <h1 className="text-2xl font-bold mb-2">Create your account</h1>
           <p className="text-ink-muted text-sm mb-8">
-            Use your UiTM email and the matric or staff number printed on your card.
+            Students sign up with matric, lecturers with FCMS staff number.
           </p>
 
           <form className="space-y-5">
@@ -98,7 +98,7 @@ export default function RegisterPage() {
                 autoComplete="username"
               />
               <p className="text-xs text-ink-muted mt-1.5">
-                Mentee, matric. Mentor, staff number. Admin accounts are issued by registrar.
+                Mentee or mentor, your matric. Admin (lecturer) accounts use FCMS staff number and are issued by the registrar.
               </p>
             </div>
 
@@ -136,7 +136,7 @@ export default function RegisterPage() {
                 ))}
               </div>
               <p className="text-xs text-ink-muted mt-2">
-                Mentor and Admin accounts require approval before activation.
+                Mentor applications need CGPA proof. Admin accounts are issued by the registrar to faculty lecturers.
               </p>
             </div>
 
@@ -147,8 +147,8 @@ export default function RegisterPage() {
                   Applying as a Mentor?
                 </p>
                 <p className="text-xs text-ink-muted leading-relaxed">
-                  Mentor applicants must have a current CGPA of <span className="font-semibold text-ink">3.20 or higher</span>.
-                  Faculty staff are exempt. Fields below are reviewed by the registrar.
+                  Senior students with a current CGPA of <span className="font-semibold text-ink">3.20 or higher</span> may
+                  mentor a junior cohort. Fields below are reviewed by the registrar.
                 </p>
               </div>
 
@@ -176,10 +176,10 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-ink mb-1.5">Transcript or staff letter</label>
+                <label className="block text-sm font-medium text-ink mb-1.5">Latest transcript</label>
                 <div className="border-2 border-dashed border-rule rounded-md p-4 text-center bg-bone">
                   <p className="text-sm text-ink-muted mb-2">
-                    Upload your latest transcript (PDF) or faculty staff letter.
+                    Upload your latest UiTM transcript (PDF).
                   </p>
                   <button type="button" className="btn btn-ghost btn-sm">
                     Browse files

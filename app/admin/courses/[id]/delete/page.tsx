@@ -44,20 +44,20 @@ export default async function DeleteCoursePage(props: PageProps<"/admin/courses/
 
             <div className="bg-paper-dark/40 rounded-md p-4 mb-5 text-sm space-y-1">
               <p><span className="text-ink-muted">Code:</span> <span className="font-medium">{c.code}</span></p>
-              <p><span className="text-ink-muted">Mentor:</span> <span className="font-medium">{c.mentor}</span></p>
-              <p><span className="text-ink-muted">Enrolled mentees:</span> <span className="font-medium tabular">{c.enrolled}</span></p>
+              <p><span className="text-ink-muted">Senior mentor:</span> <span className="font-medium">{c.mentor}</span></p>
+              <p><span className="text-ink-muted">Enrolled junior students:</span> <span className="font-medium tabular">{c.enrolled}</span></p>
               <p><span className="text-ink-muted">Sessions:</span> <span className="font-medium tabular">{c.sessions}</span></p>
             </div>
 
             <p className="text-sm text-ink-soft leading-relaxed mb-5">
               All discussion threads, assignments, attendance records, and
-              feedback associated with this course will be archived. Mentees
-              will be notified by email and unenrolled.
+              feedback associated with this course will be archived. Enrolled
+              junior students will be notified by email and unenrolled.
             </p>
 
             <label className="flex items-start gap-2 text-sm cursor-pointer mb-5">
               <input type="checkbox" className="size-4 mt-0.5 accent-oxblood" />
-              <span>I understand this will archive {c.enrolled} mentee records and cannot be undone.</span>
+              <span>I understand this will archive {c.enrolled} junior-student records and cannot be undone.</span>
             </label>
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">

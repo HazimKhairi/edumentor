@@ -18,10 +18,10 @@ export const ROLES: {
   {
     key: "Admin",
     abbr: "ADM",
-    oneLiner: "Steward of the academic record.",
+    oneLiner: "Lecturer steward of the academic record.",
     duties: [
       "Manage course catalogue",
-      "Govern user accounts",
+      "Govern student and mentor accounts",
       "Add evaluation rubrics",
       "Issue performance reports",
     ],
@@ -29,9 +29,9 @@ export const ROLES: {
   {
     key: "Mentor",
     abbr: "MNT",
-    oneLiner: "Conductor of the mentee cohort.",
+    oneLiner: "Senior student conducting the mentee cohort.",
     duties: [
-      "Create classes and rooms",
+      "Run peer-led classes and study rooms",
       "Issue and review assignments",
       "Tick attendance with face recognition",
       "Publish reading and feedback",
@@ -40,11 +40,11 @@ export const ROLES: {
   {
     key: "Mentee",
     abbr: "MNE",
-    oneLiner: "Author of the personal study log.",
+    oneLiner: "Junior student keeping a personal study log.",
     duties: [
       "Enroll in courses",
       "Submit assignments and reflections",
-      "Join discussions and live class",
+      "Join discussions and live sessions",
       "Evaluate the mentor at term end",
     ],
   },
@@ -64,7 +64,8 @@ export const COURSES = [
     id: "cs110",
     code: "MAT CS110",
     title: "Discrete Structures for Computing",
-    mentor: "Dr. Aishah Mokhtar",
+    mentor: "Adam Iskandar Razak",
+    lecturer: "Dr. Aishah Mokhtar",
     cohort: "B.Sc. CS, Year 1",
     enrolled: 48,
     capacity: 60,
@@ -79,7 +80,8 @@ export const COURSES = [
     id: "cs220",
     code: "CSC 234",
     title: "Algorithms in Practice",
-    mentor: "Encik Faiz Rashid",
+    mentor: "Nadia Aiman Zulkifli",
+    lecturer: "Dr. Faiz Rashid",
     cohort: "B.Sc. CS, Year 2",
     enrolled: 32,
     capacity: 40,
@@ -94,7 +96,8 @@ export const COURSES = [
     id: "mat210",
     code: "MAT 210",
     title: "Linear Algebra for ML",
-    mentor: "Pn. Liyana Hashim",
+    mentor: "Daniel Hakimi Othman",
+    lecturer: "Pn. Liyana Hashim",
     cohort: "B.Sc. CS, Year 2",
     enrolled: 27,
     capacity: 40,
@@ -109,7 +112,8 @@ export const COURSES = [
     id: "stat101",
     code: "STA 116",
     title: "Statistical Reasoning",
-    mentor: "Dr. Aishah Mokhtar",
+    mentor: "Adam Iskandar Razak",
+    lecturer: "Dr. Aishah Mokhtar",
     cohort: "Foundation",
     enrolled: 51,
     capacity: 80,
@@ -138,16 +142,16 @@ export const ROOMS = [
   },
   {
     id: "rm-02",
-    title: "Office hours, Thursday",
+    title: "Peer office hours, Thursday",
     course: "MAT CS110",
-    starter: "Dr. Aishah Mokhtar",
+    starter: "Adam Iskandar Razak",
     role: "Mentor",
     members: 48,
     posts: 12,
     last: "Today, 09:14",
     pinned: true,
     excerpt:
-      "Bring questions on relations and partial orders. I will leave the door open from 14:00 to 16:00.",
+      "Bring questions on relations and partial orders. I will be in the study room from 14:00 to 16:00.",
   },
   {
     id: "rm-03",
@@ -166,7 +170,7 @@ export const ROOMS = [
     id: "rm-04",
     title: "Eigenvectors as directions",
     course: "MAT 210",
-    starter: "Pn. Liyana Hashim",
+    starter: "Daniel Hakimi Othman",
     role: "Mentor",
     members: 27,
     posts: 8,
@@ -180,7 +184,7 @@ export const ROOMS = [
 export const MESSAGES = [
   {
     id: "m1",
-    author: "Dr. Aishah Mokhtar",
+    author: "Adam Iskandar Razak",
     role: "Mentor",
     time: "14:02",
     body: "Welcome back. We will be picking up where we paused on strong induction. Skim Rosen 5.2 if you have not.",
@@ -201,10 +205,10 @@ export const MESSAGES = [
   },
   {
     id: "m4",
-    author: "Dr. Aishah Mokhtar",
+    author: "Adam Iskandar Razak",
     role: "Mentor",
     time: "14:07",
-    body: "Right. Strong induction over the size of the tree is what you want. I will write the skeleton on the board.",
+    body: "Right. Strong induction over the size of the tree is what you want. Let me write the skeleton on the board.",
   },
   {
     id: "m5",
@@ -332,17 +336,17 @@ export const FEEDBACK_ENTRIES = [
   {
     id: "fb-01",
     course: "MAT CS110",
-    mentor: "Dr. Aishah Mokhtar",
+    mentor: "Adam Iskandar Razak",
     score: 4.7,
     n: 41,
     comment:
-      "Patient and rigorous. The induction worksheets were the most useful resource of the term.",
+      "Patient and clear. The induction worksheets were the most useful resource of the term, even better than the lecture slides.",
     by: "Anonymous mentee",
   },
   {
     id: "fb-02",
     course: "CSC 234",
-    mentor: "Encik Faiz Rashid",
+    mentor: "Nadia Aiman Zulkifli",
     score: 4.4,
     n: 29,
     comment:
@@ -352,11 +356,11 @@ export const FEEDBACK_ENTRIES = [
   {
     id: "fb-03",
     course: "MAT 210",
-    mentor: "Pn. Liyana Hashim",
+    mentor: "Daniel Hakimi Othman",
     score: 4.6,
     n: 24,
     comment:
-      "Visual intuition for eigenvectors finally clicked. Office hours were generous.",
+      "Visual intuition for eigenvectors finally clicked. Peer office hours were generous.",
     by: "Anonymous mentee",
   },
 ];
@@ -386,7 +390,7 @@ export const EVENTS = [
   {
     when: "Thu, 14:00",
     course: "MAT CS110",
-    title: "Office hours with Dr. Aishah",
+    title: "Peer office hours with Adam",
     place: "Room 4-08",
     state: "later",
   },
@@ -395,20 +399,25 @@ export const EVENTS = [
 export const STATS = [
   { label: "Active courses", value: "04", caption: "this semester" },
   { label: "Mentees enrolled", value: "158", caption: "across cohorts" },
-  { label: "Mentors on roster", value: "12", caption: "permanent and visiting" },
+  { label: "Senior student mentors", value: "12", caption: "across all faculties" },
   { label: "Attendance accuracy", value: "98.4%", caption: "face recognition, last 30 days" },
 ];
 
 export const USERS = [
+  // Junior students (Mentees)
   { id: "u-001", name: "Aiman Hakimi", identity: "2023607832", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
   { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
   { id: "u-003", name: "Faris Adlan", identity: "2023611901", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
   { id: "u-004", name: "Liyana Aziz", identity: "2023612200", role: "Mentee" as Role, status: "Probation", joined: "2024-09-01" },
   { id: "u-005", name: "Hafiz Ridzwan", identity: "2023612555", role: "Mentee" as Role, status: "Active", joined: "2024-09-01" },
-  { id: "u-006", name: "Dr. Aishah Mokhtar", identity: "FCMS-184", role: "Mentor" as Role, status: "Active", joined: "2018-02-12" },
-  { id: "u-007", name: "Encik Faiz Rashid", identity: "FCMS-209", role: "Mentor" as Role, status: "Active", joined: "2020-08-04" },
-  { id: "u-008", name: "Pn. Liyana Hashim", identity: "FCMS-232", role: "Mentor" as Role, status: "Active", joined: "2022-01-10" },
-  { id: "u-009", name: "Registrar Office", identity: "ADM-001", role: "Admin" as Role, status: "Active", joined: "2017-06-01" },
+  // Senior students (Mentors), matric numbers from earlier intakes (2021/2022)
+  { id: "u-006", name: "Adam Iskandar Razak", identity: "2022613001", role: "Mentor" as Role, status: "Active", joined: "2022-09-01" },
+  { id: "u-007", name: "Nadia Aiman Zulkifli", identity: "2022613055", role: "Mentor" as Role, status: "Active", joined: "2022-09-01" },
+  { id: "u-008", name: "Daniel Hakimi Othman", identity: "2021607123", role: "Mentor" as Role, status: "Active", joined: "2021-09-01" },
+  // Lecturers (Admins), FCMS staff numbers
+  { id: "u-009", name: "Dr. Aishah Mokhtar", identity: "FCMS-184", role: "Admin" as Role, status: "Active", joined: "2018-02-12" },
+  { id: "u-010", name: "Dr. Faiz Rashid", identity: "FCMS-209", role: "Admin" as Role, status: "Active", joined: "2020-08-04" },
+  { id: "u-011", name: "Pn. Liyana Hashim", identity: "FCMS-232", role: "Admin" as Role, status: "Active", joined: "2022-01-10" },
 ];
 
 export const EVALUATION_RUBRICS = [
@@ -417,7 +426,7 @@ export const EVALUATION_RUBRICS = [
     title: "End-of-term mentor evaluation",
     target: "Mentor",
     items: [
-      "Pacing of lectures",
+      "Pacing of peer sessions",
       "Clarity of explanation",
       "Quality of feedback on work",
       "Availability outside class",
@@ -448,5 +457,5 @@ export const CLASSES = [
   { id: "cls-01", course: "MAT CS110", topic: "Strong induction on trees", date: "2026-05-04", time: "14:00", room: "BD-3, Block A", state: "Live" },
   { id: "cls-02", course: "MAT CS110", topic: "Bijective proofs walkthrough", date: "2026-05-06", time: "14:00", room: "BD-3, Block A", state: "Scheduled" },
   { id: "cls-03", course: "CSC 234", topic: "Topological sort lab", date: "2026-05-07", time: "10:00", room: "Lab 2", state: "Scheduled" },
-  { id: "cls-04", course: "MAT CS110", topic: "Office hours", date: "2026-05-08", time: "14:00", room: "Room 4-08", state: "Scheduled" },
+  { id: "cls-04", course: "MAT CS110", topic: "Peer office hours", date: "2026-05-08", time: "14:00", room: "Room 4-08", state: "Scheduled" },
 ];

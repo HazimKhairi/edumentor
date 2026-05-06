@@ -29,7 +29,7 @@ export default function AttendancePage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Attendance</h1>
           <p className="mt-3 text-ink-soft">
-            Roll called by camera, confirmed by mentor. {checkedCount} of {ROSTER.length} matched today.
+            Roll called by camera, confirmed by the senior student mentor. {checkedCount} of {ROSTER.length} matched today.
           </p>
         </div>
       </section>
@@ -57,7 +57,7 @@ export default function AttendancePage() {
                     matches each face against the roster on the right and
                     marks them <span className="font-semibold text-fern">Present</span>{" "}
                     automatically. Unmatched students stay <span className="font-semibold">Awaiting</span>{" "}
-                    until the mentor confirms manually.
+                    until the senior mentor confirms manually.
                   </p>
                 </div>
               </div>

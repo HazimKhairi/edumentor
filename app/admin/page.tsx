@@ -6,7 +6,7 @@ import { COURSES, USERS, EVALUATION_RUBRICS, STATS } from "@/lib/data";
 
 export const metadata = {
   title: "Admin console | EduMentor",
-  description: "Steward the academic record.",
+  description: "Lecturer steward of the academic record.",
 };
 
 const TILES = [
@@ -20,13 +20,13 @@ const TILES = [
     href: "/admin/users",
     icon: Users,
     title: "Manage users",
-    desc: "Audit accounts, suspend, or remove users.",
+    desc: "Audit student and mentor accounts, suspend, or remove.",
   },
   {
     href: "/admin/evaluations",
     icon: ClipboardList,
     title: "Evaluation rubrics",
-    desc: "Author the questions used in mentor reviews.",
+    desc: "Author the questions students use to review their mentors.",
   },
   {
     href: "/reports",
@@ -49,7 +49,7 @@ export default function AdminLanding() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Admin console</h1>
           <p className="mt-2 text-ink-soft">
-            Steward of the academic record. Manage courses, users, rubrics, and reports.
+            Lecturer steward of the academic record. Manage courses, students, mentors, rubrics, and reports.
           </p>
         </div>
       </section>
