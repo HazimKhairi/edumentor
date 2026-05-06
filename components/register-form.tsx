@@ -16,95 +16,94 @@ type FaceApi = typeof import("@vladmandic/face-api");
 
 const STORAGE_KEY = "edumentor:enrolled-faces:v2";
 
+type RoleKey = "Mentor" | "Mentee";
+
 export function RegisterForm() {
   const [matric, setMatric] = useState("");
+  const [role, setRole] = useState<RoleKey>("Mentee");
   const [faceCaptured, setFaceCaptured] = useState(false);
 
   return (
-    <form className="space-y-5">
-      <div>
-        <label className="block text-sm font-medium text-ink mb-1.5">
-          Full name
-        </label>
-        <input
-          type="text"
-          placeholder="Aiman Hakimi"
-          className="input"
-          autoComplete="name"
-        />
+    <form className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-medium text-ink mb-1">
+            Full name
+          </label>
+          <input
+            type="text"
+            placeholder="Aiman Hakimi"
+            className="input py-2 text-sm"
+            autoComplete="name"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-ink mb-1">
+            UiTM email
+          </label>
+          <input
+            type="email"
+            placeholder="2023607832@student.uitm.edu.my"
+            className="input py-2 text-sm"
+            autoComplete="email"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-medium text-ink mb-1">
+            Matric number
+          </label>
+          <input
+            type="text"
+            value={matric}
+            onChange={(e) => setMatric(e.target.value)}
+            placeholder="2023607832"
+            className="input py-2 text-sm"
+            autoComplete="username"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-ink mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            placeholder="At least 10 chars"
+            className="input py-2 text-sm"
+            autoComplete="new-password"
+          />
+        </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-ink mb-1.5">
-          UiTM email
-        </label>
-        <input
-          type="email"
-          placeholder="2023607832@student.uitm.edu.my"
-          className="input"
-          autoComplete="email"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-ink mb-1.5">
-          Matric number
-        </label>
-        <input
-          type="text"
-          value={matric}
-          onChange={(e) => setMatric(e.target.value)}
-          placeholder="2023607832"
-          className="input"
-          autoComplete="username"
-        />
-        <p className="text-xs text-ink-muted mt-1.5">
-          Both mentee and mentor sign up with their UiTM matric number.
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-ink mb-1.5">
-          Password
-        </label>
-        <input
-          type="password"
-          placeholder="Choose a strong password"
-          className="input"
-          autoComplete="new-password"
-        />
-        <p className="text-xs text-ink-muted mt-1.5">
-          Minimum 10 characters with one number.
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-ink mb-2">
+        <label className="block text-xs font-medium text-ink mb-1.5">
           I am signing up as
         </label>
         <div className="grid grid-cols-2 gap-2">
           {ROLES.filter((r) => r.key !== "Admin").map((r) => (
             <label
               key={r.key}
-              className="relative flex flex-col items-center gap-1 p-3 rounded-md border border-rule cursor-pointer hover:border-ink has-[:checked]:border-oxblood has-[:checked]:bg-oxblood/[0.04] transition-colors"
+              className="relative flex items-center gap-2 px-3 py-2 rounded-md border border-rule cursor-pointer hover:border-ink has-[:checked]:border-oxblood has-[:checked]:bg-oxblood/[0.04] transition-colors"
             >
               <input
                 type="radio"
                 name="role"
                 value={r.key}
-                defaultChecked={r.key === "Mentee"}
+                checked={role === r.key}
+                onChange={() => setRole(r.key as RoleKey)}
                 className="sr-only"
               />
-              <span className="text-xs text-ink-muted font-semibold">
+              <span className="text-[10px] text-ink-muted font-semibold">
                 {r.abbr}
               </span>
               <span className="text-sm font-medium">{r.key}</span>
             </label>
           ))}
         </div>
-        <p className="text-xs text-ink-muted mt-2">
-          Mentor applications need CGPA proof. Admin (lecturer) accounts are
-          issued internally by the registrar and cannot self-register.
+        <p className="text-[11px] text-ink-muted mt-1.5">
+          Admin (lecturer) accounts are issued internally and cannot self-register.
         </p>
       </div>
 
@@ -115,67 +114,9 @@ export function RegisterForm() {
         onReset={() => setFaceCaptured(false)}
       />
 
-      <div className="rounded-md border border-rule bg-paper-dark/40 p-4 space-y-4">
-        <div>
-          <p className="text-sm font-semibold text-ink mb-1">
-            Applying as a Mentor?
-          </p>
-          <p className="text-xs text-ink-muted leading-relaxed">
-            Senior students with a current CGPA of{" "}
-            <span className="font-semibold text-ink">3.20 or higher</span> may
-            mentor a junior cohort. Fields below are reviewed by the registrar.
-          </p>
-        </div>
+      {role === "Mentor" ? <MentorEligibilityFields /> : null}
 
-        <div className="grid grid-cols-12 gap-3">
-          <div className="col-span-12 sm:col-span-5">
-            <label className="block text-sm font-medium text-ink mb-1.5">
-              Current CGPA
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              max="4"
-              placeholder="3.74"
-              className="input"
-            />
-            <p className="text-xs text-ink-muted mt-1.5">Out of 4.00.</p>
-          </div>
-          <div className="col-span-12 sm:col-span-7">
-            <label className="block text-sm font-medium text-ink mb-1.5">
-              Latest semester
-            </label>
-            <select className="input">
-              <option>Semester 02 / 2026</option>
-              <option>Semester 01 / 2026</option>
-              <option>Semester 02 / 2025</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-ink mb-1.5">
-            Latest transcript
-          </label>
-          <div className="border-2 border-dashed border-rule rounded-md p-4 text-center bg-bone">
-            <p className="text-sm text-ink-muted mb-2">
-              Upload your latest UiTM transcript (PDF).
-            </p>
-            <button type="button" className="btn btn-ghost btn-sm">
-              Browse files
-            </button>
-            <p className="text-xs text-ink-muted mt-2">PDF only, up to 5 MB</p>
-          </div>
-        </div>
-
-        <p className="text-xs text-ink-muted">
-          Applications below 3.20 will be declined automatically. Decisions are
-          emailed within one academic day.
-        </p>
-      </div>
-
-      <label className="flex items-start gap-2 text-sm text-ink-soft cursor-pointer">
+      <label className="flex items-start gap-2 text-xs text-ink-soft cursor-pointer">
         <input type="checkbox" className="size-4 mt-0.5 accent-oxblood" />
         <span>
           I agree to the{" "}
@@ -190,10 +131,60 @@ export function RegisterForm() {
         </span>
       </label>
 
-      <Link href="/login" className="btn btn-primary btn-lg w-full">
+      <Link href="/login" className="btn btn-primary w-full">
         Create account
       </Link>
     </form>
+  );
+}
+
+function MentorEligibilityFields() {
+  return (
+    <div className="rounded-md border border-rule bg-paper-dark/40 p-3 space-y-3">
+      <p className="text-xs text-ink-muted leading-relaxed">
+        Mentor applicants need a current CGPA of{" "}
+        <span className="font-semibold text-ink">3.20 or higher</span>.
+        Reviewed by the registrar.
+      </p>
+
+      <div className="grid grid-cols-12 gap-2">
+        <div className="col-span-5">
+          <label className="block text-xs font-medium text-ink mb-1">
+            Current CGPA
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            min="0"
+            max="4"
+            placeholder="3.74"
+            className="input py-2 text-sm"
+          />
+        </div>
+        <div className="col-span-7">
+          <label className="block text-xs font-medium text-ink mb-1">
+            Latest semester
+          </label>
+          <select className="input py-2 text-sm">
+            <option>Semester 02 / 2026</option>
+            <option>Semester 01 / 2026</option>
+            <option>Semester 02 / 2025</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-medium text-ink mb-1">
+          Latest transcript (PDF)
+        </label>
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm w-full justify-center border border-dashed border-rule"
+        >
+          Browse files , up to 5 MB
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -290,7 +281,7 @@ function FaceCaptureStep({
     setFaceCount(0);
   }, []);
 
-  // Detection loop just to draw bounding box and count faces (not capturing)
+  // Detection loop just to draw bounding box and count faces
   useEffect(() => {
     if (cameraStatus !== "live" || modelStatus !== "ready") return;
     let cancelled = false;
@@ -343,7 +334,7 @@ function FaceCaptureStep({
     const video = videoRef.current;
     if (!faceapi || !video || cameraStatus !== "live") return;
     if (!matric.trim()) {
-      setStatusMessage("Enter your matric number above first.");
+      setStatusMessage("Enter your matric first.");
       window.setTimeout(() => setStatusMessage(null), 3000);
       return;
     }
@@ -360,7 +351,7 @@ function FaceCaptureStep({
         .withFaceLandmarks()
         .withFaceDescriptor();
       if (!detection) {
-        setStatusMessage("No face detected, look into the camera and retry.");
+        setStatusMessage("No face detected.");
         return;
       }
       const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -368,11 +359,11 @@ function FaceCaptureStep({
       map[matric.trim()] = Array.from(detection.descriptor);
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
       onCapture();
-      setStatusMessage("Face captured and bound to your matric.");
+      setStatusMessage("Face captured.");
       stopCamera();
     } catch (e) {
       console.error("capture failed", e);
-      setStatusMessage("Capture failed, try again.");
+      setStatusMessage("Capture failed.");
     } finally {
       setCapturing(false);
       window.setTimeout(() => setStatusMessage(null), 4000);
@@ -393,144 +384,152 @@ function FaceCaptureStep({
     onReset();
   };
 
-  return (
-    <div className="rounded-md border border-rule bg-paper-dark/40 p-4 space-y-4">
-      <div className="flex items-start gap-3">
+  if (captured) {
+    return (
+      <div className="rounded-md border border-fern/30 bg-fern/10 p-3 flex items-center gap-3">
+        <span className="size-9 rounded-full bg-fern/20 text-fern flex items-center justify-center shrink-0">
+          <Check size={18} />
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-ink">
+            Face captured for matric{" "}
+            <span className="tabular">{matric.trim() || "(none)"}</span>
+          </p>
+          <p className="text-[11px] text-ink-muted">
+            Used by the classroom camera to mark you present.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleReset}
+          className="btn btn-ghost btn-sm"
+        >
+          Re-capture
+        </button>
+      </div>
+    );
+  }
+
+  // Idle: compact card with just CTA
+  if (cameraStatus === "idle") {
+    return (
+      <div className="rounded-md border border-rule bg-paper-dark/40 p-3 flex items-center gap-3">
         <span className="size-9 rounded-md bg-oxblood/15 text-oxblood flex items-center justify-center shrink-0">
           <ScanFace size={18} />
         </span>
-        <div>
-          <p className="text-sm font-semibold text-ink mb-1">
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-ink">
             Face capture for attendance{" "}
-            <span className="text-xs font-normal text-ink-muted">
-              (KYC step)
+            <span className="text-[11px] font-normal text-ink-muted">
+              (KYC, runs in your browser)
             </span>
           </p>
-          <p className="text-xs text-ink-muted leading-relaxed">
-            We capture a one-time face descriptor (128 numbers, not a photo)
-            bound to your matric. The classroom camera uses it to mark you
-            present. Runs entirely in this browser.
+          <p className="text-[11px] text-ink-muted">
+            128-number descriptor bound to your matric, no photo stored.
           </p>
+        </div>
+        <button
+          type="button"
+          onClick={startCamera}
+          disabled={modelStatus !== "ready" || !matric.trim()}
+          className="btn btn-secondary btn-sm shrink-0"
+        >
+          {modelStatus === "loading" ? (
+            <>
+              <Loader2 size={14} className="animate-spin" /> Loading
+            </>
+          ) : (
+            <>
+              <Camera size={14} /> Start
+            </>
+          )}
+        </button>
+      </div>
+    );
+  }
+
+  // Active: show camera preview
+  return (
+    <div className="rounded-md border border-rule bg-paper-dark/40 p-3 space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="size-7 rounded-md bg-oxblood/15 text-oxblood flex items-center justify-center shrink-0">
+          <ScanFace size={14} />
+        </span>
+        <p className="text-sm font-semibold text-ink flex-1">
+          Capture your face
+        </p>
+        {cameraStatus === "live" ? (
+          <span className="text-[11px] text-ink-muted inline-flex items-center gap-1">
+            <span className="size-1.5 rounded-full bg-oxblood blink" />
+            {faceCount} detected
+          </span>
+        ) : null}
+      </div>
+
+      <div className="card p-0 overflow-hidden">
+        <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
+          <video
+            ref={videoRef}
+            playsInline
+            muted
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+          />
+          {cameraStatus !== "live" ? (
+            <div className="relative z-10 text-center text-bone/85 px-4">
+              <Video size={28} className="mx-auto mb-1.5 opacity-80" />
+              <p className="text-xs">
+                {cameraStatus === "denied"
+                  ? "Camera permission denied"
+                  : cameraStatus === "error"
+                    ? "Camera unavailable"
+                    : "Requesting camera"}
+              </p>
+            </div>
+          ) : null}
         </div>
       </div>
 
-      {captured ? (
-        <div className="card p-4 bg-fern/10 border-fern/30 flex items-center gap-3">
-          <span className="size-9 rounded-full bg-fern/20 text-fern flex items-center justify-center shrink-0">
-            <Check size={18} />
-          </span>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-ink">
-              Face descriptor saved
-            </p>
-            <p className="text-xs text-ink-muted">
-              Bound to matric{" "}
-              <span className="tabular font-medium">
-                {matric.trim() || "(none)"}
-              </span>
-              .
-            </p>
-          </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {cameraStatus === "live" ? (
+          <>
+            <button
+              type="button"
+              onClick={capture}
+              disabled={capturing || faceCount === 0 || !matric.trim()}
+              className="btn btn-primary btn-sm"
+            >
+              {capturing ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <ScanFace size={14} />
+              )}
+              Capture face
+            </button>
+            <button
+              type="button"
+              onClick={stopCamera}
+              className="btn btn-ghost btn-sm"
+            >
+              <VideoOff size={14} /> Cancel
+            </button>
+          </>
+        ) : (
           <button
             type="button"
-            onClick={handleReset}
+            onClick={() => setCameraStatus("idle")}
             className="btn btn-ghost btn-sm"
           >
-            Re-capture
+            Back
           </button>
-        </div>
-      ) : (
-        <>
-          <div className="card p-0 overflow-hidden">
-            <div className="relative aspect-[4/3] bg-black flex items-center justify-center overflow-hidden">
-              <video
-                ref={videoRef}
-                playsInline
-                muted
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <canvas
-                ref={canvasRef}
-                className="absolute inset-0 w-full h-full pointer-events-none"
-              />
-              {cameraStatus !== "live" ? (
-                <div className="relative z-10 text-center text-bone/85 px-4">
-                  <Video size={36} className="mx-auto mb-2 opacity-80" />
-                  <p className="text-sm">
-                    {cameraStatus === "denied"
-                      ? "Camera permission denied"
-                      : cameraStatus === "error"
-                        ? "Camera unavailable"
-                        : cameraStatus === "requesting"
-                          ? "Requesting camera"
-                          : "Camera off"}
-                  </p>
-                </div>
-              ) : (
-                <div className="absolute top-2 left-2 inline-flex items-center gap-2 bg-bone/95 px-2 py-1 rounded-sm text-xs font-semibold">
-                  <span className="size-1.5 rounded-full bg-oxblood blink" />
-                  {faceCount} face{faceCount === 1 ? "" : "s"} detected
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            {cameraStatus !== "live" ? (
-              <button
-                type="button"
-                onClick={startCamera}
-                disabled={
-                  modelStatus !== "ready" || cameraStatus === "requesting"
-                }
-                className="btn btn-secondary btn-sm"
-              >
-                <Camera size={14} /> Start camera
-              </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={capture}
-                  disabled={capturing || faceCount === 0 || !matric.trim()}
-                  className="btn btn-primary btn-sm"
-                >
-                  {capturing ? (
-                    <Loader2 size={14} className="animate-spin" />
-                  ) : (
-                    <ScanFace size={14} />
-                  )}
-                  Capture face
-                </button>
-                <button
-                  type="button"
-                  onClick={stopCamera}
-                  className="btn btn-ghost btn-sm"
-                >
-                  <VideoOff size={14} /> Stop
-                </button>
-              </>
-            )}
-            {modelStatus === "loading" ? (
-              <span className="text-xs text-ink-muted inline-flex items-center gap-1">
-                <Loader2 size={12} className="animate-spin" /> Loading models
-              </span>
-            ) : null}
-            {modelStatus === "error" ? (
-              <span className="text-xs text-oxblood">Model load failed</span>
-            ) : null}
-            {statusMessage ? (
-              <span className="text-xs text-ink-soft">{statusMessage}</span>
-            ) : null}
-          </div>
-
-          {!matric.trim() ? (
-            <p className="text-xs text-saffron">
-              Enter your matric number above before capturing.
-            </p>
-          ) : null}
-        </>
-      )}
+        )}
+        {statusMessage ? (
+          <span className="text-[11px] text-ink-soft">{statusMessage}</span>
+        ) : null}
+      </div>
     </div>
   );
 }

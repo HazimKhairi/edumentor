@@ -10,8 +10,8 @@ export const metadata = {
 
 export default function RegisterPage() {
   return (
-    <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <aside className="hidden lg:flex relative bg-gradient-to-br from-oxblood via-oxblood-deep to-ink p-12 text-bone flex-col justify-between overflow-hidden">
+    <main className="min-h-screen grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+      <aside className="hidden lg:flex sticky top-0 h-screen relative bg-gradient-to-br from-oxblood via-oxblood-deep to-ink p-10 text-bone flex-col justify-between overflow-hidden">
         <Link href="/" className="inline-flex items-center w-fit bg-bone rounded-md px-3 py-2">
           <Image src="/logo.png" alt="EduMentor" width={140} height={40} className="h-9 w-auto" />
         </Link>
@@ -48,29 +48,29 @@ export default function RegisterPage() {
         </p>
       </aside>
 
-      <section className="flex flex-col justify-center p-6 sm:p-12 bg-paper">
-        <div className="w-full max-w-md mx-auto">
-          <Link href="/" className="lg:hidden flex justify-center mb-8">
-            <Image src="/logo.png" alt="EduMentor" width={160} height={48} className="h-11 w-auto" />
+      <section className="flex flex-col p-6 sm:p-10 bg-paper">
+        <div className="w-full max-w-2xl mx-auto">
+          <Link href="/" className="lg:hidden flex justify-center mb-6">
+            <Image src="/logo.png" alt="EduMentor" width={160} height={48} className="h-10 w-auto" />
           </Link>
 
-          <div className="flex border-b border-rule mb-8">
-            <Link href="/login" className="flex-1 pb-3 font-semibold text-base text-ink-muted hover:text-ink text-center">
+          <div className="flex border-b border-rule mb-5">
+            <Link href="/login" className="flex-1 pb-2.5 font-semibold text-sm text-ink-muted hover:text-ink text-center">
               Sign in
             </Link>
-            <span className="flex-1 pb-3 font-semibold text-base text-ink border-b-2 border-oxblood text-center">
+            <span className="flex-1 pb-2.5 font-semibold text-sm text-ink border-b-2 border-oxblood text-center">
               Create account
             </span>
           </div>
 
-          <h1 className="text-2xl font-bold mb-2">Create your account</h1>
-          <p className="text-ink-muted text-sm mb-8">
+          <h1 className="text-xl font-bold mb-1">Create your account</h1>
+          <p className="text-ink-muted text-xs mb-5">
             For UiTM students. Lecturer (admin) accounts are issued by the registrar.
           </p>
 
           <RegisterForm />
 
-          <p className="mt-8 text-center text-sm text-ink-muted">
+          <p className="mt-5 text-center text-xs text-ink-muted">
             Already have an account?{" "}
             <Link href="/login" className="text-oxblood hover:text-oxblood-deep font-semibold">
               Sign in
