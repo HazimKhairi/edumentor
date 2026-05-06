@@ -128,20 +128,24 @@ body {
 }
 
 /* Input */
-.input {
-  width: 100%;
-  padding: 0.625rem 0.875rem;
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-sm);
-  background: var(--color-bone);
-  font-size: 14px;
-  color: var(--color-ink);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-.input:focus {
-  outline: none;
-  border-color: var(--color-ink);
-  box-shadow: 0 0 0 3px rgba(122, 31, 31, 0.10);
+@layer components {
+  .input {
+    width: 100%;
+    padding-block: 0.625rem;
+    padding-inline-start: 0.875rem;
+    padding-inline-end: 0.875rem;
+    border: 1px solid var(--color-rule);
+    border-radius: var(--radius-sm);
+    background: var(--color-bone);
+    font-size: 14px;
+    color: var(--color-ink);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px rgba(122, 31, 31, 0.10);
+  }
 }
 
 /* Badges */
