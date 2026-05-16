@@ -64,14 +64,20 @@ export default async function HomePage() {
           </div>
 
           <div className="col-span-12 lg:col-span-5">
-            <CourseCard
-              id={COURSES[0].id}
-              code={COURSES[0].code}
-              title={COURSES[0].title}
-              mentor={COURSES[0].mentor}
-              color={COURSES[0].color as never}
-              {...ratingFor(COURSES[0].code)}
-            />
+            {COURSES[0] ? (
+              <CourseCard
+                id={COURSES[0].id}
+                code={COURSES[0].code}
+                title={COURSES[0].title}
+                mentor={COURSES[0].mentor}
+                color={COURSES[0].color as never}
+                {...ratingFor(COURSES[0].code)}
+              />
+            ) : (
+              <div className="card p-6 text-sm text-ink-muted">
+                No courses in the catalogue yet. An admin will add the first one soon.
+              </div>
+            )}
           </div>
         </div>
       </section>
