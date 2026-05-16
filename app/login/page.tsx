@@ -45,10 +45,20 @@ export default async function LoginPage({
 
   return (
     <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <aside className="hidden lg:flex relative bg-ink p-12 text-bone flex-col justify-between overflow-hidden">
+      <aside className="hidden lg:flex relative p-12 text-bone flex-col justify-between overflow-hidden">
+        <Image
+          src="/images/teacher-malaysia.jpg"
+          alt="A teacher guiding students in a Malaysian classroom"
+          fill
+          priority
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/85 via-black/55 to-black/30" />
+
         <Link
           href="/"
-          className="inline-flex items-center w-fit bg-bone rounded-md px-3 py-2"
+          className="relative z-10 inline-flex items-center w-fit bg-bone rounded-md px-3 py-2"
         >
           <Image
             src="/logo.png"
@@ -63,13 +73,13 @@ export default async function LoginPage({
           <h2 className="text-3xl font-bold leading-tight">
             Take a seat at the desk.
           </h2>
-          <p className="mt-4 text-bone/70 max-w-md leading-relaxed text-sm">
+          <p className="mt-4 text-bone/85 max-w-md leading-relaxed text-sm">
             Sign in with the matric on your student card, or the FCMS staff
             number on your lecturer card. The desk arranges itself accordingly.
           </p>
         </div>
 
-        <p className="text-xs text-bone/50 relative z-10">
+        <p className="text-xs text-bone/60 relative z-10">
           © 2026 EduMentor | UiTM, FCMS
         </p>
       </aside>
