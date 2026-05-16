@@ -3,19 +3,12 @@ import { Check, Search } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
+import { CategoryFilterableGrid } from "@/components/category-filterable-grid";
 import { SectionHeading } from "@/components/section-heading";
 import { StarRating } from "@/components/star-rating";
 import { IllustrationMentor } from "@/components/illustrations";
 import { ROLES } from "@/lib/data";
 import { getCoursesView, getFeedbackView, getStats } from "@/lib/queries";
-
-const CATEGORIES = [
-  { label: "All", count: 4 },
-  { label: "Computer Science", count: 2 },
-  { label: "Mathematics", count: 1 },
-  { label: "Statistics", count: 1 },
-  { label: "Foundation", count: 1 },
-];
 
 export default async function HomePage() {
   const COURSES = await getCoursesView();
@@ -106,37 +99,18 @@ export default async function HomePage() {
             link={{ href: "/courses", label: "Browse all courses" }}
           />
 
-          <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-2">
-            {CATEGORIES.map((c, i) => (
-              <button
-                key={c.label}
-                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  i === 0
-                    ? "bg-ink text-bone"
-                    : "bg-bone text-ink-soft border border-rule hover:border-ink"
-                }`}
-              >
-                {c.label}
-                <span className="ml-1.5 text-xs opacity-60">{c.count}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {COURSES.map((c) => (
-              <CourseCard
-                key={c.id}
-                id={c.id}
-                code={c.code}
-                title={c.title}
-                mentor={c.mentor}
-                cohort={c.cohort}
-                pace={c.pace}
-                color={c.color as never}
-                {...ratingFor(c.code)}
-              />
-            ))}
-          </div>
+          <CategoryFilterableGrid
+            courses={COURSES.map((c) => ({
+              id: c.id,
+              code: c.code,
+              title: c.title,
+              mentor: c.mentor,
+              cohort: c.cohort,
+              pace: c.pace,
+              color: c.color,
+              ...ratingFor(c.code),
+            }))}
+          />
         </div>
       </section>
 
