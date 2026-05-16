@@ -6,7 +6,8 @@ import { CourseCard } from "@/components/course-card";
 import { SectionHeading } from "@/components/section-heading";
 import { StarRating } from "@/components/star-rating";
 import { IllustrationMentor } from "@/components/illustrations";
-import { COURSES, FEEDBACK_ENTRIES, ROLES, STATS } from "@/lib/data";
+import { ROLES } from "@/lib/data";
+import { getCoursesView, getFeedbackView, getStats } from "@/lib/queries";
 
 const CATEGORIES = [
   { label: "All", count: 4 },
@@ -16,13 +17,17 @@ const CATEGORIES = [
   { label: "Foundation", count: 1 },
 ];
 
-function ratingFor(courseCode: string) {
-  const fb = FEEDBACK_ENTRIES.find((f) => f.course === courseCode);
-  if (fb) return { rating: fb.score, reviews: fb.n * 11 };
-  return { rating: 4.5, reviews: 84 };
-}
+export default async function HomePage() {
+  const COURSES = await getCoursesView();
+  const FEEDBACK_ENTRIES = await getFeedbackView();
+  const STATS = await getStats();
 
-export default function HomePage() {
+  function ratingFor(courseCode: string) {
+    const fb = FEEDBACK_ENTRIES.find((f) => f.course === courseCode);
+    if (fb) return { rating: fb.score, reviews: fb.n * 11 };
+    return { rating: 4.5, reviews: 84 };
+  }
+
   return (
     <>
       <SiteNav />

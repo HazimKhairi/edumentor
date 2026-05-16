@@ -3,16 +3,18 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { FaceAttendance } from "@/components/face-attendance";
 import { MenteeAttendanceConfirm } from "@/components/mentee-attendance-confirm";
+import { db } from "@/lib/db";
+import { requireUser } from "@/lib/session";
 import {
-  ATTENDANCE_SESSIONS,
-  ROSTER,
   attendanceForUser,
-  getCurrentUser,
-} from "@/lib/data";
+  getAttendanceSessionsView,
+  getRosterForSession,
+} from "@/lib/queries";
 
 export const metadata = {
   title: "Attendance | EduMentor",
-  description: "Face match, mentee confirms, mentor verifies. Two signatures every session.",
+  description:
+    "Face match, mentee confirms, mentor verifies. Two signatures every session.",
 };
 
 const stateBadge: Record<string, string> = {
@@ -20,17 +22,30 @@ const stateBadge: Record<string, string> = {
   Closed: "badge badge-muted",
 };
 
-export default function AttendancePage() {
-  const me = getCurrentUser();
-  const live = ATTENDANCE_SESSIONS.find((s) => s.state === "Live");
-  const closed = ATTENDANCE_SESSIONS.filter((s) => s.state === "Closed");
-  const myTrail = me.role === "Mentee" ? attendanceForUser(me.id) : [];
+export default async function AttendancePage() {
+  const me = await requireUser();
 
-  const rosterForRecognition = ROSTER.map(({ id, name, matric }) => ({
-    id,
-    name,
-    matric,
-  }));
+  const liveRecord = await db.attendanceSession.findFirst({
+    where: { state: "Live" },
+    include: { course: { select: { code: true } } },
+  });
+  const live = liveRecord
+    ? {
+        id: liveRecord.id,
+        course: liveRecord.course.code,
+        room: liveRecord.room,
+        date: liveRecord.date.toISOString().slice(0, 10),
+        time: liveRecord.time,
+        expected: liveRecord.expected,
+      }
+    : null;
+
+  const sessions = await getAttendanceSessionsView();
+  const closed = sessions.filter((s) => s.state === "Closed");
+
+  const rosterForRecognition = live ? await getRosterForSession(live.id) : [];
+
+  const myTrail = me.role === "Mentee" ? await attendanceForUser(me.id) : [];
 
   return (
     <>
@@ -88,15 +103,13 @@ export default function AttendancePage() {
             <h2 className="font-semibold text-sm mb-3">My attendance trail</h2>
             <ul className="card p-0 overflow-hidden divide-y divide-rule">
               {myTrail.map((r) => {
-                const s = ATTENDANCE_SESSIONS.find((x) => x.id === r.sessionId);
-                if (!s) return null;
                 const counted = r.menteeConfirmed && r.mentorVerified;
                 return (
                   <li key={r.sessionId} className="px-4 py-3 flex items-center gap-3">
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium">{s.course}</div>
+                      <div className="text-sm font-medium">{r.session.courseId}</div>
                       <div className="text-xs text-ink-muted tabular">
-                        {s.date} {s.time}, {s.room}
+                        {r.session.date.toISOString().slice(0, 10)} {r.session.time}, {r.session.room}
                       </div>
                     </div>
                     <span

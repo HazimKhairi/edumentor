@@ -2,14 +2,18 @@ import Link from "next/link";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { COURSES } from "@/lib/data";
+import { requireRole } from "@/lib/session";
+import { getCoursesView } from "@/lib/queries";
 
 export const metadata = {
   title: "Manage courses | Admin",
   description: "Admin course management.",
 };
 
-export default function AdminCoursesPage() {
+export default async function AdminCoursesPage() {
+  await requireRole("Admin");
+  const courses = await getCoursesView();
+
   return (
     <>
       <SiteNav />
@@ -24,7 +28,7 @@ export default function AdminCoursesPage() {
           <div className="flex items-baseline justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">Manage courses</h1>
-              <p className="mt-2 text-ink-soft">{COURSES.length} courses in the catalogue.</p>
+              <p className="mt-2 text-ink-soft">{courses.length} courses in the catalogue.</p>
             </div>
             <Link href="/admin/courses/new" className="btn btn-primary">
               <Plus size={16} /> Add course
@@ -65,7 +69,7 @@ export default function AdminCoursesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-rule">
-                {COURSES.map((c) => {
+                {courses.map((c) => {
                   const pct = Math.round((c.enrolled / c.capacity) * 100);
                   return (
                     <tr key={c.id} className="hover:bg-paper-dark/30">

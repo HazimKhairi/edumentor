@@ -2,15 +2,24 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { ASSIGNMENTS } from "@/lib/data";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
+import { getAssignmentsView } from "@/lib/queries";
 
 export async function generateStaticParams() {
-  return ASSIGNMENTS.map((a) => ({ id: a.id }));
+  const rows = await db.assignment.findMany({ select: { id: true } });
+  return rows.map((a) => ({ id: a.id }));
 }
 
-export default async function EditAssignmentPage(props: PageProps<"/mentor/assignments/[id]/edit">) {
-  const { id } = await props.params;
-  const a = ASSIGNMENTS.find((x) => x.id === id);
+export default async function EditAssignmentPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  await requireRole(["Mentor", "Admin"]);
+  const { id } = await params;
+  const all = await getAssignmentsView();
+  const a = all.find((x) => x.id === id);
   if (!a) notFound();
 
   return (

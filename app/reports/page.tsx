@@ -2,7 +2,7 @@ import { TrendingUp } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { StarRating } from "@/components/star-rating";
-import { COURSES, FEEDBACK_ENTRIES, STATS } from "@/lib/data";
+import { getCoursesView, getFeedbackView, getStats } from "@/lib/queries";
 
 export const metadata = {
   title: "Reports | EduMentor",
@@ -24,10 +24,15 @@ const sevBadge: Record<string, string> = {
   High: "badge badge-oxblood",
 };
 
-export default function ReportsPage() {
+export default async function ReportsPage() {
+  const [COURSES, FEEDBACK_ENTRIES, STATS] = await Promise.all([
+    getCoursesView(),
+    getFeedbackView(),
+    getStats(),
+  ]);
   const totalEnrolled = COURSES.reduce((s, c) => s + c.enrolled, 0);
   const totalCapacity = COURSES.reduce((s, c) => s + c.capacity, 0);
-  const fillPct = Math.round((totalEnrolled / totalCapacity) * 100);
+  const fillPct = totalCapacity ? Math.round((totalEnrolled / totalCapacity) * 100) : 0;
 
   return (
     <>

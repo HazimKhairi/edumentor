@@ -2,7 +2,9 @@ import Link from "next/link";
 import { ArrowRight, BookOpen, Users, ClipboardList, FileBarChart } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { COURSES, USERS, EVALUATION_RUBRICS, STATS } from "@/lib/data";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
+import { getStats } from "@/lib/queries";
 
 export const metadata = {
   title: "Admin console | EduMentor",
@@ -36,7 +38,14 @@ const TILES = [
   },
 ];
 
-export default function AdminLanding() {
+export default async function AdminLanding() {
+  await requireRole("Admin");
+  const [coursesCount, usersCount, rubricsCount, stats] = await Promise.all([
+    db.course.count(),
+    db.user.count(),
+    db.evaluationRubric.count({ where: { active: true } }),
+    getStats(),
+  ]);
   return (
     <>
       <SiteNav />
@@ -58,19 +67,19 @@ export default function AdminLanding() {
         <div className="mx-auto max-w-[1400px] px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="card p-5">
             <div className="text-sm text-ink-muted">Total courses</div>
-            <div className="text-3xl font-bold mt-1">{COURSES.length}</div>
+            <div className="text-3xl font-bold mt-1">{coursesCount}</div>
           </div>
           <div className="card p-5">
             <div className="text-sm text-ink-muted">Total users</div>
-            <div className="text-3xl font-bold mt-1">{USERS.length}</div>
+            <div className="text-3xl font-bold mt-1">{usersCount}</div>
           </div>
           <div className="card p-5">
             <div className="text-sm text-ink-muted">Active rubrics</div>
-            <div className="text-3xl font-bold mt-1">{EVALUATION_RUBRICS.filter((r) => r.active).length}</div>
+            <div className="text-3xl font-bold mt-1">{rubricsCount}</div>
           </div>
           <div className="card p-5">
             <div className="text-sm text-ink-muted">Attendance accuracy</div>
-            <div className="text-3xl font-bold mt-1">{STATS[3].value}</div>
+            <div className="text-3xl font-bold mt-1">{stats[3].value}</div>
           </div>
         </div>
       </section>

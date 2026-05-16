@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Plus, Camera, Video } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { CLASSES } from "@/lib/data";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
 
 export const metadata = {
   title: "Manage classes | Mentor",
@@ -14,9 +15,27 @@ const stateBadge: Record<string, string> = {
   Closed: "badge badge-muted",
 };
 
-export default function MentorClassesPage() {
-  const live = CLASSES.find((c) => c.state === "Live");
-  const upcoming = CLASSES.filter((c) => c.state === "Scheduled");
+export default async function MentorClassesPage() {
+  await requireRole(["Mentor", "Admin"]);
+
+  const rows = await db.classSession.findMany({
+    include: { course: { select: { code: true } } },
+    orderBy: { date: "asc" },
+  });
+  const classes = rows.map((c) => ({
+    id: c.id,
+    course: c.course.code,
+    topic: c.topic,
+    date: c.date.toISOString().slice(0, 10),
+    time: c.time,
+    room: c.room,
+    state: c.state,
+    format: c.format === "InPerson" ? "In person" : c.format,
+    meetingLink: c.meetingLink,
+  }));
+
+  const live = classes.find((c) => c.state === "Live");
+  const upcoming = classes.filter((c) => c.state === "Scheduled");
 
   return (
     <>
@@ -90,7 +109,7 @@ export default function MentorClassesPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-rule">
-                {CLASSES.map((c) => (
+                {classes.map((c) => (
                   <tr key={c.id} className="hover:bg-paper-dark/30">
                     <td className="px-4 py-3 tabular">{c.date}</td>
                     <td className="px-4 py-3 tabular">{c.time}</td>

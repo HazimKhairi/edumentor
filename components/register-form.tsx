@@ -11,7 +11,6 @@ import {
   VideoOff,
 } from "lucide-react";
 import {
-  COURSES,
   MENTOR_MIN_CGPA,
   MENTOR_SUBJECT_CAP,
   ROLES,
@@ -27,7 +26,15 @@ const STORAGE_KEY = "edumentor:enrolled-faces:v2";
 
 type RoleKey = "Mentor" | "Mentee";
 
-export function RegisterForm() {
+// Minimal shape the picker needs from the server-fetched course catalogue.
+export type CourseOption = {
+  id: string;
+  code: string;
+  title: string;
+  semester: number;
+};
+
+export function RegisterForm({ courses }: { courses: CourseOption[] }) {
   const [matric, setMatric] = useState("");
   const [role, setRole] = useState<RoleKey>("Mentee");
   const [semester, setSemester] = useState<Semester>(1);
@@ -143,6 +150,7 @@ export function RegisterForm() {
         semester={semester}
         picked={pickedCourses}
         onChange={setPickedCourses}
+        courses={courses}
       />
 
       <FaceCaptureStep
@@ -185,21 +193,23 @@ function CoursePicker({
   semester,
   picked,
   onChange,
+  courses,
 }: {
   role: RoleKey;
   semester: Semester;
   picked: string[];
   onChange: (next: string[]) => void;
+  courses: CourseOption[];
 }) {
   const eligible = useMemo(
     () =>
       role === "Mentor"
-        ? coursesForMentor(semester)
-        : coursesForMentee(semester),
-    [role, semester],
+        ? coursesForMentor(semester, courses)
+        : coursesForMentee(semester, courses),
+    [role, semester, courses],
   );
 
-  const cap = role === "Mentor" ? MENTOR_SUBJECT_CAP : COURSES.length;
+  const cap = role === "Mentor" ? MENTOR_SUBJECT_CAP : courses.length;
   const reachedCap = picked.length >= cap;
 
   const toggle = (id: string) => {

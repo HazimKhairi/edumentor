@@ -2,13 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { RegisterForm } from "@/components/register-form";
+import { db } from "@/lib/db";
 
 export const metadata = {
   title: "Create account | EduMentor",
   description: "Register a new account.",
 };
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  const courses = await db.course.findMany({
+    select: { id: true, code: true, title: true, semester: true },
+    orderBy: { semester: "asc" },
+  });
   return (
     <main className="min-h-screen grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
       <aside className="hidden lg:flex sticky top-0 h-screen relative bg-gradient-to-br from-oxblood via-oxblood-deep to-ink p-10 text-bone flex-col justify-between overflow-hidden">
@@ -68,7 +73,7 @@ export default function RegisterPage() {
             For UiTM students. Lecturer (admin) accounts are issued by the registrar.
           </p>
 
-          <RegisterForm />
+          <RegisterForm courses={courses} />
 
           <p className="mt-5 text-center text-xs text-ink-muted">
             Already have an account?{" "}

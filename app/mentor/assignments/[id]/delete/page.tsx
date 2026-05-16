@@ -3,15 +3,25 @@ import { notFound } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { ASSIGNMENTS } from "@/lib/data";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
 
 export async function generateStaticParams() {
-  return ASSIGNMENTS.map((a) => ({ id: a.id }));
+  const rows = await db.assignment.findMany({ select: { id: true } });
+  return rows.map((a) => ({ id: a.id }));
 }
 
-export default async function DeleteAssignmentPage(props: PageProps<"/mentor/assignments/[id]/delete">) {
-  const { id } = await props.params;
-  const a = ASSIGNMENTS.find((x) => x.id === id);
+export default async function DeleteAssignmentPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  await requireRole(["Mentor", "Admin"]);
+  const { id } = await params;
+  const a = await db.assignment.findUnique({
+    where: { id },
+    include: { course: { select: { code: true } } },
+  });
   if (!a) notFound();
 
   return (
@@ -44,10 +54,10 @@ export default async function DeleteAssignmentPage(props: PageProps<"/mentor/ass
             </div>
 
             <div className="bg-paper-dark/40 rounded-md p-4 mb-5 text-sm space-y-1">
-              <p><span className="text-ink-muted">Course:</span> <span className="font-medium">{a.course}</span></p>
+              <p><span className="text-ink-muted">Course:</span> <span className="font-medium">{a.course.code}</span></p>
               <p><span className="text-ink-muted">Type:</span> <span className="font-medium">{a.type}</span></p>
               <p><span className="text-ink-muted">Weight:</span> <span className="font-medium tabular">{a.weight}%</span></p>
-              <p><span className="text-ink-muted">Submissions:</span> <span className="font-medium tabular">{a.submissions} of {a.of}</span></p>
+              <p><span className="text-ink-muted">Submissions:</span> <span className="font-medium tabular">{a.submissions} of {a.ofCount}</span></p>
             </div>
 
             <p className="text-sm text-ink-soft leading-relaxed mb-5">

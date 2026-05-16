@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { ASSIGNMENTS } from "@/lib/data";
+import { requireRole } from "@/lib/session";
+import { getAssignmentsView } from "@/lib/queries";
 
 export const metadata = {
   title: "Manage assignments | Mentor",
@@ -14,7 +15,10 @@ const statusBadge: Record<string, string> = {
   Closed: "badge badge-muted",
 };
 
-export default function MentorAssignmentsPage() {
+export default async function MentorAssignmentsPage() {
+  await requireRole(["Mentor", "Admin"]);
+  const assignments = await getAssignmentsView();
+
   return (
     <>
       <SiteNav />
@@ -29,7 +33,7 @@ export default function MentorAssignmentsPage() {
           <div className="flex items-baseline justify-between flex-wrap gap-4">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold">Manage assignments</h1>
-              <p className="mt-2 text-ink-soft">{ASSIGNMENTS.length} assignments across your courses.</p>
+              <p className="mt-2 text-ink-soft">{assignments.length} assignments across your courses.</p>
             </div>
             <Link href="/mentor/assignments/new" className="btn btn-primary">
               <Plus size={16} /> Add assignment
@@ -73,8 +77,8 @@ export default function MentorAssignmentsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-rule">
-                {ASSIGNMENTS.map((a) => {
-                  const pct = Math.round((a.submissions / a.of) * 100);
+                {assignments.map((a) => {
+                  const pct = a.of > 0 ? Math.round((a.submissions / a.of) * 100) : 0;
                   return (
                     <tr key={a.id} className="hover:bg-paper-dark/30">
                       <td className="px-4 py-3 font-medium tabular">{a.code}</td>

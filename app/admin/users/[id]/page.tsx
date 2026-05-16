@@ -4,17 +4,18 @@ import { ArrowUpCircle, BookOpen, GraduationCap, Mail, ShieldAlert, Trash2 } fro
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
 import {
-  ASSIGNMENTS,
-  ATTENDANCE_SESSIONS,
-  USERS,
   attendanceForUser,
   attendanceRate,
   coursesForUser,
-} from "@/lib/data";
+  getAssignmentsView,
+} from "@/lib/queries";
 
 export async function generateStaticParams() {
-  return USERS.map((u) => ({ id: u.id }));
+  const rows = await db.user.findMany({ select: { id: true } });
+  return rows.map((u) => ({ id: u.id }));
 }
 
 const roleBadge: Record<string, string> = {
@@ -34,17 +35,19 @@ export default async function UserProfilePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireRole("Admin");
   const { id } = await params;
-  const u = USERS.find((x) => x.id === id);
+  const u = await db.user.findUnique({ where: { id } });
   if (!u) notFound();
 
-  const enrolled = coursesForUser(u);
+  const enrolled = await coursesForUser(u);
   const isStudent = u.role === "Mentee" || u.role === "Mentor";
-  const rate = isStudent ? attendanceRate(u.id) : null;
-  const trail = isStudent ? attendanceForUser(u.id) : [];
-  const courseAssignments = ASSIGNMENTS.filter((a) =>
-    enrolled.some((c) => c.code === a.course),
-  );
+  const rate = isStudent ? await attendanceRate(u.id) : null;
+  const trail = isStudent ? await attendanceForUser(u.id) : [];
+  const enrolledCodes = enrolled.map((c) => c.code);
+  const courseAssignments = enrolledCodes.length
+    ? await getAssignmentsView(enrolledCodes)
+    : [];
 
   return (
     <>
@@ -169,15 +172,15 @@ export default async function UserProfilePage({
               </div>
               <ul className="card p-0 overflow-hidden divide-y divide-rule">
                 {trail.map((r) => {
-                  const session = ATTENDANCE_SESSIONS.find((s) => s.id === r.sessionId);
-                  if (!session) return null;
                   const fully = r.menteeConfirmed && r.mentorVerified;
                   return (
                     <li key={r.sessionId} className="px-4 py-3 flex items-center gap-3">
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium">{session.course}</div>
+                        <div className="text-sm font-medium">
+                          {r.session.courseId}
+                        </div>
                         <div className="text-xs text-ink-muted tabular">
-                          {session.date} {session.time}, {session.room}
+                          {r.session.date.toISOString().slice(0, 10)} {r.session.time}, {r.session.room}
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5">

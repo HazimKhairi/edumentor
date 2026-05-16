@@ -11,12 +11,19 @@ import { SiteFooter } from "@/components/site-footer";
 import {
   MENTOR_MIN_CGPA,
   MENTOR_SUBJECT_CAP,
-  USERS,
   coursesForMentor,
+  type Semester,
 } from "@/lib/data";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
+import { getCoursesView } from "@/lib/queries";
 
 export async function generateStaticParams() {
-  return USERS.filter((u) => u.role === "Mentee").map((u) => ({ id: u.id }));
+  const rows = await db.user.findMany({
+    where: { role: "Mentee" },
+    select: { id: true },
+  });
+  return rows.map((u) => ({ id: u.id }));
 }
 
 export default async function PromoteMenteePage({
@@ -24,13 +31,17 @@ export default async function PromoteMenteePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireRole("Admin");
   const { id } = await params;
-  const u = USERS.find((x) => x.id === id);
+  const u = await db.user.findUnique({ where: { id } });
   if (!u || u.role !== "Mentee") notFound();
 
   const cgpa = u.cgpa ?? 0;
   const cgpaPass = cgpa >= MENTOR_MIN_CGPA;
-  const eligible = u.semester ? coursesForMentor(u.semester) : [];
+  const allCourses = await getCoursesView();
+  const eligible = u.semester
+    ? coursesForMentor(u.semester as Semester, allCourses)
+    : [];
   const semesterPass = eligible.length > 0;
   const canPromote = cgpaPass && semesterPass;
 
@@ -126,16 +137,13 @@ export default async function PromoteMenteePage({
               </div>
             ) : (
               <ul className="divide-y divide-rule">
-                {eligible.map((c) => (
+                {eligible.map((c, i) => (
                   <li key={c.id} className="py-3 flex items-start gap-3">
                     <input
                       type="checkbox"
                       id={`subject-${c.id}`}
                       className="size-4 mt-0.5 accent-oxblood"
-                      defaultChecked={
-                        eligible.findIndex((x) => x.id === c.id) <
-                        MENTOR_SUBJECT_CAP
-                      }
+                      defaultChecked={i < MENTOR_SUBJECT_CAP}
                     />
                     <label htmlFor={`subject-${c.id}`} className="flex-1 text-sm cursor-pointer">
                       <div className="font-medium">
@@ -179,9 +187,8 @@ export default async function PromoteMenteePage({
           </div>
 
           <p className="text-xs text-ink-muted">
-            Demo: this flow does not write to a backend. In production, promotion would
-            create a Mentor role on the same account and link the chosen subjects, with
-            an audit log of who approved the change.
+            Demo: this flow does not yet write to the database. Phase 4 will wire up
+            the actual role mutation + audit log.
           </p>
         </div>
       </section>

@@ -5,24 +5,21 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseThumb } from "@/components/course-thumb";
 import { StarRating } from "@/components/star-rating";
-import { COURSES, FEEDBACK_ENTRIES } from "@/lib/data";
+import { db } from "@/lib/db";
+import { getCourseView, getFeedbackView } from "@/lib/queries";
 
 export async function generateStaticParams() {
-  return COURSES.map((c) => ({ id: c.id }));
+  const rows = await db.course.findMany({ select: { id: true } });
+  return rows.map((c) => ({ id: c.id }));
 }
 
-function ratingFor(courseCode: string) {
-  const fb = FEEDBACK_ENTRIES.find((f) => f.course === courseCode);
-  if (fb) return { rating: fb.score, reviews: fb.n * 11 };
-  return { rating: 4.5, reviews: 84 };
-}
-
-export default async function CourseDetailPage(props: PageProps<"/courses/[id]">) {
-  const { id } = await props.params;
-  const course = COURSES.find((c) => c.id === id);
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const [course, feedback] = await Promise.all([getCourseView(id), getFeedbackView()]);
   if (!course) notFound();
 
-  const r = ratingFor(course.code);
+  const fb = feedback.find((f) => f.course === course.code);
+  const r = fb ? { rating: fb.score, reviews: fb.n * 11 } : { rating: 4.5, reviews: 84 };
   const fillPct = Math.round((course.enrolled / course.capacity) * 100);
 
   const SYLLABUS = [

@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { StarRating } from "@/components/star-rating";
-import { FEEDBACK_ENTRIES } from "@/lib/data";
+import { getFeedbackView } from "@/lib/queries";
 
 export const metadata = {
   title: "Reviews | EduMentor",
@@ -18,8 +18,11 @@ const RUBRIC = [
   { key: "Fairness in grading", value: 4 },
 ];
 
-export default function FeedbackPage() {
-  const avg = FEEDBACK_ENTRIES.reduce((s, f) => s + f.score, 0) / FEEDBACK_ENTRIES.length;
+export default async function FeedbackPage() {
+  const FEEDBACK_ENTRIES = await getFeedbackView();
+  const avg = FEEDBACK_ENTRIES.length
+    ? FEEDBACK_ENTRIES.reduce((s, f) => s + f.score, 0) / FEEDBACK_ENTRIES.length
+    : 0;
 
   return (
     <>

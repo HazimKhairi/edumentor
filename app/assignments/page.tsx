@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { ASSIGNMENTS } from "@/lib/data";
+import { getAssignmentsView } from "@/lib/queries";
 
 export const metadata = {
   title: "Assignments | EduMentor",
@@ -21,7 +21,8 @@ const TABS = [
   { label: "All", count: 10 },
 ];
 
-export default function AssignmentsPage() {
+export default async function AssignmentsPage() {
+  const ASSIGNMENTS = await getAssignmentsView();
   const open = ASSIGNMENTS.filter((a) => a.status !== "Closed");
   const closed = ASSIGNMENTS.filter((a) => a.status === "Closed");
 

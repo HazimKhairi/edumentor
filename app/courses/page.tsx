@@ -2,59 +2,62 @@ import { ChevronDown, Search, Star } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
-import { COURSES, FEEDBACK_ENTRIES, SEMESTERS } from "@/lib/data";
+import { SEMESTERS } from "@/lib/data";
+import { getCoursesView, getFeedbackView } from "@/lib/queries";
 
 export const metadata = {
   title: "Courses | EduMentor",
   description: "Browse the full course catalogue for the term.",
 };
 
-const semesterCounts = SEMESTERS.map((s) => ({
-  label: `Semester ${s}`,
-  count: COURSES.filter((c) => c.semester === s).length,
-}));
+export default async function CoursesPage() {
+  const [courses, feedback] = await Promise.all([getCoursesView(), getFeedbackView()]);
 
-const mentorCounts = Array.from(
-  COURSES.reduce<Map<string, number>>((acc, c) => {
-    acc.set(c.mentor, (acc.get(c.mentor) ?? 0) + 1);
-    return acc;
-  }, new Map()),
-).map(([label, count]) => ({ label, count }));
+  const ratingMap = new Map(
+    feedback.map((f) => [f.course, { rating: f.score, reviews: f.n * 11 }]),
+  );
+  const ratingFor = (code: string) =>
+    ratingMap.get(code) ?? { rating: 4.5, reviews: 84 };
 
-const FILTERS = [
-  {
-    title: "Subject",
-    options: [
-      { label: "Computer Science", count: COURSES.filter((c) => c.code.startsWith("CS")).length },
-      { label: "Mathematics",      count: COURSES.filter((c) => c.code.startsWith("MAT")).length },
-      { label: "Statistics",       count: COURSES.filter((c) => c.code.startsWith("STA")).length },
-    ],
-  },
-  {
-    title: "Semester",
-    options: semesterCounts,
-  },
-  {
-    title: "Schedule",
-    options: [
-      { label: "Mornings", count: COURSES.filter((c) => /\b0?[7-9]:|\b1[01]:/.test(c.pace)).length },
-      { label: "Afternoons", count: COURSES.filter((c) => /\b1[2-7]:/.test(c.pace)).length },
-      { label: "Online available", count: COURSES.length },
-    ],
-  },
-  {
-    title: "Mentor",
-    options: mentorCounts,
-  },
-];
+  const semesterCounts = SEMESTERS.map((s) => ({
+    label: `Semester ${s}`,
+    count: courses.filter((c) => c.semester === s).length,
+  }));
 
-function ratingFor(courseCode: string) {
-  const fb = FEEDBACK_ENTRIES.find((f) => f.course === courseCode);
-  if (fb) return { rating: fb.score, reviews: fb.n * 11 };
-  return { rating: 4.5, reviews: 84 };
-}
+  const mentorCounts = Array.from(
+    courses.reduce<Map<string, number>>((acc, c) => {
+      acc.set(c.mentor, (acc.get(c.mentor) ?? 0) + 1);
+      return acc;
+    }, new Map()),
+  ).map(([label, count]) => ({ label, count }));
 
-export default function CoursesPage() {
+  const FILTERS = [
+    {
+      title: "Subject",
+      options: [
+        { label: "Computer Science", count: courses.filter((c) => c.code.startsWith("CS")).length },
+        { label: "Mathematics",      count: courses.filter((c) => c.code.startsWith("MAT")).length },
+        { label: "Statistics",       count: courses.filter((c) => c.code.startsWith("STA")).length },
+      ],
+    },
+    {
+      title: "Semester",
+      options: semesterCounts,
+    },
+    {
+      title: "Schedule",
+      options: [
+        { label: "Mornings", count: courses.filter((c) => /\b0?[7-9]:|\b1[01]:/.test(c.pace)).length },
+        { label: "Afternoons", count: courses.filter((c) => /\b1[2-7]:/.test(c.pace)).length },
+        { label: "Online available", count: courses.length },
+      ],
+    },
+    {
+      title: "Mentor",
+      options: mentorCounts,
+    },
+  ];
+
   return (
     <>
       <SiteNav />
@@ -66,7 +69,7 @@ export default function CoursesPage() {
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Course catalogue</h1>
           <p className="mt-3 text-ink-soft max-w-2xl">
-            {COURSES.length} courses , open for Semester 02 / 2026 , led by 12 student mentors.
+            {courses.length} courses , open for Semester 02 / 2026 , led by 12 student mentors.
           </p>
 
           <form className="mt-6 flex items-center gap-2 max-w-xl">
@@ -145,7 +148,7 @@ export default function CoursesPage() {
           <div className="col-span-12 lg:col-span-9">
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-ink-muted">
-                Showing <span className="font-semibold text-ink">{COURSES.length}</span> courses
+                Showing <span className="font-semibold text-ink">{courses.length}</span> courses
               </p>
               <select className="input max-w-[200px] py-2 text-sm">
                 <option>Most popular</option>
@@ -156,7 +159,7 @@ export default function CoursesPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-              {COURSES.map((c) => (
+              {courses.map((c) => (
                 <CourseCard
                   key={c.id}
                   id={c.id}

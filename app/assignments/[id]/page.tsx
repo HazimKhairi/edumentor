@@ -3,10 +3,12 @@ import { notFound } from "next/navigation";
 import { Check } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { ASSIGNMENTS } from "@/lib/data";
+import { db } from "@/lib/db";
+import { getAssignmentsView } from "@/lib/queries";
 
 export async function generateStaticParams() {
-  return ASSIGNMENTS.map((a) => ({ id: a.id }));
+  const rows = await db.assignment.findMany({ select: { id: true } });
+  return rows.map((a) => ({ id: a.id }));
 }
 
 const statusBadge: Record<string, string> = {
@@ -15,8 +17,9 @@ const statusBadge: Record<string, string> = {
   Closed: "badge badge-muted",
 };
 
-export default async function AssignmentDetailPage(props: PageProps<"/assignments/[id]">) {
-  const { id } = await props.params;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const ASSIGNMENTS = await getAssignmentsView();
   const a = ASSIGNMENTS.find((x) => x.id === id);
   if (!a) notFound();
 

@@ -4,10 +4,14 @@ import { useState } from "react";
 import { Video } from "lucide-react";
 import type { ClassFormat } from "@/lib/data";
 
-const FORMATS: ClassFormat[] = ["In person", "Online", "Hybrid"];
+const FORMATS: { value: ClassFormat; label: string }[] = [
+  { value: "InPerson", label: "In person" },
+  { value: "Online", label: "Online" },
+  { value: "Hybrid", label: "Hybrid" },
+];
 
 export function ClassFormatPicker() {
-  const [format, setFormat] = useState<ClassFormat>("In person");
+  const [format, setFormat] = useState<ClassFormat>("InPerson");
   const showMeetingLink = format === "Online" || format === "Hybrid";
 
   return (
@@ -16,17 +20,17 @@ export function ClassFormatPicker() {
         <label className="block text-sm font-medium mb-1.5">Format</label>
         <div className="flex flex-wrap gap-2">
           {FORMATS.map((f) => (
-            <label key={f} className="cursor-pointer">
+            <label key={f.value} className="cursor-pointer">
               <input
                 type="radio"
                 name="format"
-                value={f}
-                checked={format === f}
-                onChange={() => setFormat(f)}
+                value={f.value}
+                checked={format === f.value}
+                onChange={() => setFormat(f.value)}
                 className="sr-only peer"
               />
               <span className="px-3 py-1.5 rounded-full text-sm border border-rule peer-checked:bg-ink peer-checked:text-bone peer-checked:border-ink">
-                {f}
+                {f.label}
               </span>
             </label>
           ))}

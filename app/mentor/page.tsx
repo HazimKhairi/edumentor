@@ -2,44 +2,55 @@ import Link from "next/link";
 import { ArrowRight, Calendar, ClipboardEdit, Users, Camera } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { ASSIGNMENTS, CLASSES, COURSES } from "@/lib/data";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
+import { getAssignmentsView, coursesForUser } from "@/lib/queries";
 
 export const metadata = {
   title: "Mentor console | EduMentor",
   description: "Mentor console for the mentee cohort.",
 };
 
-const TILES = [
-  {
-    href: "/mentor/classes",
-    icon: Calendar,
-    title: "Classes",
-    desc: "Schedule sessions, open the room, mark attendance.",
-  },
-  {
-    href: "/mentor/assignments",
-    icon: ClipboardEdit,
-    title: "Assignments",
-    desc: "Create, edit, and grade work for your cohort.",
-  },
-  {
-    href: "/discussion",
-    icon: Users,
-    title: "Discussion",
-    desc: "Pin threads, answer questions, host office hours.",
-  },
-  {
-    href: "/attendance",
-    icon: Camera,
-    title: "Attendance",
-    desc: "Camera check-in with manual override.",
-  },
-];
+export default async function MentorLanding() {
+  const user = await requireRole(["Mentor", "Admin"]);
 
-export default function MentorLanding() {
-  const myCourses = COURSES.filter((c) => c.mentor === "Adam Iskandar Razak");
-  const myAssignments = ASSIGNMENTS.filter((a) => a.course === "MAT CS110");
-  const upcoming = CLASSES.filter((c) => c.state === "Scheduled");
+  const TILES = [
+    {
+      href: "/mentor/classes",
+      icon: Calendar,
+      title: "Classes",
+      desc: "Schedule sessions, open the room, mark attendance.",
+    },
+    {
+      href: "/mentor/assignments",
+      icon: ClipboardEdit,
+      title: "Assignments",
+      desc: "Create, edit, and grade work for your cohort.",
+    },
+    {
+      href: "/discussion",
+      icon: Users,
+      title: "Discussion",
+      desc: "Pin threads, answer questions, host office hours.",
+    },
+    {
+      href: "/attendance",
+      icon: Camera,
+      title: "Attendance",
+      desc: "Camera check-in with manual override.",
+    },
+  ];
+
+  const allCourses = await coursesForUser(user);
+  const myCourses = allCourses.filter((c) => c.mentor === user.name);
+  const myCourseCodes = myCourses.map((c) => c.code);
+  const myAssignments = await getAssignmentsView(myCourseCodes);
+  const upcoming = await db.classSession.findMany({
+    where: {
+      state: "Scheduled",
+      course: { code: { in: myCourseCodes } },
+    },
+  });
 
   return (
     <>
@@ -51,7 +62,7 @@ export default function MentorLanding() {
             <Link href="/" className="hover:text-ink">Home</Link>{" / "}
             <span className="text-ink">Mentor</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold">Welcome back, Adam</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Welcome back, {user.name.split(" ")[0]}</h1>
           <p className="mt-2 text-ink-soft">
             {myCourses.length} courses, {myAssignments.length} assignments, {upcoming.length} upcoming sessions.
           </p>

@@ -3,15 +3,22 @@ import { notFound } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { USERS } from "@/lib/data";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
 
 export async function generateStaticParams() {
-  return USERS.map((u) => ({ id: u.id }));
+  const rows = await db.user.findMany({ select: { id: true } });
+  return rows.map((u) => ({ id: u.id }));
 }
 
-export default async function DeleteUserPage(props: PageProps<"/admin/users/[id]/delete">) {
-  const { id } = await props.params;
-  const u = USERS.find((x) => x.id === id);
+export default async function DeleteUserPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  await requireRole("Admin");
+  const { id } = await params;
+  const u = await db.user.findUnique({ where: { id } });
   if (!u) notFound();
 
   return (
@@ -47,7 +54,7 @@ export default async function DeleteUserPage(props: PageProps<"/admin/users/[id]
               <p><span className="text-ink-muted">Identity:</span> <span className="font-medium tabular">{u.identity}</span></p>
               <p><span className="text-ink-muted">Role:</span> <span className="font-medium">{u.role}</span></p>
               <p><span className="text-ink-muted">Status:</span> <span className="font-medium">{u.status}</span></p>
-              <p><span className="text-ink-muted">Joined:</span> <span className="font-medium tabular">{u.joined}</span></p>
+              <p><span className="text-ink-muted">Joined:</span> <span className="font-medium tabular">{u.joined.toISOString().slice(0, 10)}</span></p>
             </div>
 
             <p className="text-sm text-ink-soft leading-relaxed mb-5">

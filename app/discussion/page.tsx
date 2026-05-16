@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ThumbsUp } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { MESSAGES, ROOMS } from "@/lib/data";
+import { getMessagesView, getRoomsView } from "@/lib/queries";
 
 export const metadata = {
   title: "Discussion | EduMentor",
@@ -11,7 +11,9 @@ export const metadata = {
 
 const FILTERS = ["All questions", "My questions", "Pinned", "Open", "Resolved"];
 
-export default function DiscussionPage() {
+export default async function DiscussionPage() {
+  const ROOMS = await getRoomsView();
+  const MESSAGES = await getMessagesView();
   return (
     <>
       <SiteNav />

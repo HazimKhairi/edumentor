@@ -2,15 +2,23 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { COURSES } from "@/lib/data";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
+import { getCourseView } from "@/lib/queries";
 
 export async function generateStaticParams() {
-  return COURSES.map((c) => ({ id: c.id }));
+  const rows = await db.course.findMany({ select: { id: true } });
+  return rows.map((c) => ({ id: c.id }));
 }
 
-export default async function EditCoursePage(props: PageProps<"/admin/courses/[id]/edit">) {
-  const { id } = await props.params;
-  const c = COURSES.find((x) => x.id === id);
+export default async function EditCoursePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  await requireRole("Admin");
+  const { id } = await params;
+  const c = await getCourseView(id);
   if (!c) notFound();
 
   return (
