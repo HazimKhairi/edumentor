@@ -350,6 +350,36 @@ export async function createClassSession(formData: FormData) {
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
+// Face descriptor (self-enrolment for existing accounts)
+// ----------------------------------------------------------------------------
+
+export async function enrolMyFace(formData: FormData) {
+  const me = await requireUser();
+  const raw = formData.get("faceDescriptor");
+  if (typeof raw !== "string" || raw.length === 0) {
+    redirect("/profile/face?error=missing");
+  }
+  let buf: Uint8Array<ArrayBuffer> | null = null;
+  try {
+    const arr = JSON.parse(raw as string) as unknown;
+    if (!Array.isArray(arr) || arr.length === 0) throw new Error("empty");
+    const ab = new ArrayBuffer(arr.length * 4);
+    const view = new Float32Array(ab);
+    for (let i = 0; i < arr.length; i++) view[i] = Number(arr[i]);
+    buf = new Uint8Array(ab);
+  } catch {
+    redirect("/profile/face?error=invalid");
+  }
+  await db.user.update({
+    where: { id: me.id },
+    data: { faceDescriptor: buf },
+  });
+  revalidatePath("/attendance");
+  revalidatePath("/profile/face");
+  redirect("/profile/face?saved=1");
+}
+
+// ----------------------------------------------------------------------------
 // Attendance two-step verification
 // ----------------------------------------------------------------------------
 

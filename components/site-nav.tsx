@@ -106,6 +106,9 @@ export async function SiteNav() {
                 <Link href="/dashboard" className="block px-3 py-2 text-sm hover:bg-paper-dark">
                   My learning
                 </Link>
+                <Link href="/profile/face" className="block px-3 py-2 text-sm hover:bg-paper-dark">
+                  Capture face
+                </Link>
                 <Link href="/feedback" className="block px-3 py-2 text-sm hover:bg-paper-dark">
                   Reviews
                 </Link>

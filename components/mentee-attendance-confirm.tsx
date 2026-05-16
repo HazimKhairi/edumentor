@@ -323,8 +323,14 @@ export function MenteeAttendanceConfirm({
           <div className="flex items-center gap-3 flex-wrap">
             {stage === "no-enrolment" ? (
               <p className="text-sm text-oxblood">
-                Your face was never captured. Ask your mentor to enrol you via the roster
-                fallback, or re-register.
+                Your face was never captured.{" "}
+                <a
+                  href="/profile/face"
+                  className="font-semibold underline hover:text-oxblood-deep"
+                >
+                  Capture it now
+                </a>
+                , or ask your mentor to enrol you from the roster.
               </p>
             ) : stage === "verified" ? (
               <div className="flex items-center gap-2 text-sm text-fern font-semibold">
