@@ -12,6 +12,7 @@ import {
   Video,
   VideoOff,
 } from "lucide-react";
+import { getSessionStatus, verifyAttendance } from "@/lib/actions";
 
 type FaceApi = typeof import("@vladmandic/face-api");
 
@@ -19,6 +20,7 @@ type RosterStudent = {
   id: string;
   name: string;
   matric: string;
+  descriptor?: number[] | null;
 };
 
 type Session = {
@@ -29,6 +31,8 @@ type Session = {
   time: string;
   expected: number;
 };
+
+const POLL_INTERVAL_MS = 2500;
 
 const STORAGE_KEY = "edumentor:enrolled-faces:v2";
 const MATCH_THRESHOLD = 0.55;
@@ -91,24 +95,32 @@ export function FaceAttendance({
     };
   }, []);
 
-  // Restore enrolled descriptors from localStorage (shared with register form)
+  // Hydrate descriptors: prefer the server-stored ones included in roster, then
+  // top up with any localStorage entries (legacy demo accounts).
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as Record<string, number[]>;
-      const map: Record<string, Float32Array> = {};
-      for (const [matric, arr] of Object.entries(parsed)) {
-        map[matric] = new Float32Array(arr);
+    const map: Record<string, Float32Array> = {};
+    for (const s of roster) {
+      if (s.descriptor && s.descriptor.length > 0) {
+        map[s.matric] = new Float32Array(s.descriptor);
       }
-      enrolledRef.current = map;
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration from localStorage; SSR cannot access it during render
-      setEnrolledMatrics(new Set(Object.keys(map)));
-    } catch (e) {
-      console.warn("failed to restore enrolled faces", e);
     }
-  }, []);
+    if (typeof window !== "undefined") {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw) as Record<string, number[]>;
+          for (const [matric, arr] of Object.entries(parsed)) {
+            if (!map[matric]) map[matric] = new Float32Array(arr);
+          }
+        }
+      } catch (e) {
+        console.warn("failed to restore enrolled faces", e);
+      }
+    }
+    enrolledRef.current = map;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time hydration
+    setEnrolledMatrics(new Set(Object.keys(map)));
+  }, [roster]);
 
   const persistEnrolled = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -311,14 +323,65 @@ export function FaceAttendance({
     }
   }, []);
 
-  const toggleVerify = useCallback((matric: string) => {
-    setVerifiedMatrics((prev) => {
-      const next = new Set(prev);
-      if (next.has(matric)) next.delete(matric);
-      else next.add(matric);
-      return next;
-    });
-  }, []);
+  const toggleVerify = useCallback(
+    async (matric: string) => {
+      const student = roster.find((r) => r.matric === matric);
+      if (!student) return;
+      // Optimistic flip then sync with server. If the server rejects we revert.
+      setVerifiedMatrics((prev) => new Set(prev).add(matric));
+      try {
+        await verifyAttendance(session.id, student.id);
+      } catch (e) {
+        console.error("verify failed", e);
+        setVerifiedMatrics((prev) => {
+          const next = new Set(prev);
+          next.delete(matric);
+          return next;
+        });
+      }
+    },
+    [roster, session.id],
+  );
+
+  // Poll server status, drives both the green Present pulse for newly-confirmed
+  // mentees (via menteeConfirmed) and the Counted badge once mentorVerified
+  // catches up. Keeps multiple devices in sync.
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const rows = await getSessionStatus(session.id);
+        if (cancelled) return;
+        const idToMatric = new Map(roster.map((s) => [s.id, s.matric]));
+        const present = new Set<string>();
+        const verified = new Set<string>();
+        for (const r of rows) {
+          const m = idToMatric.get(r.menteeId);
+          if (!m) continue;
+          if (r.menteeConfirmed) present.add(m);
+          if (r.mentorVerified) verified.add(m);
+        }
+        setPresentMatrics((prev) => {
+          let changed = prev.size !== present.size;
+          if (!changed) for (const m of present) if (!prev.has(m)) { changed = true; break; }
+          return changed ? new Set([...prev, ...present]) : prev;
+        });
+        setVerifiedMatrics((prev) => {
+          let changed = prev.size !== verified.size;
+          if (!changed) for (const m of verified) if (!prev.has(m)) { changed = true; break; }
+          return changed ? new Set([...prev, ...verified]) : prev;
+        });
+      } catch (e) {
+        console.warn("status poll failed", e);
+      }
+    };
+    void tick();
+    const id = window.setInterval(tick, POLL_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [session.id, roster]);
 
   const presentCount = presentMatrics.size;
   const verifiedCount = verifiedMatrics.size;

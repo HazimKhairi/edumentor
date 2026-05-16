@@ -332,6 +332,81 @@ export async function createClassSession(formData: FormData) {
 // Evaluation rubric mutations (admin)
 // ----------------------------------------------------------------------------
 
+// ----------------------------------------------------------------------------
+// Attendance two-step verification
+// ----------------------------------------------------------------------------
+
+// Step 1 — mentee taps Confirm after face match. Idempotent.
+export async function confirmAttendance(sessionId: string) {
+  const { auth } = await import("@/auth");
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Not signed in");
+  const userId = session.user.id;
+
+  const live = await db.attendanceSession.findUnique({
+    where: { id: sessionId },
+    select: { state: true },
+  });
+  if (!live || live.state !== "Live") {
+    throw new Error("Session not live");
+  }
+
+  await db.menteeAttendance.upsert({
+    where: { sessionId_menteeId: { sessionId, menteeId: userId } },
+    create: {
+      sessionId,
+      menteeId: userId,
+      menteeConfirmed: true,
+      recognisedAt: new Date(),
+    },
+    update: {
+      menteeConfirmed: true,
+      recognisedAt: new Date(),
+    },
+  });
+  revalidatePath("/attendance");
+  return { ok: true as const };
+}
+
+// Step 2 — mentor taps Verify on a single mentee row.
+export async function verifyAttendance(sessionId: string, menteeId: string) {
+  await requireRole(["Mentor", "Admin"]);
+  await db.menteeAttendance.upsert({
+    where: { sessionId_menteeId: { sessionId, menteeId } },
+    create: {
+      sessionId,
+      menteeId,
+      menteeConfirmed: false,
+      mentorVerified: true,
+      verifiedAt: new Date(),
+    },
+    update: {
+      mentorVerified: true,
+      verifiedAt: new Date(),
+    },
+  });
+  revalidatePath("/attendance");
+  return { ok: true as const };
+}
+
+// Aggregate state of a live session, used by polling clients to know when the
+// mentor has verified or new mentees have confirmed.
+export async function getSessionStatus(sessionId: string) {
+  const records = await db.menteeAttendance.findMany({
+    where: { sessionId },
+    select: {
+      menteeId: true,
+      menteeConfirmed: true,
+      mentorVerified: true,
+    },
+  });
+  return records;
+}
+
+// ----------------------------------------------------------------------------
+// Evaluation rubrics
+// ----------------------------------------------------------------------------
+
 export async function createRubric(formData: FormData) {
   await requireRole("Admin");
   const title = getString(formData, "title");

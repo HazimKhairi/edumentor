@@ -206,12 +206,27 @@ export async function getRosterForSession(sessionId: string) {
   if (!session) return [];
   const enrollments = await db.enrollment.findMany({
     where: { courseId: session.courseId, asRole: "Mentee" },
-    include: { user: { select: { id: true, name: true, identity: true } } },
+    include: {
+      user: {
+        select: { id: true, name: true, identity: true, faceDescriptor: true },
+      },
+    },
   });
   return enrollments.map((e) => ({
     id: e.user.id,
     name: e.user.name,
     matric: e.user.identity,
+    // Bytes column holds a Float32Array (4 bytes per number). Decode to plain
+    // number[] so we can ship over the wire to the mentor's browser.
+    descriptor: e.user.faceDescriptor
+      ? Array.from(
+          new Float32Array(
+            e.user.faceDescriptor.buffer,
+            e.user.faceDescriptor.byteOffset,
+            e.user.faceDescriptor.byteLength / 4,
+          ),
+        )
+      : null,
   }));
 }
 

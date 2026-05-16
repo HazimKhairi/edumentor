@@ -47,6 +47,20 @@ export default async function AttendancePage() {
 
   const myTrail = me.role === "Mentee" ? await attendanceForUser(me.id) : [];
 
+  // Mentee-side props derived from the same data we already loaded.
+  let myDescriptor: number[] | null = null;
+  let initiallyVerified = false;
+  if (live && me.role === "Mentee") {
+    const myRosterRow = rosterForRecognition.find((r) => r.id === me.id);
+    myDescriptor = myRosterRow?.descriptor ?? null;
+    const existing = await db.menteeAttendance.findUnique({
+      where: { sessionId_menteeId: { sessionId: live.id, menteeId: me.id } },
+    });
+    initiallyVerified = Boolean(
+      existing?.menteeConfirmed && existing?.mentorVerified,
+    );
+  }
+
   return (
     <>
       <SiteNav />
@@ -74,8 +88,11 @@ export default async function AttendancePage() {
         ) : me.role === "Mentee" ? (
           <MenteeAttendanceConfirm
             session={live}
+            myUserId={me.id}
             myMatric={me.identity}
             myName={me.name}
+            myDescriptor={myDescriptor}
+            initiallyVerified={initiallyVerified}
           />
         ) : (
           <section>

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, CheckCircle2, Loader2, ShieldCheck, Video, VideoOff } from "lucide-react";
+import { confirmAttendance, getSessionStatus } from "@/lib/actions";
 
 type FaceApi = typeof import("@vladmandic/face-api");
 
@@ -15,13 +16,17 @@ type Session = {
 
 type Props = {
   session: Session;
+  myUserId: string;
   myMatric: string;
   myName: string;
+  myDescriptor: number[] | null;
+  initiallyVerified: boolean;
 };
 
 const STORAGE_KEY = "edumentor:enrolled-faces:v2";
 const MATCH_THRESHOLD = 0.55;
 const DETECT_INTERVAL_MS = 250;
+const POLL_INTERVAL_MS = 2500;
 
 type Stage =
   | "idle"
@@ -34,12 +39,17 @@ type Stage =
   | "no-enrolment";
 
 // Mentee-facing attendance confirmation:
-//   step 1 (this component): mentee opens camera, face-api matches their stored
-//   descriptor, mentee taps "Confirm I'm here"
-//   step 2 (mentor side): mentor sees the confirmation and taps Verify on roster
-// We simulate the mentor-verify step with a delayed flip so the SV can see the
-// full two-step loop end to end without needing two devices.
-export function MenteeAttendanceConfirm({ session, myMatric, myName }: Props) {
+//   step 1: mentee opens camera, face-api matches their stored descriptor
+//   step 2: mentee taps "Confirm I'm here" → POST to confirmAttendance action
+//   step 3: this component polls getSessionStatus until mentor flips mentorVerified
+export function MenteeAttendanceConfirm({
+  session,
+  myUserId,
+  myMatric,
+  myName,
+  myDescriptor,
+  initiallyVerified,
+}: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const faceapiRef = useRef<FaceApi | null>(null);
   const myDescriptorRef = useRef<Float32Array | null>(null);
@@ -47,7 +57,7 @@ export function MenteeAttendanceConfirm({ session, myMatric, myName }: Props) {
 
   const [modelStatus, setModelStatus] = useState<"loading" | "ready" | "error">("loading");
   const [cameraStatus, setCameraStatus] = useState<"idle" | "requesting" | "live" | "denied" | "error">("idle");
-  const [stage, setStage] = useState<Stage>("idle");
+  const [stage, setStage] = useState<Stage>(initiallyVerified ? "verified" : "idle");
   const [matchDistance, setMatchDistance] = useState<number | null>(null);
 
   // Load models
@@ -74,8 +84,13 @@ export function MenteeAttendanceConfirm({ session, myMatric, myName }: Props) {
     };
   }, []);
 
-  // Load just my descriptor from localStorage
+  // Prefer the server-stored descriptor (User.faceDescriptor BLOB), fall back
+  // to localStorage for any account that registered before the DB migration.
   useEffect(() => {
+    if (myDescriptor && myDescriptor.length > 0) {
+      myDescriptorRef.current = new Float32Array(myDescriptor);
+      return;
+    }
     if (typeof window === "undefined") return;
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -94,7 +109,7 @@ export function MenteeAttendanceConfirm({ session, myMatric, myName }: Props) {
     } catch (e) {
       console.warn("failed to restore my face descriptor", e);
     }
-  }, [myMatric]);
+  }, [myMatric, myDescriptor]);
 
   const startCamera = useCallback(async () => {
     setCameraStatus("requesting");
@@ -181,13 +196,37 @@ export function MenteeAttendanceConfirm({ session, myMatric, myName }: Props) {
     };
   }, [cameraStatus, modelStatus, stage]);
 
-  const confirm = useCallback(() => {
+  const confirm = useCallback(async () => {
     setStage("confirmed");
-    // Demo: simulate the mentor tapping Verify on their roster a few seconds later.
-    // Real flow: this fires a request to the server, the mentor sees it pending
-    // on their attendance dashboard, and locks it with their own tap.
-    window.setTimeout(() => setStage("verified"), 3500);
-  }, []);
+    try {
+      await confirmAttendance(session.id);
+    } catch (e) {
+      console.error("confirm failed", e);
+      setStage("matched");
+    }
+  }, [session.id]);
+
+  // Once confirmed, poll the server until the mentor flips mentorVerified.
+  useEffect(() => {
+    if (stage !== "confirmed") return;
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const rows = await getSessionStatus(session.id);
+        if (cancelled) return;
+        const mine = rows.find((r) => r.menteeId === myUserId);
+        if (mine?.mentorVerified) setStage("verified");
+      } catch (e) {
+        console.warn("status poll failed", e);
+      }
+    };
+    void tick();
+    const id = window.setInterval(tick, POLL_INTERVAL_MS);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [stage, session.id, myUserId]);
 
   return (
     <section>
