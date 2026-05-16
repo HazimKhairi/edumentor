@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowUpCircle, BookOpen, GraduationCap, Mail, ShieldAlert, Trash2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { CourseCard } from "@/components/course-card";
 import {
   ASSIGNMENTS,
   ATTENDANCE_SESSIONS,
@@ -143,26 +144,20 @@ export default async function UserProfilePage({
             {enrolled.length === 0 ? (
               <p className="text-sm text-ink-muted">None.</p>
             ) : (
-              <ul className="card p-0 overflow-hidden divide-y divide-rule">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {enrolled.map((c) => (
-                  <li key={c.id} className="px-4 py-3 flex items-center gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs text-ink-muted tabular">{c.code}, sem {c.semester}</div>
-                      <div className="text-sm font-medium leading-snug truncate">{c.title}</div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-xs text-ink-muted">Progress</div>
-                      <div className="text-sm font-semibold tabular">{c.progress}%</div>
-                    </div>
-                    <Link
-                      href={`/courses/${c.id}`}
-                      className="btn btn-ghost btn-sm shrink-0"
-                    >
-                      Open
-                    </Link>
-                  </li>
+                  <CourseCard
+                    key={c.id}
+                    id={c.id}
+                    code={c.code}
+                    title={c.title}
+                    mentor={c.mentor}
+                    color={c.color as never}
+                    progress={c.progress}
+                    compact
+                  />
                 ))}
-              </ul>
+              </div>
             )}
           </div>
 

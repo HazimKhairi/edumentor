@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, ClipboardList, PlayCircle, Radio } from "lucide-react";
+import { ArrowRight, CalendarClock, ClipboardList, Radio } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { CourseCard } from "@/components/course-card";
 import {
   ASSIGNMENTS,
   ATTENDANCE_SESSIONS,
@@ -92,48 +93,19 @@ export default function DashboardPage() {
               to start.
             </div>
           ) : (
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {myCourses.map((c) => (
-                <li key={c.id} className="card p-5 flex flex-col gap-3">
-                  <div>
-                    <div className="text-xs text-ink-muted tabular mb-1">{c.code}</div>
-                    <h3 className="font-semibold text-base leading-snug">{c.title}</h3>
-                    <p className="text-xs text-ink-muted mt-1">
-                      Mentor, {c.mentor}
-                    </p>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-1.5">
-                      <span className="text-ink-muted">Progress</span>
-                      <span className="font-semibold tabular">{c.progress}%</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-paper-dark overflow-hidden">
-                      <div
-                        className="h-full bg-oxblood rounded-full"
-                        style={{ width: `${c.progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 mt-1">
-                    <Link
-                      href={`/courses/${c.id}`}
-                      className="btn btn-primary btn-sm flex-1 justify-center"
-                    >
-                      <PlayCircle size={14} /> Continue learning
-                    </Link>
-                    <Link
-                      href="/discussion"
-                      className="btn btn-ghost btn-sm"
-                      aria-label={`Open discussion for ${c.code}`}
-                    >
-                      Discuss
-                    </Link>
-                  </div>
-                </li>
+                <CourseCard
+                  key={c.id}
+                  id={c.id}
+                  code={c.code}
+                  title={c.title}
+                  mentor={c.mentor}
+                  color={c.color as never}
+                  progress={c.progress}
+                />
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </section>
