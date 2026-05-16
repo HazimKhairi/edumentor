@@ -64,7 +64,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
             type="text"
             name="name"
             required
-            placeholder="Aiman Hakimi"
+            placeholder="e.g. Aiman Hakimi"
             className="input py-2 text-sm"
             autoComplete="name"
           />
@@ -76,7 +76,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
           <input
             type="email"
             name="email"
-            placeholder="2023607832@student.uitm.edu.my"
+            placeholder="e.g. 2023607832@student.uitm.edu.my"
             className="input py-2 text-sm"
             autoComplete="email"
           />
@@ -94,7 +94,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
             required
             value={matric}
             onChange={(e) => setMatric(e.target.value)}
-            placeholder="2023607832"
+            placeholder="e.g. 2023607832"
             className="input py-2 text-sm"
             autoComplete="username"
           />
@@ -580,6 +580,9 @@ function FaceCaptureStep({
 
   // Idle: compact card with just CTA
   if (cameraStatus === "idle") {
+    const needsMatric = !matric.trim();
+    const modelsLoading = modelStatus === "loading";
+    const disabled = needsMatric || modelsLoading;
     return (
       <div className="rounded-md border border-rule bg-paper-dark/40 p-3 flex items-center gap-3">
         <span className="size-9 rounded-md bg-oxblood/15 text-oxblood flex items-center justify-center shrink-0">
@@ -593,16 +596,30 @@ function FaceCaptureStep({
             </span>
           </p>
           <p className="text-[11px] text-ink-muted">
-            We save a private pattern, never the photo itself.
+            {needsMatric
+              ? "Enter your matric number above first."
+              : modelsLoading
+                ? "Loading the camera tools, hold on."
+                : "We save a private pattern, never the photo itself."}
           </p>
         </div>
         <button
           type="button"
           onClick={startCamera}
-          disabled={modelStatus !== "ready" || !matric.trim()}
-          className="btn btn-secondary btn-sm shrink-0"
+          disabled={disabled}
+          aria-disabled={disabled}
+          title={
+            needsMatric
+              ? "Enter your matric number first"
+              : modelsLoading
+                ? "Loading the recognition tools"
+                : "Start the camera"
+          }
+          className={`btn btn-secondary btn-sm shrink-0 ${
+            disabled ? "opacity-50 cursor-not-allowed" : ""
+          }`}
         >
-          {modelStatus === "loading" ? (
+          {modelsLoading ? (
             <>
               <Loader2 size={14} className="animate-spin" /> Loading
             </>
