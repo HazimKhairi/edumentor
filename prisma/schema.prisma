@@ -204,6 +204,8 @@ model AssignmentSubmission {
   menteeId     String
   body         String   @db.Text
   linkUrl      String?
+  fileName     String?
+  filePath     String?
   grade        String?
   submittedAt  DateTime @default(now())
 
@@ -233,11 +235,14 @@ model DiscussionRoom {
 }
 
 model DiscussionMessage {
-  id       String  @id @default(cuid())
-  roomId   String?
-  authorId String
-  body     String  @db.Text
-  time     String
+  id        String  @id @default(cuid())
+  roomId    String?
+  authorId  String
+  body      String  @db.Text
+  time      String
+  fileName  String?
+  filePath  String?
+  linkUrl   String?
 
   room   DiscussionRoom? @relation(fields: [roomId], references: [id], onDelete: Cascade)
   author User            @relation(fields: [authorId], references: [id], onDelete: Cascade)

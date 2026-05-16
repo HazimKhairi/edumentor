@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Check, CheckCircle2 } from "lucide-react";
+import { Check, CheckCircle2, ExternalLink, FileText } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
@@ -19,10 +19,13 @@ const statusBadge: Record<string, string> = {
   Closed: "badge badge-muted",
 };
 
-const errorCopy: Record<string, string> = {
-  missing: "Write something in the submission box.",
-  closed: "Submissions for this assignment are closed.",
-};
+function errorMessage(error: string | undefined): string | null {
+  if (!error) return null;
+  if (error === "missing") return "Write something in the submission box.";
+  if (error === "closed") return "Submissions for this assignment are closed.";
+  // Forwarded message from lib/upload.ts (size or type errors)
+  return decodeURIComponent(error);
+}
 
 export default async function Page({
   params,
@@ -108,9 +111,9 @@ export default async function Page({
                   Submission recorded.
                 </div>
               ) : null}
-              {error && errorCopy[error] ? (
+              {errorMessage(error) ? (
                 <div className="mb-4 rounded-md border border-oxblood/40 bg-oxblood/[0.06] px-3 py-2 text-sm text-oxblood">
-                  {errorCopy[error]}
+                  {errorMessage(error)}
                 </div>
               ) : null}
 
@@ -132,7 +135,11 @@ export default async function Page({
                       : "Paste a write-up or attach a link to your work (Github, Google Docs, etc.)."}
                   </p>
 
-                  <form action={submitAssignmentWork} className="space-y-4">
+                  <form
+                    action={submitAssignmentWork}
+                    encType="multipart/form-data"
+                    className="space-y-4"
+                  >
                     <input type="hidden" name="assignmentId" value={a.id} />
 
                     <div>
@@ -148,17 +155,50 @@ export default async function Page({
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium mb-1.5">
-                        Link to file or repo (optional)
-                      </label>
-                      <input
-                        type="url"
-                        name="linkUrl"
-                        defaultValue={mySubmission?.linkUrl ?? ""}
-                        placeholder="https://github.com/you/your-repo or Google Drive link"
-                        className="input"
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1.5">
+                          Upload file (optional)
+                        </label>
+                        <input
+                          type="file"
+                          name="file"
+                          accept=".pdf,.doc,.docx,.txt,.md,.png,.jpg,.jpeg,.webp,.zip,.csv,.xlsx,.pptx"
+                          className="block w-full text-sm file:mr-3 file:rounded-sm file:border file:border-rule file:bg-paper-dark file:text-ink file:px-3 file:py-1.5 file:cursor-pointer hover:file:bg-paper-dark/70"
+                        />
+                        <p className="text-xs text-ink-muted mt-1.5">
+                          PDF, Word, slides, image, or zip. 8 MB max.
+                        </p>
+                        {mySubmission?.fileName && mySubmission?.filePath ? (
+                          <p className="text-xs text-ink-muted mt-1.5">
+                            Current:{" "}
+                            <a
+                              href={mySubmission.filePath}
+                              className="text-oxblood font-medium hover:underline"
+                              target="_blank"
+                              rel="noopener"
+                            >
+                              {mySubmission.fileName}
+                            </a>
+                            . Upload a new file to replace.
+                          </p>
+                        ) : null}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-1.5">
+                          Or link to file / repo (optional)
+                        </label>
+                        <input
+                          type="url"
+                          name="linkUrl"
+                          defaultValue={mySubmission?.linkUrl ?? ""}
+                          placeholder="https://github.com/... or Drive link"
+                          className="input"
+                        />
+                        <p className="text-xs text-ink-muted mt-1.5">
+                          Use this if your work lives elsewhere.
+                        </p>
+                      </div>
                     </div>
 
                     <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
@@ -168,6 +208,46 @@ export default async function Page({
                       </button>
                     </div>
                   </form>
+
+                  {mySubmission && (mySubmission.fileName || mySubmission.linkUrl) ? (
+                    <div className="mt-5 pt-5 border-t border-rule space-y-2">
+                      <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
+                        On record
+                      </p>
+                      {mySubmission.filePath && mySubmission.fileName ? (
+                        <a
+                          href={mySubmission.filePath}
+                          target="_blank"
+                          rel="noopener"
+                          className="card p-3 flex items-center gap-3 hover:border-ink"
+                        >
+                          <span className="size-8 rounded bg-oxblood/15 text-oxblood flex items-center justify-center">
+                            <FileText size={14} />
+                          </span>
+                          <span className="text-sm font-medium flex-1 truncate">
+                            {mySubmission.fileName}
+                          </span>
+                          <span className="text-xs text-ink-muted">Download</span>
+                        </a>
+                      ) : null}
+                      {mySubmission.linkUrl ? (
+                        <a
+                          href={mySubmission.linkUrl}
+                          target="_blank"
+                          rel="noopener"
+                          className="card p-3 flex items-center gap-3 hover:border-ink"
+                        >
+                          <span className="size-8 rounded bg-saffron/15 text-saffron flex items-center justify-center">
+                            <ExternalLink size={14} />
+                          </span>
+                          <span className="text-sm font-medium flex-1 truncate">
+                            {mySubmission.linkUrl}
+                          </span>
+                          <span className="text-xs text-ink-muted">Open</span>
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : null}
 
                   {mySubmission ? (
                     <form action={withdrawSubmission} className="mt-3">

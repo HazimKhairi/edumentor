@@ -1,0 +1,8 @@
+*
+!.gitignore
+!submissions/
+!discussion/
+submissions/*
+discussion/*
+!submissions/.gitkeep
+!discussion/.gitkeep

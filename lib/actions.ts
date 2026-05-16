@@ -7,9 +7,26 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import type { AssignmentStatus, ClassFormat, ClassState, Role } from "@prisma/client";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { db } from "@/lib/db";
 import { requireRole, requireUser } from "@/lib/session";
 import { MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
+import { saveUploadedFile } from "@/lib/upload";
+
+function getFile(fd: FormData, name: string): File | null {
+  const f = fd.get(name);
+  return f instanceof File ? f : null;
+}
+
+async function deleteIfExists(filePath: string | null | undefined) {
+  if (!filePath) return;
+  try {
+    await fs.unlink(path.join(process.cwd(), "public", filePath));
+  } catch {
+    // missing file is fine, demo-friendly
+  }
+}
 
 // ----------------------------------------------------------------------------
 // Helpers
@@ -412,6 +429,7 @@ export async function submitAssignmentWork(formData: FormData) {
   const assignmentId = getString(formData, "assignmentId");
   const body = getString(formData, "body");
   const linkUrl = getOptionalString(formData, "linkUrl");
+  const file = getFile(formData, "file");
 
   if (!assignmentId || !body) {
     redirect(`/assignments/${assignmentId || ""}?error=missing`);
@@ -423,19 +441,43 @@ export async function submitAssignmentWork(formData: FormData) {
     redirect(`/assignments/${assignmentId}?error=closed`);
   }
 
+  let upload: { fileName: string; filePath: string } | null = null;
+  try {
+    upload = await saveUploadedFile(file, "submissions");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "upload-failed";
+    redirect(`/assignments/${assignmentId}?error=${encodeURIComponent(msg)}`);
+  }
+
   const existing = await db.assignmentSubmission.findUnique({
     where: { assignmentId_menteeId: { assignmentId, menteeId: me.id } },
   });
 
   if (existing) {
+    // If a new file came in, retire the previous one from disk.
+    if (upload && existing.filePath) await deleteIfExists(existing.filePath);
     await db.assignmentSubmission.update({
       where: { assignmentId_menteeId: { assignmentId, menteeId: me.id } },
-      data: { body, linkUrl, submittedAt: new Date() },
+      data: {
+        body,
+        linkUrl,
+        ...(upload
+          ? { fileName: upload.fileName, filePath: upload.filePath }
+          : {}),
+        submittedAt: new Date(),
+      },
     });
   } else {
     await db.$transaction([
       db.assignmentSubmission.create({
-        data: { assignmentId, menteeId: me.id, body, linkUrl },
+        data: {
+          assignmentId,
+          menteeId: me.id,
+          body,
+          linkUrl,
+          fileName: upload?.fileName,
+          filePath: upload?.filePath,
+        },
       }),
       db.assignment.update({
         where: { id: assignmentId },
@@ -458,6 +500,8 @@ export async function withdrawSubmission(formData: FormData) {
     where: { assignmentId_menteeId: { assignmentId, menteeId: me.id } },
   });
   if (!existing) return;
+
+  await deleteIfExists(existing.filePath);
 
   await db.$transaction([
     db.assignmentSubmission.delete({
@@ -637,12 +681,31 @@ export async function postReply(formData: FormData) {
   const me = await requireUser();
   const roomId = getString(formData, "roomId");
   const body = getString(formData, "body");
+  const linkUrl = getOptionalString(formData, "linkUrl");
+  const file = getFile(formData, "file");
   if (!roomId || !body) {
     redirect(`/discussion/${roomId || ""}`);
   }
+
+  let upload: { fileName: string; filePath: string } | null = null;
+  try {
+    upload = await saveUploadedFile(file, "discussion");
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "upload-failed";
+    redirect(`/discussion/${roomId}?error=${encodeURIComponent(msg)}`);
+  }
+
   await db.$transaction([
     db.discussionMessage.create({
-      data: { roomId, authorId: me.id, body, time: nowHHMM() },
+      data: {
+        roomId,
+        authorId: me.id,
+        body,
+        time: nowHHMM(),
+        linkUrl,
+        fileName: upload?.fileName,
+        filePath: upload?.filePath,
+      },
     }),
     db.discussionRoom.update({
       where: { id: roomId },
