@@ -1,11 +1,18 @@
+import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { FaceAttendance } from "@/components/face-attendance";
-import { ATTENDANCE_SESSIONS, ROSTER } from "@/lib/data";
+import { MenteeAttendanceConfirm } from "@/components/mentee-attendance-confirm";
+import {
+  ATTENDANCE_SESSIONS,
+  ROSTER,
+  attendanceForUser,
+  getCurrentUser,
+} from "@/lib/data";
 
 export const metadata = {
   title: "Attendance | EduMentor",
-  description: "Roll, called by the camera. Confirmed by the mentor.",
+  description: "Face match, mentee confirms, mentor verifies. Two signatures every session.",
 };
 
 const stateBadge: Record<string, string> = {
@@ -14,8 +21,11 @@ const stateBadge: Record<string, string> = {
 };
 
 export default function AttendancePage() {
+  const me = getCurrentUser();
   const live = ATTENDANCE_SESSIONS.find((s) => s.state === "Live");
   const closed = ATTENDANCE_SESSIONS.filter((s) => s.state === "Closed");
+  const myTrail = me.role === "Mentee" ? attendanceForUser(me.id) : [];
+
   const rosterForRecognition = ROSTER.map(({ id, name, matric }) => ({
     id,
     name,
@@ -26,26 +36,101 @@ export default function AttendancePage() {
     <>
       <SiteNav />
 
-      <section className="bg-bone border-b border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-10">
-          <div className="text-sm text-ink-muted mb-2">
-            <span>Home</span> / <span className="text-ink">Attendance</span>
+      <section>
+        <div className="mx-auto max-w-[1200px] px-6 pt-8 pb-4">
+          <div className="text-xs text-ink-muted mb-2">
+            <Link href="/" className="hover:text-ink">Home</Link>{" / "}
+            <span className="text-ink">Attendance</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Attendance</h1>
-          <p className="mt-3 text-ink-soft">
-            Roll called by camera, confirmed by the mentor.
-            Recognition runs in the browser with face-api.js.
+          <p className="mt-2 text-sm text-ink-soft max-w-2xl leading-relaxed">
+            Every session needs <span className="font-semibold text-ink">two signatures</span>.
+            The mentee&apos;s face is matched in the browser and they tap{" "}
+            <span className="font-semibold text-ink">Confirm</span>, then the mentor opens
+            their roster and taps <span className="font-semibold text-ink">Verify</span>.
+            A session only counts when both signatures are recorded.
           </p>
         </div>
       </section>
 
       {live ? (
-        <FaceAttendance roster={rosterForRecognition} session={live} />
+        me.role === "Mentor" ? (
+          <FaceAttendance roster={rosterForRecognition} session={live} />
+        ) : me.role === "Mentee" ? (
+          <MenteeAttendanceConfirm
+            session={live}
+            myMatric={me.identity}
+            myName={me.name}
+          />
+        ) : (
+          <section>
+            <div className="mx-auto max-w-[1200px] px-6 py-8">
+              <div className="card p-5 text-sm text-ink-muted">
+                Admin view, no per-session capture from this account. See the live session
+                roster in the mentor console.
+              </div>
+            </div>
+          </section>
+        )
+      ) : (
+        <section>
+          <div className="mx-auto max-w-[1200px] px-6 py-8">
+            <div className="card p-5 text-sm text-ink-muted">
+              No live session right now. The next class will show up here when it starts.
+            </div>
+          </div>
+        </section>
+      )}
+
+      {me.role === "Mentee" && myTrail.length > 0 ? (
+        <section className="border-t border-rule">
+          <div className="mx-auto max-w-[1200px] px-6 py-8">
+            <h2 className="font-semibold text-sm mb-3">My attendance trail</h2>
+            <ul className="card p-0 overflow-hidden divide-y divide-rule">
+              {myTrail.map((r) => {
+                const s = ATTENDANCE_SESSIONS.find((x) => x.id === r.sessionId);
+                if (!s) return null;
+                const counted = r.menteeConfirmed && r.mentorVerified;
+                return (
+                  <li key={r.sessionId} className="px-4 py-3 flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium">{s.course}</div>
+                      <div className="text-xs text-ink-muted tabular">
+                        {s.date} {s.time}, {s.room}
+                      </div>
+                    </div>
+                    <span
+                      className={
+                        r.menteeConfirmed ? "badge badge-fern" : "badge badge-muted"
+                      }
+                    >
+                      You {r.menteeConfirmed ? "OK" : "no"}
+                    </span>
+                    <span
+                      className={
+                        r.mentorVerified ? "badge badge-fern" : "badge badge-saffron"
+                      }
+                    >
+                      Mentor {r.mentorVerified ? "OK" : "pending"}
+                    </span>
+                    <span
+                      className={
+                        counted ? "badge badge-oxblood" : "badge badge-muted"
+                      }
+                    >
+                      {counted ? "Counted" : "Incomplete"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
       ) : null}
 
-      <section className="bg-paper-dark/30 border-t border-rule">
-        <div className="mx-auto max-w-[1400px] px-6 py-10">
-          <h2 className="font-semibold text-lg mb-6">Session history</h2>
+      <section className="border-t border-rule">
+        <div className="mx-auto max-w-[1200px] px-6 py-8">
+          <h2 className="font-semibold text-sm mb-3">Session history</h2>
           <div className="card p-0 overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-paper-dark/50">

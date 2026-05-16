@@ -6,6 +6,7 @@ import {
   Check,
   Info,
   Loader2,
+  ShieldCheck,
   UserCheck,
   UserPlus,
   Video,
@@ -58,6 +59,10 @@ export function FaceAttendance({
     new Set(),
   );
   const [presentMatrics, setPresentMatrics] = useState<Set<string>>(new Set());
+  // Mentor-side verification, the second signature on a record. A mentee is
+  // only "Counted" once both presentMatrics (face match) and verifiedMatrics
+  // (mentor tapped Verify) contain their matric.
+  const [verifiedMatrics, setVerifiedMatrics] = useState<Set<string>>(new Set());
   const [detectedFaceCount, setDetectedFaceCount] = useState(0);
   const [enrolling, setEnrolling] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -300,12 +305,23 @@ export function FaceAttendance({
     enrolledRef.current = {};
     setEnrolledMatrics(new Set());
     setPresentMatrics(new Set());
+    setVerifiedMatrics(new Set());
     if (typeof window !== "undefined") {
       window.localStorage.removeItem(STORAGE_KEY);
     }
   }, []);
 
+  const toggleVerify = useCallback((matric: string) => {
+    setVerifiedMatrics((prev) => {
+      const next = new Set(prev);
+      if (next.has(matric)) next.delete(matric);
+      else next.add(matric);
+      return next;
+    });
+  }, []);
+
   const presentCount = presentMatrics.size;
+  const verifiedCount = verifiedMatrics.size;
   const enrolledCount = enrolledMatrics.size;
 
   return (
@@ -327,16 +343,18 @@ export function FaceAttendance({
             </span>
             <div className="text-sm">
               <p className="font-semibold text-ink mb-1">
-                Browser-only face recognition
+                Two-step verification, each session
               </p>
               <p className="text-ink-muted leading-relaxed">
-                Powered by face-api.js. Students capture their face once at
-                registration (KYC-style); the camera here matches every face
-                on screen against those descriptors and marks recognised
-                students{" "}
-                <span className="font-semibold text-fern">Present</span>{" "}
-                automatically. Use the per-student button below for fallback
-                re-enrolment if a face was never captured. Nothing leaves
+                <span className="font-semibold text-ink">Step 1</span>, the camera
+                matches each mentee against the descriptor they captured at
+                registration and marks them{" "}
+                <span className="font-semibold text-fern">Mentee OK</span>.{" "}
+                <span className="font-semibold text-ink">Step 2</span>, you tap{" "}
+                <span className="font-semibold text-oxblood">Verify</span> on the
+                roster to lock the record as{" "}
+                <span className="font-semibold text-fern">Counted</span>. A session
+                only counts when both signatures are present. Nothing leaves
                 the browser.
               </p>
             </div>
@@ -408,20 +426,38 @@ export function FaceAttendance({
               ) : null}
             </div>
 
-            <div className="px-4 py-3 border-t border-rule">
-              <div className="flex items-center justify-between text-sm mb-1.5">
-                <span className="text-ink-muted">Recognised this session</span>
-                <span className="font-semibold tabular">
-                  {presentCount} of {roster.length} matched
-                </span>
+            <div className="px-4 py-3 border-t border-rule space-y-2">
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-ink-muted">Step 1, face matched</span>
+                  <span className="font-semibold tabular">
+                    {presentCount} of {roster.length}
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full bg-paper-dark overflow-hidden">
+                  <div
+                    className="h-full bg-saffron rounded-full transition-all"
+                    style={{
+                      width: `${(presentCount / Math.max(roster.length, 1)) * 100}%`,
+                    }}
+                  />
+                </div>
               </div>
-              <div className="h-2 rounded-full bg-paper-dark overflow-hidden">
-                <div
-                  className="h-full bg-oxblood rounded-full transition-all"
-                  style={{
-                    width: `${(presentCount / Math.max(roster.length, 1)) * 100}%`,
-                  }}
-                />
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-ink-muted">Step 2, mentor verified</span>
+                  <span className="font-semibold tabular">
+                    {verifiedCount} of {roster.length}
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full bg-paper-dark overflow-hidden">
+                  <div
+                    className="h-full bg-oxblood rounded-full transition-all"
+                    style={{
+                      width: `${(verifiedCount / Math.max(roster.length, 1)) * 100}%`,
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -468,17 +504,19 @@ export function FaceAttendance({
 
         <aside className="col-span-12 lg:col-span-5">
           <h2 className="font-semibold text-lg mb-1">
-            Roster , {roster.length} students
+            Roster, {roster.length} students
           </h2>
           <p className="text-xs text-ink-muted mb-4">
-            Face capture happens at registration. The button below is a
-            mentor-supervised fallback for anyone whose face was never
-            captured.
+            Tap <span className="font-semibold text-oxblood">Verify</span> next to
+            each face-matched mentee to lock their attendance. The fallback button
+            re-captures a face for anyone who never registered theirs.
           </p>
           <ul className="card divide-y divide-rule p-0 overflow-hidden">
             {roster.map((s, i) => {
               const enrolled = enrolledMatrics.has(s.matric);
               const present = presentMatrics.has(s.matric);
+              const verified = verifiedMatrics.has(s.matric);
+              const counted = present && verified;
               return (
                 <li key={s.id} className="flex items-center gap-3 px-4 py-3">
                   <span className="text-xs text-ink-muted w-6 tabular">
@@ -486,9 +524,11 @@ export function FaceAttendance({
                   </span>
                   <div
                     className={`size-9 rounded-full flex items-center justify-center text-xs font-semibold ${
-                      present
+                      counted
                         ? "bg-fern/20 text-fern"
-                        : "bg-paper-dark text-ink-muted"
+                        : present
+                          ? "bg-saffron/20 text-saffron"
+                          : "bg-paper-dark text-ink-muted"
                     }`}
                   >
                     {s.name
@@ -503,12 +543,21 @@ export function FaceAttendance({
                       {s.matric}
                     </div>
                   </div>
-                  {present ? (
+                  {counted ? (
                     <span className="badge badge-fern inline-flex items-center gap-1">
-                      <Check size={12} /> Present
+                      <ShieldCheck size={12} /> Counted
                     </span>
+                  ) : present ? (
+                    <button
+                      type="button"
+                      onClick={() => toggleVerify(s.matric)}
+                      className="badge badge-saffron hover:bg-oxblood hover:text-bone transition-colors cursor-pointer inline-flex items-center gap-1"
+                      title="Lock this mentee's attendance"
+                    >
+                      <Check size={12} /> Verify
+                    </button>
                   ) : enrolled ? (
-                    <span className="badge badge-muted">Awaiting</span>
+                    <span className="badge badge-muted">Awaiting face</span>
                   ) : (
                     <span className="badge badge-saffron">Not enrolled</span>
                   )}
@@ -517,7 +566,7 @@ export function FaceAttendance({
                     onClick={() => enrollStudent(s.id)}
                     disabled={cameraStatus !== "live" || enrolling === s.id}
                     className="size-8 rounded-sm border border-rule hover:border-ink disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
-                    aria-label={`Enrol ${s.name}`}
+                    aria-label={`Re-capture face for ${s.name}`}
                     title={enrolled ? "Re-capture face" : "Capture face (fallback)"}
                   >
                     {enrolling === s.id ? (

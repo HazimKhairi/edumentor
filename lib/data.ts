@@ -453,28 +453,94 @@ export type AppUser = {
   // Current semester for students (mentees and mentors). Lecturers omit this.
   semester?: Semester;
   // Course IDs the user is paired with this term.
-  // Mentees: subjects they joined (must match their semester).
-  // Mentors: subjects they mentor (must be from semesters they passed).
+  //   Mentees: subjects they joined (must match their semester).
+  //   Mentors: subjects they mentor (must be from semesters they passed).
   courses?: string[];
+  // Optional academic record. Used by Admin to evaluate mentor eligibility.
+  cgpa?: number;
+  // Subject codes the student has already passed (mentor eligibility evidence).
+  passedSubjects?: string[];
 };
 
 export const USERS: AppUser[] = [
   // Mentees, all in semester 1.
-  { id: "u-001", name: "Aiman Hakimi",     identity: "2023607832", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110", "stat101"] },
-  { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110"] },
-  { id: "u-003", name: "Faris Adlan",      identity: "2023611901", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110", "stat101"] },
-  { id: "u-004", name: "Liyana Aziz",      identity: "2023612200", role: "Mentee", status: "Probation", joined: "2024-09-01", semester: 1, courses: ["stat101"] },
-  { id: "u-005", name: "Hafiz Ridzwan",    identity: "2023612555", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110"] },
+  { id: "u-001", name: "Aiman Hakimi",     identity: "2023607832", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110", "stat101"], cgpa: 3.74, passedSubjects: [] },
+  { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110"],            cgpa: 3.55, passedSubjects: [] },
+  { id: "u-003", name: "Faris Adlan",      identity: "2023611901", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110", "stat101"], cgpa: 3.31, passedSubjects: [] },
+  { id: "u-004", name: "Liyana Aziz",      identity: "2023612200", role: "Mentee", status: "Probation", joined: "2024-09-01", semester: 1, courses: ["stat101"],          cgpa: 2.41, passedSubjects: [] },
+  { id: "u-005", name: "Hafiz Ridzwan",    identity: "2023612555", role: "Mentee", status: "Active",    joined: "2024-09-01", semester: 1, courses: ["cs110"],            cgpa: 3.62, passedSubjects: [] },
   // Mentors, matric from earlier intakes (2021/2022).
   // Adam (sem 3) mentors sem 1 subjects, Nadia (sem 5) mentors sem 3, Daniel (sem 6) mentors sem 4.
-  { id: "u-006", name: "Adam Iskandar Razak",  identity: "2022613001", role: "Mentor", status: "Active", joined: "2022-09-01", semester: 3, courses: ["cs110", "stat101"] },
-  { id: "u-007", name: "Nadia Aiman Zulkifli", identity: "2022613055", role: "Mentor", status: "Active", joined: "2022-09-01", semester: 5, courses: ["cs220"] },
-  { id: "u-008", name: "Daniel Hakimi Othman", identity: "2021607123", role: "Mentor", status: "Active", joined: "2021-09-01", semester: 6, courses: ["mat210"] },
+  { id: "u-006", name: "Adam Iskandar Razak",  identity: "2022613001", role: "Mentor", status: "Active", joined: "2022-09-01", semester: 3, courses: ["cs110", "stat101"], cgpa: 3.68, passedSubjects: ["MAT CS110", "STA 116"] },
+  { id: "u-007", name: "Nadia Aiman Zulkifli", identity: "2022613055", role: "Mentor", status: "Active", joined: "2022-09-01", semester: 5, courses: ["cs220"],            cgpa: 3.81, passedSubjects: ["MAT CS110", "STA 116", "CSC 234"] },
+  { id: "u-008", name: "Daniel Hakimi Othman", identity: "2021607123", role: "Mentor", status: "Active", joined: "2021-09-01", semester: 6, courses: ["mat210"],           cgpa: 3.92, passedSubjects: ["MAT CS110", "STA 116", "CSC 234", "MAT 210"] },
   // Lecturers (Admins), FCMS staff numbers.
   { id: "u-009", name: "Dr. Aishah Mokhtar",   identity: "FCMS-184", role: "Admin", status: "Active", joined: "2018-02-12" },
   { id: "u-010", name: "Dr. Faiz Rashid",      identity: "FCMS-209", role: "Admin", status: "Active", joined: "2020-08-04" },
   { id: "u-011", name: "Pn. Liyana Hashim",    identity: "FCMS-232", role: "Admin", status: "Active", joined: "2022-01-10" },
 ];
+
+// Demo: who is "signed in" on the mentee-facing pages. The login UI is hardcoded,
+// so we just point dashboard/attendance at this user. Switch this id to view
+// pages as a different person.
+export const CURRENT_USER_ID = "u-001";
+
+export function getCurrentUser(): AppUser {
+  const u = USERS.find((x) => x.id === CURRENT_USER_ID);
+  if (!u) throw new Error("CURRENT_USER_ID does not match any USERS entry");
+  return u;
+}
+
+// Map a user's enrolled course IDs back to the full Course rows.
+export function coursesForUser(user: AppUser): Course[] {
+  if (!user.courses?.length) return [];
+  return COURSES.filter((c) => user.courses!.includes(c.id));
+}
+
+// Per-mentee per-session attendance with the two-step verification trail:
+//   1. mentee taps "Confirm I'm here" after face recognition matches them
+//   2. mentor taps "Verify" on their roster to lock the record
+// A session counts only when BOTH menteeConfirmed and mentorVerified are true.
+export type MenteeAttendance = {
+  sessionId: string;
+  menteeId: string;
+  menteeConfirmed: boolean;
+  mentorVerified: boolean;
+  recognisedAt?: string;
+  verifiedAt?: string;
+};
+
+export const MENTEE_ATTENDANCE: MenteeAttendance[] = [
+  // ses-03 (MAT CS110, Apr 29) — most mentees fully verified
+  { sessionId: "ses-03", menteeId: "u-001", menteeConfirmed: true,  mentorVerified: true,  recognisedAt: "14:02", verifiedAt: "14:04" },
+  { sessionId: "ses-03", menteeId: "u-002", menteeConfirmed: true,  mentorVerified: true,  recognisedAt: "14:01", verifiedAt: "14:04" },
+  { sessionId: "ses-03", menteeId: "u-003", menteeConfirmed: true,  mentorVerified: true,  recognisedAt: "14:03", verifiedAt: "14:05" },
+  { sessionId: "ses-03", menteeId: "u-005", menteeConfirmed: true,  mentorVerified: false, recognisedAt: "14:08" },
+  // ses-02 (CSC 234, May 02)
+  { sessionId: "ses-02", menteeId: "u-001", menteeConfirmed: true,  mentorVerified: true,  recognisedAt: "10:00", verifiedAt: "10:02" },
+  { sessionId: "ses-02", menteeId: "u-003", menteeConfirmed: true,  mentorVerified: true,  recognisedAt: "10:01", verifiedAt: "10:02" },
+  // ses-04 (MAT 210, Apr 25)
+  { sessionId: "ses-04", menteeId: "u-001", menteeConfirmed: true,  mentorVerified: true,  recognisedAt: "09:00", verifiedAt: "09:03" },
+];
+
+export function attendanceForUser(menteeId: string): MenteeAttendance[] {
+  return MENTEE_ATTENDANCE.filter((r) => r.menteeId === menteeId);
+}
+
+// Verified attendance rate for a single mentee across past closed sessions.
+// Only counts sessions where BOTH flags are true.
+export function attendanceRate(menteeId: string): number {
+  const closedSessions = ATTENDANCE_SESSIONS.filter((s) => s.state === "Closed");
+  if (closedSessions.length === 0) return 0;
+  const myVerified = MENTEE_ATTENDANCE.filter(
+    (r) =>
+      r.menteeId === menteeId &&
+      r.menteeConfirmed &&
+      r.mentorVerified &&
+      closedSessions.some((s) => s.id === r.sessionId),
+  );
+  return Math.round((myVerified.length / closedSessions.length) * 100);
+}
 
 export const EVALUATION_RUBRICS = [
   {
