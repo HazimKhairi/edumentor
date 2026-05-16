@@ -67,11 +67,12 @@ model User {
   passedCourses    PassedSubject[]
   enrollments      Enrollment[]
   taughtCourses    Course[]              @relation("CourseLecturer")
-  attendances      MenteeAttendance[]
-  startedRooms     DiscussionRoom[]
-  messages         DiscussionMessage[]
-  feedbackGiven    FeedbackEntry[]       @relation("FeedbackAuthor")
-  feedbackReceived FeedbackEntry[]       @relation("FeedbackTarget")
+  attendances       MenteeAttendance[]
+  startedRooms      DiscussionRoom[]
+  messages          DiscussionMessage[]
+  feedbackGiven     FeedbackEntry[]        @relation("FeedbackAuthor")
+  feedbackReceived  FeedbackEntry[]        @relation("FeedbackTarget")
+  submissions       AssignmentSubmission[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -191,9 +192,26 @@ model Assignment {
   type        String
   note        String           @db.Text
 
-  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course      Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  submissionRecords AssignmentSubmission[]
 
   createdAt DateTime @default(now())
+}
+
+model AssignmentSubmission {
+  id           String   @id @default(cuid())
+  assignmentId String
+  menteeId     String
+  body         String   @db.Text
+  linkUrl      String?
+  grade        String?
+  submittedAt  DateTime @default(now())
+
+  assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  mentee     User       @relation(fields: [menteeId], references: [id], onDelete: Cascade)
+
+  @@unique([assignmentId, menteeId])
+  @@index([menteeId])
 }
 
 model DiscussionRoom {

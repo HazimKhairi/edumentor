@@ -11,13 +11,6 @@ export const metadata = {
 
 const SPARK = [42, 48, 51, 56, 49, 58, 63, 60, 67, 71, 68, 74];
 
-const ISSUES = [
-  { code: "OP-014", t: "Mentor unread queue > 48h", c: "Nadia Aiman Zulkifli", sev: "Medium" },
-  { code: "OP-015", t: "Cohort capacity at 90%", c: "MAT CS110", sev: "Low" },
-  { code: "OP-016", t: "Two mentees on probation", c: "STA 116", sev: "High" },
-  { code: "OP-017", t: "Camera offline last Mon", c: "Lab 2", sev: "Medium" },
-];
-
 const sevBadge: Record<string, string> = {
   Low: "badge badge-muted",
   Medium: "badge badge-saffron",
@@ -34,6 +27,30 @@ export default async function ReportsPage() {
   const totalCapacity = COURSES.reduce((s, c) => s + c.capacity, 0);
   const fillPct = totalCapacity ? Math.round((totalEnrolled / totalCapacity) * 100) : 0;
 
+  // Real issues derived from current data
+  const ISSUES: { code: string; t: string; c: string; sev: "Low" | "Medium" | "High" }[] = [];
+  for (const c of COURSES) {
+    const pct = c.capacity ? c.enrolled / c.capacity : 0;
+    if (pct >= 0.9) {
+      ISSUES.push({
+        code: `CAP-${c.code.replace(/\s/g, "")}`,
+        t: `Cohort capacity at ${Math.round(pct * 100)}%`,
+        c: c.code,
+        sev: pct >= 0.95 ? "High" : "Medium",
+      });
+    }
+  }
+  for (const f of FEEDBACK_ENTRIES) {
+    if (f.score < 3.5) {
+      ISSUES.push({
+        code: `LOW-${f.id.slice(-4)}`,
+        t: `Mentor rating below 3.5 (${f.score.toFixed(1)})`,
+        c: `${f.mentor}, ${f.course}`,
+        sev: "High",
+      });
+    }
+  }
+
   return (
     <>
       <SiteNav />
@@ -48,19 +65,6 @@ export default async function ReportsPage() {
             For Semester 02 / 2026 , Filed by Registrar , 04 May 2026
           </p>
 
-          <div className="mt-6 flex items-center gap-2 flex-wrap">
-            {["This week", "Last 4 weeks", "Term"].map((p, i) => (
-              <button
-                key={p}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  i === 0 ? "bg-ink text-bone" : "bg-bone text-ink-soft border border-rule hover:border-ink"
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-            <button className="btn btn-ghost btn-sm ml-auto">Export PDF</button>
-          </div>
         </div>
       </section>
 
@@ -165,18 +169,24 @@ export default async function ReportsPage() {
 
           <div className="col-span-12 lg:col-span-5">
             <h2 className="font-semibold text-lg mb-4">Open issues</h2>
-            <ul className="space-y-3">
-              {ISSUES.map((i) => (
-                <li key={i.code} className="card p-4 flex items-start gap-3">
-                  <span className="badge badge-muted text-[11px]">{i.code}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm">{i.t}</div>
-                    <div className="text-xs text-ink-muted mt-0.5">{i.c}</div>
-                  </div>
-                  <span className={sevBadge[i.sev]}>{i.sev}</span>
-                </li>
-              ))}
-            </ul>
+            {ISSUES.length === 0 ? (
+              <p className="text-sm text-ink-muted">
+                Nothing flagged. All cohorts under 90% capacity, all mentors rated 3.5+.
+              </p>
+            ) : (
+              <ul className="space-y-3">
+                {ISSUES.map((i) => (
+                  <li key={i.code} className="card p-4 flex items-start gap-3">
+                    <span className="badge badge-muted text-[11px]">{i.code}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm">{i.t}</div>
+                      <div className="text-xs text-ink-muted mt-0.5">{i.c}</div>
+                    </div>
+                    <span className={sevBadge[i.sev]}>{i.sev}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       </section>

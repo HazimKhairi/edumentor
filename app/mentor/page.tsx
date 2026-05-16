@@ -51,6 +51,13 @@ export default async function MentorLanding() {
       course: { code: { in: myCourseCodes } },
     },
   });
+  const ratingAgg = await db.feedbackEntry.aggregate({
+    where: { mentorId: user.id },
+    _avg: { score: true },
+    _count: true,
+  });
+  const myRating = ratingAgg._avg.score;
+  const myRatingCount = ratingAgg._count;
 
   return (
     <>
@@ -85,7 +92,17 @@ export default async function MentorLanding() {
           </div>
           <div className="card p-5">
             <div className="text-sm text-ink-muted">Mentor rating</div>
-            <div className="text-3xl font-bold mt-1">4.7<span className="text-amber-500 ml-1">★</span></div>
+            <div className="text-3xl font-bold mt-1">
+              {myRating !== null && myRating !== undefined ? (
+                <>
+                  {myRating.toFixed(1)}
+                  <span className="text-amber-500 ml-1">★</span>
+                </>
+              ) : (
+                <span className="text-ink-muted text-base">No reviews yet</span>
+              )}
+            </div>
+            <div className="text-xs text-ink-muted mt-1">{myRatingCount} reviews</div>
           </div>
         </div>
       </section>

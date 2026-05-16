@@ -5,22 +5,56 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseThumb } from "@/components/course-thumb";
 import { StarRating } from "@/components/star-rating";
+import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { getCourseView, getFeedbackView } from "@/lib/queries";
+import { dropEnrolment, enrolInCourse } from "@/lib/actions";
 
 export async function generateStaticParams() {
   const rows = await db.course.findMany({ select: { id: true } });
   return rows.map((c) => ({ id: c.id }));
 }
 
-export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
+}) {
   const { id } = await params;
-  const [course, feedback] = await Promise.all([getCourseView(id), getFeedbackView()]);
+  const { error } = await searchParams;
+  const [course, feedback, session] = await Promise.all([
+    getCourseView(id),
+    getFeedbackView(),
+    auth(),
+  ]);
   if (!course) notFound();
+
+  const user = session?.user;
+  const myEnrollment = user
+    ? await db.enrollment.findUnique({
+        where: {
+          userId_courseId_asRole: {
+            userId: user.id,
+            courseId: course.id,
+            asRole: "Mentee",
+          },
+        },
+      })
+    : null;
 
   const fb = feedback.find((f) => f.course === course.code);
   const r = fb ? { rating: fb.score, reviews: fb.n * 11 } : { rating: 4.5, reviews: 84 };
-  const fillPct = Math.round((course.enrolled / course.capacity) * 100);
+  const fillPct = course.capacity
+    ? Math.round((course.enrolled / course.capacity) * 100)
+    : 0;
+
+  const errorCopy: Record<string, string> = {
+    "wrong-semester": "This course is for a different semester.",
+    "not-mentee": "Only mentees can enrol. Mentors are assigned by admin.",
+    full: "This cohort is full.",
+  };
 
   const SYLLABUS = [
     { week: 1, title: "Logic and propositions" },
@@ -83,15 +117,34 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                   <div className="h-full bg-oxblood rounded-full" style={{ width: `${fillPct}%` }} />
                 </div>
 
-                <Link
-                  href="/dashboard?enrolled=1"
-                  className="btn btn-primary btn-lg w-full mb-2"
-                >
-                  Enrol in this course
-                </Link>
-                <Link href="#" className="btn btn-ghost w-full text-sm">
-                  Add to watchlist
-                </Link>
+                {error && errorCopy[error] ? (
+                  <p className="text-xs text-oxblood mb-2">{errorCopy[error]}</p>
+                ) : null}
+
+                {!user ? (
+                  <Link href="/login" className="btn btn-primary btn-lg w-full mb-2">
+                    Sign in to enrol
+                  </Link>
+                ) : myEnrollment ? (
+                  <>
+                    <Link href="/dashboard" className="btn btn-primary btn-lg w-full mb-2">
+                      Continue learning
+                    </Link>
+                    <form action={dropEnrolment}>
+                      <input type="hidden" name="courseId" value={course.id} />
+                      <button type="submit" className="btn btn-ghost w-full text-sm">
+                        Drop enrolment
+                      </button>
+                    </form>
+                  </>
+                ) : (
+                  <form action={enrolInCourse}>
+                    <input type="hidden" name="courseId" value={course.id} />
+                    <button type="submit" className="btn btn-primary btn-lg w-full">
+                      Enrol in this course
+                    </button>
+                  </form>
+                )}
 
                 <ul className="mt-6 space-y-2 text-sm">
                   <li className="flex items-center justify-between">
@@ -194,12 +247,22 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
                   <span>Term-end mentor evaluation</span>
                 </li>
               </ul>
-              <Link
-                href="/dashboard?enrolled=1"
-                className="btn btn-primary w-full"
-              >
-                Confirm enrolment
-              </Link>
+              {!user ? (
+                <Link href="/login" className="btn btn-primary w-full">
+                  Sign in to enrol
+                </Link>
+              ) : myEnrollment ? (
+                <Link href="/dashboard" className="btn btn-primary w-full">
+                  Open in my dashboard
+                </Link>
+              ) : (
+                <form action={enrolInCourse}>
+                  <input type="hidden" name="courseId" value={course.id} />
+                  <button type="submit" className="btn btn-primary w-full">
+                    Confirm enrolment
+                  </button>
+                </form>
+              )}
               <p className="text-xs text-ink-muted mt-3 text-center">
                 Free for the demo cohort. Withdraw any time before week 3.
               </p>

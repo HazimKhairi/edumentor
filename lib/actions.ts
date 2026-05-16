@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import type { AssignmentStatus, ClassFormat, ClassState, Role } from "@prisma/client";
 import { db } from "@/lib/db";
-import { requireRole } from "@/lib/session";
+import { requireRole, requireUser } from "@/lib/session";
 import { MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
 
 // ----------------------------------------------------------------------------
@@ -401,6 +401,278 @@ export async function getSessionStatus(sessionId: string) {
     },
   });
   return records;
+}
+
+// ----------------------------------------------------------------------------
+// Assignment submissions (mentee work)
+// ----------------------------------------------------------------------------
+
+export async function submitAssignmentWork(formData: FormData) {
+  const me = await requireUser();
+  const assignmentId = getString(formData, "assignmentId");
+  const body = getString(formData, "body");
+  const linkUrl = getOptionalString(formData, "linkUrl");
+
+  if (!assignmentId || !body) {
+    redirect(`/assignments/${assignmentId || ""}?error=missing`);
+  }
+
+  const a = await db.assignment.findUnique({ where: { id: assignmentId } });
+  if (!a) redirect("/assignments");
+  if (a.status === "Closed") {
+    redirect(`/assignments/${assignmentId}?error=closed`);
+  }
+
+  const existing = await db.assignmentSubmission.findUnique({
+    where: { assignmentId_menteeId: { assignmentId, menteeId: me.id } },
+  });
+
+  if (existing) {
+    await db.assignmentSubmission.update({
+      where: { assignmentId_menteeId: { assignmentId, menteeId: me.id } },
+      data: { body, linkUrl, submittedAt: new Date() },
+    });
+  } else {
+    await db.$transaction([
+      db.assignmentSubmission.create({
+        data: { assignmentId, menteeId: me.id, body, linkUrl },
+      }),
+      db.assignment.update({
+        where: { id: assignmentId },
+        data: { submissions: { increment: 1 } },
+      }),
+    ]);
+  }
+
+  revalidatePath("/assignments");
+  revalidatePath(`/assignments/${assignmentId}`);
+  redirect(`/assignments/${assignmentId}?submitted=1`);
+}
+
+export async function withdrawSubmission(formData: FormData) {
+  const me = await requireUser();
+  const assignmentId = getString(formData, "assignmentId");
+  if (!assignmentId) return;
+
+  const existing = await db.assignmentSubmission.findUnique({
+    where: { assignmentId_menteeId: { assignmentId, menteeId: me.id } },
+  });
+  if (!existing) return;
+
+  await db.$transaction([
+    db.assignmentSubmission.delete({
+      where: { assignmentId_menteeId: { assignmentId, menteeId: me.id } },
+    }),
+    db.assignment.update({
+      where: { id: assignmentId },
+      data: { submissions: { decrement: 1 } },
+    }),
+  ]);
+
+  revalidatePath("/assignments");
+  revalidatePath(`/assignments/${assignmentId}`);
+  redirect(`/assignments/${assignmentId}`);
+}
+
+// ----------------------------------------------------------------------------
+// Feedback submission
+// ----------------------------------------------------------------------------
+
+export async function submitFeedback(formData: FormData) {
+  const me = await requireUser();
+  const courseId = getString(formData, "courseId");
+  const score = Math.max(1, Math.min(5, getInt(formData, "score", 0)));
+  const comment = getString(formData, "comment");
+  const anonymous = formData.get("anonymous") === "on";
+
+  if (!courseId || score < 1 || !comment) {
+    redirect("/feedback?error=missing");
+  }
+
+  // Find the mentor enrolled in this course (asRole=Mentor)
+  const mentor = await db.enrollment.findFirst({
+    where: { courseId, asRole: "Mentor" },
+    select: { userId: true },
+  });
+  if (!mentor) redirect("/feedback?error=no-mentor");
+
+  await db.feedbackEntry.create({
+    data: {
+      courseId,
+      mentorId: mentor.userId,
+      authorId: anonymous ? null : me.id,
+      score,
+      n: 1,
+      comment,
+    },
+  });
+  revalidatePath("/feedback");
+  revalidatePath("/reports");
+  redirect("/feedback?submitted=1");
+}
+
+// ----------------------------------------------------------------------------
+// Enrolment (mentee joins / drops a course)
+// ----------------------------------------------------------------------------
+
+export async function enrolInCourse(formData: FormData) {
+  const me = await requireUser();
+  const courseId = getString(formData, "courseId");
+  if (!courseId) redirect("/courses");
+
+  if (me.role !== "Mentee") {
+    redirect(`/courses/${courseId}?error=not-mentee`);
+  }
+
+  const course = await db.course.findUnique({ where: { id: courseId } });
+  if (!course) redirect("/courses");
+
+  if (me.semester && course.semester !== me.semester) {
+    redirect(`/courses/${courseId}?error=wrong-semester`);
+  }
+  if (course.enrolled >= course.capacity) {
+    redirect(`/courses/${courseId}?error=full`);
+  }
+
+  const already = await db.enrollment.findUnique({
+    where: {
+      userId_courseId_asRole: {
+        userId: me.id,
+        courseId,
+        asRole: "Mentee",
+      },
+    },
+  });
+
+  if (!already) {
+    await db.$transaction([
+      db.enrollment.create({
+        data: { userId: me.id, courseId, asRole: "Mentee" },
+      }),
+      db.course.update({
+        where: { id: courseId },
+        data: { enrolled: { increment: 1 } },
+      }),
+    ]);
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/courses");
+  revalidatePath(`/courses/${courseId}`);
+  redirect("/dashboard?enrolled=1");
+}
+
+export async function dropEnrolment(formData: FormData) {
+  const me = await requireUser();
+  const courseId = getString(formData, "courseId");
+  if (!courseId) redirect("/courses");
+
+  const existing = await db.enrollment.findUnique({
+    where: {
+      userId_courseId_asRole: {
+        userId: me.id,
+        courseId,
+        asRole: "Mentee",
+      },
+    },
+  });
+  if (existing) {
+    await db.$transaction([
+      db.enrollment.delete({
+        where: {
+          userId_courseId_asRole: {
+            userId: me.id,
+            courseId,
+            asRole: "Mentee",
+          },
+        },
+      }),
+      db.course.update({
+        where: { id: courseId },
+        data: { enrolled: { decrement: 1 } },
+      }),
+    ]);
+  }
+  revalidatePath("/dashboard");
+  revalidatePath(`/courses/${courseId}`);
+  redirect("/dashboard");
+}
+
+// ----------------------------------------------------------------------------
+// Discussion rooms + replies
+// ----------------------------------------------------------------------------
+
+function nowHHMM(): string {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+export async function createDiscussionRoom(formData: FormData) {
+  const me = await requireUser();
+  const courseId = getString(formData, "courseId");
+  const title = getString(formData, "title");
+  const body = getString(formData, "body");
+  if (!courseId || !title || !body) {
+    redirect("/discussion/new?error=missing");
+  }
+  const room = await db.discussionRoom.create({
+    data: {
+      title,
+      courseId,
+      starterId: me.id,
+      excerpt: body.slice(0, 280),
+      posts: 1,
+      members: 1,
+      pinned: false,
+      messages: {
+        create: { authorId: me.id, body, time: nowHHMM() },
+      },
+    },
+  });
+  revalidatePath("/discussion");
+  redirect(`/discussion/${room.id}`);
+}
+
+export async function postReply(formData: FormData) {
+  const me = await requireUser();
+  const roomId = getString(formData, "roomId");
+  const body = getString(formData, "body");
+  if (!roomId || !body) {
+    redirect(`/discussion/${roomId || ""}`);
+  }
+  await db.$transaction([
+    db.discussionMessage.create({
+      data: { roomId, authorId: me.id, body, time: nowHHMM() },
+    }),
+    db.discussionRoom.update({
+      where: { id: roomId },
+      data: {
+        posts: { increment: 1 },
+        excerpt: body.slice(0, 280),
+        lastAt: new Date(),
+      },
+    }),
+  ]);
+  revalidatePath("/discussion");
+  revalidatePath(`/discussion/${roomId}`);
+  redirect(`/discussion/${roomId}`);
+}
+
+export async function toggleRoomPin(formData: FormData) {
+  await requireRole(["Mentor", "Admin"]);
+  const roomId = getString(formData, "roomId");
+  if (!roomId) return;
+  const r = await db.discussionRoom.findUnique({
+    where: { id: roomId },
+    select: { pinned: true },
+  });
+  if (!r) return;
+  await db.discussionRoom.update({
+    where: { id: roomId },
+    data: { pinned: !r.pinned },
+  });
+  revalidatePath("/discussion");
+  revalidatePath(`/discussion/${roomId}`);
 }
 
 // ----------------------------------------------------------------------------

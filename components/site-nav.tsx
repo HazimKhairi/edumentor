@@ -55,11 +55,12 @@ export async function SiteNav() {
           </div>
         </details>
 
-        <form className="flex-1 max-w-2xl hidden sm:block">
+        <form action="/courses" method="GET" className="flex-1 max-w-2xl hidden sm:block">
           <label className="relative flex items-center">
             <Search size={16} aria-hidden className="absolute left-3 text-ink-muted" />
             <input
               type="search"
+              name="q"
               placeholder="Search courses, mentors, topics"
               className="input pl-9 rounded-full bg-paper-dark/60"
             />

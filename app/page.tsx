@@ -39,16 +39,17 @@ export default async function HomePage() {
               feedback on your work | all in one quiet place.
             </p>
 
-            <form className="mt-8 flex items-center gap-2 max-w-xl">
+            <form action="/courses" method="GET" className="mt-8 flex items-center gap-2 max-w-xl">
               <label className="relative flex-1">
                 <Search size={18} aria-hidden className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
                 <input
                   type="search"
+                  name="q"
                   placeholder="What do you want to learn? e.g. discrete math"
                   className="input pl-10 py-3 text-base"
                 />
               </label>
-              <button className="btn btn-primary btn-lg">Search</button>
+              <button type="submit" className="btn btn-primary btn-lg">Search</button>
             </form>
 
             <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-muted">
