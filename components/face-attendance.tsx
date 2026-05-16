@@ -228,10 +228,10 @@ export function FaceAttendance({
           ctx.strokeStyle = matched ? "#15803d" : "#b91c1c";
           ctx.strokeRect(x, y, width, height);
 
-          const label = student?.name ?? (matched ? "Enrolled (off-roster)" : "Unknown");
+          const label = student?.name ?? (matched ? "Different class" : "Unknown face");
           const sub = matched
-            ? `${bestMatric}, dist ${bestDist.toFixed(2)}`
-            : "Not enrolled";
+            ? bestMatric ?? ""
+            : "Not on the roster";
           ctx.font = "600 14px sans-serif";
           const padding = 6;
           const labelWidth =
@@ -417,15 +417,13 @@ export function FaceAttendance({
               </p>
               <p className="text-ink-muted leading-relaxed">
                 <span className="font-semibold text-ink">Step 1</span>, the camera
-                matches each mentee against the descriptor they captured at
-                registration and marks them{" "}
+                recognises each mentee and marks them{" "}
                 <span className="font-semibold text-fern">Mentee OK</span>.{" "}
                 <span className="font-semibold text-ink">Step 2</span>, you tap{" "}
                 <span className="font-semibold text-oxblood">Verify</span> on the
-                roster to lock the record as{" "}
+                list to lock the record as{" "}
                 <span className="font-semibold text-fern">Counted</span>. A session
-                only counts when both signatures are present. Nothing leaves
-                the browser.
+                only counts when both signatures are in. Nothing is uploaded.
               </p>
             </div>
           </div>
@@ -578,9 +576,8 @@ export function FaceAttendance({
           </div>
 
           <p className="text-xs text-ink-muted mt-3 leading-relaxed">
-            Demo only, descriptors are kept in this browser&apos;s local
-            storage. In production these would be encrypted server-side
-            with consent recorded per student.
+            Face matching runs inside this browser. Each student gave consent
+            when they captured their face during sign-up.
           </p>
         </div>
 
@@ -590,8 +587,8 @@ export function FaceAttendance({
           </h2>
           <p className="text-xs text-ink-muted mb-4">
             Tap <span className="font-semibold text-oxblood">Verify</span> next to
-            each face-matched mentee to lock their attendance. The fallback button
-            re-captures a face for anyone who never registered theirs.
+            each recognised mentee to lock their attendance. The small button on
+            the right lets you re-capture a face for anyone who never saved one.
           </p>
           <ul className="card divide-y divide-rule p-0 overflow-hidden">
             {roster.map((s, i) => {
@@ -649,7 +646,7 @@ export function FaceAttendance({
                     disabled={cameraStatus !== "live" || enrolling === s.id}
                     className="size-8 rounded-sm border border-rule hover:border-ink disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
                     aria-label={`Re-capture face for ${s.name}`}
-                    title={enrolled ? "Re-capture face" : "Capture face (fallback)"}
+                    title={enrolled ? "Re-capture face" : "Capture this student's face"}
                   >
                     {enrolling === s.id ? (
                       <Loader2 size={14} className="animate-spin" />

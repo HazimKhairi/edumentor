@@ -58,7 +58,6 @@ export function MenteeAttendanceConfirm({
   const [modelStatus, setModelStatus] = useState<"loading" | "ready" | "error">("loading");
   const [cameraStatus, setCameraStatus] = useState<"idle" | "requesting" | "live" | "denied" | "error">("idle");
   const [stage, setStage] = useState<Stage>(initiallyVerified ? "verified" : "idle");
-  const [matchDistance, setMatchDistance] = useState<number | null>(null);
 
   // Load models
   useEffect(() => {
@@ -169,7 +168,6 @@ export function MenteeAttendanceConfirm({
         }
 
         const dist = faceapi.euclideanDistance(det.descriptor, mine);
-        setMatchDistance(dist);
         if (dist < MATCH_THRESHOLD) {
           // Stop the camera inline once we have a match, the mentee just needs
           // to tap Confirm next. Keeping camera-stop here avoids a render-driven
@@ -310,12 +308,10 @@ export function MenteeAttendanceConfirm({
             {stage === "matched" || stage === "confirmed" || stage === "verified" ? (
               <div className="relative z-10 text-center text-bone px-6">
                 <CheckCircle2 size={48} className="mx-auto mb-2 text-fern" />
-                <p className="text-sm font-semibold">Face matched</p>
-                {matchDistance !== null ? (
-                  <p className="text-xs text-bone/60 mt-1 tabular">
-                    distance {matchDistance.toFixed(2)}, threshold {MATCH_THRESHOLD}
-                  </p>
-                ) : null}
+                <p className="text-sm font-semibold">It&apos;s you</p>
+                <p className="text-xs text-bone/60 mt-1">
+                  Tap Confirm below to mark yourself present.
+                </p>
               </div>
             ) : null}
           </div>
@@ -380,7 +376,7 @@ export function MenteeAttendanceConfirm({
             ) : null}
             {stage === "mismatch" ? (
               <span className="text-xs text-oxblood">
-                Face does not match this account, try again or contact your mentor.
+                That doesn&apos;t look like you. Try again, or ask your mentor for help.
               </span>
             ) : null}
             {stage === "no-face" && cameraStatus === "live" ? (
@@ -391,9 +387,9 @@ export function MenteeAttendanceConfirm({
           </div>
 
           <p className="text-xs text-ink-muted mt-4 leading-relaxed">
-            Step 1 happens on this device (face-api in the browser). Step 2 is your tap.
-            Step 3 happens when your mentor opens their roster and locks the record.
-            Both signatures must be present for this session to count.
+            Step 1 happens on your device, no photo is uploaded. Step 2 is your
+            tap. Step 3 is your mentor confirming on their list. The session
+            only counts when all three are done.
           </p>
         </div>
       </div>

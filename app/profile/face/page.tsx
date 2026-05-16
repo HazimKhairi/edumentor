@@ -10,26 +10,24 @@ export const metadata = {
   description: "Re-capture your face descriptor for attendance.",
 };
 
-function errorMessage(error: string | undefined, dist: string | undefined): string | null {
+function errorMessage(error: string | undefined): string | null {
   if (!error) return null;
-  if (error === "missing") return "Capture a face first, then click Save.";
-  if (error === "invalid") return "The capture failed to parse, try again.";
+  if (error === "missing") return "Capture your face first, then click Save.";
+  if (error === "invalid") return "Something went wrong reading the capture, please try again.";
   if (error === "mismatch") {
-    return `That face does not match the one on record (distance ${
-      dist ?? "high"
-    }). Only the original account owner can replace their face.`;
+    return "That doesn't look like the same person we have on record. Only you can replace your own face.";
   }
-  return "Save failed, try again.";
+  return "Save failed, please try again.";
 }
 
 export default async function FaceProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; saved?: string; dist?: string }>;
+  searchParams: Promise<{ error?: string; saved?: string }>;
 }) {
   const me = await requireUser();
-  const { error, saved, dist } = await searchParams;
-  const errorText = errorMessage(error, dist);
+  const { error, saved } = await searchParams;
+  const errorText = errorMessage(error);
 
   // Pull the descriptor flag without shipping the BLOB bytes to the client.
   const row = await db.user.findUnique({
@@ -51,9 +49,9 @@ export default async function FaceProfilePage({
           </div>
           <h1 className="text-2xl md:text-3xl font-bold">Capture your face</h1>
           <p className="mt-2 text-sm text-ink-muted max-w-2xl leading-relaxed">
-            Your face descriptor (128 numbers, not a photo) lets the camera
-            recognise you at attendance. Capture once, the result is saved to
-            your account.
+            Save your face once so the classroom camera can recognise you at
+            attendance. We do not keep your photo, only a private pattern that
+            identifies you. Nobody sees this except the system.
           </p>
         </div>
       </section>
@@ -62,7 +60,7 @@ export default async function FaceProfilePage({
         <div className="mx-auto max-w-[800px] px-6 pb-12">
           {saved ? (
             <div className="mb-4 rounded-md border border-fern/40 bg-fern/10 px-3 py-2 text-sm text-fern">
-              Saved. You can now confirm attendance from the live session.
+              Saved. The classroom camera can recognise you now.
             </div>
           ) : null}
           {errorText ? (
@@ -74,10 +72,9 @@ export default async function FaceProfilePage({
           <FaceSelfEnrol matric={me.identity} alreadyEnrolled={alreadyEnrolled} />
 
           <p className="text-xs text-ink-muted mt-6 leading-relaxed">
-            Runs entirely in your browser via face-api.js. The 128-number
-            descriptor is sent to the server only after you click Save, and
-            stored as a Bytes column on your User row. The original photo
-            never leaves this device.
+            The camera runs only in your browser. We never store the photo
+            itself, only a private pattern we use to recognise you. Nothing
+            is sent to us until you tap Save.
           </p>
         </div>
       </section>

@@ -589,11 +589,11 @@ function FaceCaptureStep({
           <p className="text-sm font-semibold text-ink">
             Face capture for attendance{" "}
             <span className="text-[11px] font-normal text-ink-muted">
-              (KYC, runs in your browser)
+              (runs in your browser)
             </span>
           </p>
           <p className="text-[11px] text-ink-muted">
-            128-number descriptor bound to your matric, no photo stored.
+            We save a private pattern, never the photo itself.
           </p>
         </div>
         <button

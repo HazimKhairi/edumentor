@@ -171,8 +171,8 @@ export function FaceSelfEnrol({
     <div className="space-y-4">
       {alreadyEnrolled && !descriptor ? (
         <div className="rounded-md border border-fern/40 bg-fern/10 px-3 py-2 text-sm text-fern">
-          Your face is already on record. Re-capture must match the original
-          face, otherwise the save is rejected.
+          Your face is already saved. Re-capturing only works if it&apos;s
+          really you, otherwise the new capture is rejected.
         </div>
       ) : null}
 
@@ -218,8 +218,8 @@ export function FaceSelfEnrol({
               <div className="relative z-10 text-center text-bone px-6">
                 <CheckCircle2 size={48} className="mx-auto mb-2 text-fern" />
                 <p className="text-sm font-semibold">Face captured</p>
-                <p className="text-xs text-bone/60 mt-1 tabular">
-                  {descriptor.length} numbers stored, ready to save
+                <p className="text-xs text-bone/60 mt-1">
+                  Ready to save. Click the button below.
                 </p>
               </div>
             ) : null}
