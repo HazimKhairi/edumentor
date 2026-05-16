@@ -3,6 +3,7 @@
 
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 import "dotenv/config";
 
 const url = process.env.DATABASE_URL;
@@ -10,6 +11,11 @@ if (!url) throw new Error("DATABASE_URL not set");
 
 const adapter = new PrismaMariaDb(url);
 const db = new PrismaClient({ adapter });
+
+// Every seeded account uses this password for the demo. Override per-user
+// during real registration via the sign-up form.
+const DEFAULT_PASSWORD = "edu1234";
+const passwordHash = bcrypt.hashSync(DEFAULT_PASSWORD, 10);
 
 // Code → course id helper, mirrors the demo's "MAT CS110" → "cs110" mapping
 const courseCode = {
@@ -38,21 +44,22 @@ async function main() {
   await db.user.createMany({
     data: [
       // Lecturers (admins)
-      { id: "u-009", name: "Dr. Aishah Mokhtar", identity: "FCMS-184", role: "Admin", status: "Active", joined: new Date("2018-02-12") },
-      { id: "u-010", name: "Dr. Faiz Rashid",    identity: "FCMS-209", role: "Admin", status: "Active", joined: new Date("2020-08-04") },
-      { id: "u-011", name: "Pn. Liyana Hashim",  identity: "FCMS-232", role: "Admin", status: "Active", joined: new Date("2022-01-10") },
+      { id: "u-009", name: "Dr. Aishah Mokhtar", identity: "FCMS-184", passwordHash, role: "Admin", status: "Active", joined: new Date("2018-02-12") },
+      { id: "u-010", name: "Dr. Faiz Rashid",    identity: "FCMS-209", passwordHash, role: "Admin", status: "Active", joined: new Date("2020-08-04") },
+      { id: "u-011", name: "Pn. Liyana Hashim",  identity: "FCMS-232", passwordHash, role: "Admin", status: "Active", joined: new Date("2022-01-10") },
       // Mentors
-      { id: "u-006", name: "Adam Iskandar Razak",  identity: "2022613001", role: "Mentor", status: "Active", joined: new Date("2022-09-01"), semester: 3, cgpa: 3.68 },
-      { id: "u-007", name: "Nadia Aiman Zulkifli", identity: "2022613055", role: "Mentor", status: "Active", joined: new Date("2022-09-01"), semester: 5, cgpa: 3.81 },
-      { id: "u-008", name: "Daniel Hakimi Othman", identity: "2021607123", role: "Mentor", status: "Active", joined: new Date("2021-09-01"), semester: 6, cgpa: 3.92 },
+      { id: "u-006", name: "Adam Iskandar Razak",  identity: "2022613001", passwordHash, role: "Mentor", status: "Active", joined: new Date("2022-09-01"), semester: 3, cgpa: 3.68 },
+      { id: "u-007", name: "Nadia Aiman Zulkifli", identity: "2022613055", passwordHash, role: "Mentor", status: "Active", joined: new Date("2022-09-01"), semester: 5, cgpa: 3.81 },
+      { id: "u-008", name: "Daniel Hakimi Othman", identity: "2021607123", passwordHash, role: "Mentor", status: "Active", joined: new Date("2021-09-01"), semester: 6, cgpa: 3.92 },
       // Mentees
-      { id: "u-001", name: "Aiman Hakimi",     identity: "2023607832", role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 1, cgpa: 3.74 },
-      { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 1, cgpa: 3.55 },
-      { id: "u-003", name: "Faris Adlan",      identity: "2023611901", role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 1, cgpa: 3.31 },
-      { id: "u-004", name: "Liyana Aziz",      identity: "2023612200", role: "Mentee", status: "Probation", joined: new Date("2024-09-01"), semester: 1, cgpa: 2.41 },
-      { id: "u-005", name: "Hafiz Ridzwan",    identity: "2023612555", role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 1, cgpa: 3.62 },
+      { id: "u-001", name: "Aiman Hakimi",     identity: "2023607832", passwordHash, role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 1, cgpa: 3.74 },
+      { id: "u-002", name: "Nur Sofea Rashid", identity: "2023608112", passwordHash, role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 1, cgpa: 3.55 },
+      { id: "u-003", name: "Faris Adlan",      identity: "2023611901", passwordHash, role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 1, cgpa: 3.31 },
+      { id: "u-004", name: "Liyana Aziz",      identity: "2023612200", passwordHash, role: "Mentee", status: "Probation", joined: new Date("2024-09-01"), semester: 1, cgpa: 2.41 },
+      { id: "u-005", name: "Hafiz Ridzwan",    identity: "2023612555", passwordHash, role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 1, cgpa: 3.62 },
     ],
   });
+  console.log(`  → all users password = "${DEFAULT_PASSWORD}"`);
 
   console.log("Seeding courses…");
   await db.course.createMany({

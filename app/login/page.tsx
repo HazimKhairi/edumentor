@@ -1,164 +1,170 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Star } from "lucide-react";
-import { ROLES } from "@/lib/data";
+import { AuthError } from "next-auth";
+import { signIn } from "@/auth";
 
 export const metadata = {
   title: "Sign in | EduMentor",
-  description: "Sign in or create an account to continue.",
+  description: "Sign in with your matric or FCMS staff number.",
 };
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; callbackUrl?: string }>;
+}) {
+  const { error, callbackUrl } = await searchParams;
+
+  async function signInAction(formData: FormData) {
+    "use server";
+    const identity = String(formData.get("identity") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+    try {
+      await signIn("credentials", {
+        identity,
+        password,
+        redirectTo: callbackUrl || "/dashboard",
+      });
+    } catch (e) {
+      // signIn throws to perform the redirect on success — let those bubble.
+      if (e instanceof AuthError) {
+        const reason = e.type === "CredentialsSignin" ? "invalid" : "error";
+        const { redirect } = await import("next/navigation");
+        redirect(`/login?error=${reason}`);
+      }
+      throw e;
+    }
+  }
+
+  const errorCopy =
+    error === "invalid"
+      ? "Wrong identity or password."
+      : error
+        ? "Sign-in failed. Try again."
+        : null;
+
   return (
     <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
-      <aside className="hidden lg:flex relative bg-gradient-to-br from-oxblood via-oxblood-deep to-ink p-12 text-bone flex-col justify-between overflow-hidden">
-        <Link href="/" className="inline-flex items-center w-fit bg-bone rounded-md px-3 py-2">
-          <Image src="/logo.png" alt="EduMentor" width={140} height={40} className="h-9 w-auto" />
+      <aside className="hidden lg:flex relative bg-ink p-12 text-bone flex-col justify-between overflow-hidden">
+        <Link
+          href="/"
+          className="inline-flex items-center w-fit bg-bone rounded-md px-3 py-2"
+        >
+          <Image
+            src="/logo.png"
+            alt="EduMentor"
+            width={140}
+            height={40}
+            className="h-9 w-auto"
+          />
         </Link>
 
         <div className="relative z-10">
-          <div className="text-sm font-semibold text-saffron mb-3">Welcome back</div>
-          <h2 className="display text-5xl leading-tight">
-            Take a seat at the{" "}
-            <span className="display-italic text-saffron">desk.</span>
+          <h2 className="text-3xl font-bold leading-tight">
+            Take a seat at the desk.
           </h2>
-          <p className="mt-5 text-bone/80 max-w-md leading-relaxed">
-            Pick the role written on your card. The desk arranges itself
-            accordingly | lecturers (admins) see the catalogue, mentors
-            see the cohort, mentees see the reading.
+          <p className="mt-4 text-bone/70 max-w-md leading-relaxed text-sm">
+            Sign in with the matric on your student card, or the FCMS staff
+            number on your lecturer card. The desk arranges itself accordingly.
           </p>
-
-          <div className="mt-10 grid grid-cols-3 gap-3 max-w-md">
-            <div>
-              <div className="display text-3xl">158</div>
-              <div className="text-xs text-bone/60 mt-1">Mentees</div>
-            </div>
-            <div>
-              <div className="display text-3xl">12</div>
-              <div className="text-xs text-bone/60 mt-1">Mentors</div>
-            </div>
-            <div>
-              <div className="display text-3xl flex items-center gap-1">4.6 <Star size={20} className="text-amber-400" fill="currentColor" /></div>
-              <div className="text-xs text-bone/60 mt-1">Avg. rating</div>
-            </div>
-          </div>
         </div>
 
         <p className="text-xs text-bone/50 relative z-10">
           © 2026 EduMentor | UiTM, FCMS
         </p>
-
-        <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
-          <svg width="100%" height="100%">
-            <pattern id="grid" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1" fill="#fff" />
-            </pattern>
-            <rect width="100%" height="100%" fill="url(#grid)" />
-          </svg>
-        </div>
       </aside>
 
       <section className="flex flex-col justify-center p-6 sm:p-12 bg-paper">
         <div className="w-full max-w-md mx-auto">
           <Link href="/" className="lg:hidden flex justify-center mb-8">
-            <Image src="/logo.png" alt="EduMentor" width={160} height={48} className="h-11 w-auto" />
+            <Image
+              src="/logo.png"
+              alt="EduMentor"
+              width={160}
+              height={48}
+              className="h-11 w-auto"
+            />
           </Link>
 
           <div className="flex border-b border-rule mb-8">
-            <span className="flex-1 pb-3 font-semibold text-base text-ink border-b-2 border-oxblood text-center">
+            <span className="flex-1 pb-3 font-semibold text-sm text-ink border-b-2 border-oxblood text-center">
               Sign in
             </span>
-            <Link href="/register" className="flex-1 pb-3 font-semibold text-base text-ink-muted hover:text-ink text-center">
+            <Link
+              href="/register"
+              className="flex-1 pb-3 font-semibold text-sm text-ink-muted hover:text-ink text-center"
+            >
               Create account
             </Link>
           </div>
 
-          <h1 className="display text-3xl mb-2">Welcome back</h1>
-          <p className="text-ink-muted text-sm mb-8">
-            Sign in with your matric (student) or FCMS staff number (lecturer).
+          <h1 className="text-2xl font-bold mb-1">Welcome back</h1>
+          <p className="text-ink-muted text-sm mb-6">
+            Matric for student. FCMS staff number for lecturer.
           </p>
 
-          <form className="space-y-5">
+          {errorCopy ? (
+            <div
+              role="alert"
+              className="mb-5 rounded-md border border-oxblood/40 bg-oxblood/[0.06] px-3 py-2 text-sm text-oxblood"
+            >
+              {errorCopy}
+            </div>
+          ) : null}
+
+          <form action={signInAction} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-ink mb-1.5">Identity number</label>
+              <label
+                htmlFor="identity"
+                className="block text-sm font-medium text-ink mb-1.5"
+              >
+                Identity number
+              </label>
               <input
+                id="identity"
+                name="identity"
                 type="text"
+                required
                 placeholder="e.g. 2023607832"
                 defaultValue="2023607832"
                 className="input"
                 autoComplete="username"
               />
-              <p className="text-xs text-ink-muted mt-1.5">
-                Matric for mentee or mentor (student). FCMS staff number for admin (lecturer).
-              </p>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-sm font-medium text-ink">Password</label>
-                <Link href="#" className="text-xs text-oxblood hover:text-oxblood-deep font-medium">
-                  Forgot?
-                </Link>
+                <label htmlFor="password" className="text-sm font-medium text-ink">
+                  Password
+                </label>
+                <span className="text-xs text-ink-muted">
+                  Demo seed: <span className="font-semibold tabular">edu1234</span>
+                </span>
               </div>
               <input
+                id="password"
+                name="password"
                 type="password"
+                required
                 placeholder="Enter your password"
-                defaultValue="passpassword"
+                defaultValue="edu1234"
                 className="input"
                 autoComplete="current-password"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-ink mb-2">Sign in as</label>
-              <div className="grid grid-cols-3 gap-2">
-                {ROLES.map((r) => (
-                  <label
-                    key={r.key}
-                    className="relative flex flex-col items-center gap-1 p-3 rounded-md border border-rule cursor-pointer hover:border-ink has-[:checked]:border-oxblood has-[:checked]:bg-oxblood/[0.04] transition-colors"
-                  >
-                    <input
-                      type="radio"
-                      name="role"
-                      value={r.key}
-                      defaultChecked={r.key === "Mentee"}
-                      className="sr-only"
-                    />
-                    <span className="text-xs text-ink-muted font-semibold">{r.abbr}</span>
-                    <span className="text-sm font-medium">{r.key}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <label className="flex items-center gap-2 text-sm text-ink-soft cursor-pointer">
-              <input type="checkbox" className="size-4 accent-oxblood" defaultChecked />
-              <span>Keep me signed in for 90 minutes</span>
-            </label>
-
-            <Link href="/dashboard" className="btn btn-primary btn-lg w-full">
+            <button type="submit" className="btn btn-primary btn-lg w-full">
               Sign in
-            </Link>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-rule" />
-              </div>
-              <div className="relative flex justify-center text-xs">
-                <span className="bg-paper px-3 text-ink-muted">or continue with</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button type="button" className="btn btn-ghost text-sm">UiTM SSO</button>
-              <button type="button" className="btn btn-ghost text-sm">Google</button>
-            </div>
+            </button>
           </form>
 
-          <p className="mt-8 text-center text-sm text-ink-muted">
+          <p className="mt-6 text-center text-sm text-ink-muted">
             New here?{" "}
-            <Link href="/register" className="text-oxblood hover:text-oxblood-deep font-semibold">
-              Apply for an account
+            <Link
+              href="/register"
+              className="text-oxblood hover:text-oxblood-deep font-semibold"
+            >
+              Create an account
             </Link>
           </p>
         </div>
