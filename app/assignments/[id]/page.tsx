@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { getAssignmentsView } from "@/lib/queries";
 import { submitAssignmentWork, withdrawSubmission } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 export async function generateStaticParams() {
   const rows = await db.assignment.findMany({ select: { id: true } });
@@ -143,7 +144,9 @@ export default async function Page({
                     <input type="hidden" name="assignmentId" value={a.id} />
 
                     <div>
-                      <label className="block text-sm font-medium mb-1.5">Write-up</label>
+                      <label className="block text-sm font-medium mb-1.5">
+                        Write-up<RequiredMark />
+                      </label>
                       <textarea
                         name="body"
                         required

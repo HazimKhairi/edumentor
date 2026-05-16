@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
+import { RequiredMark } from "@/components/required-mark";
 
 export const metadata = {
   title: "Sign in | EduMentor",
@@ -128,7 +129,7 @@ export default async function LoginPage({
                 htmlFor="identity"
                 className="block text-sm font-medium text-ink mb-1.5"
               >
-                Identity number
+                Identity number<RequiredMark />
               </label>
               <input
                 id="identity"
@@ -145,7 +146,7 @@ export default async function LoginPage({
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label htmlFor="password" className="text-sm font-medium text-ink">
-                  Password
+                  Password<RequiredMark />
                 </label>
                 <span className="text-xs text-ink-muted">
                   Demo seed: <span className="font-semibold tabular">edu1234</span>

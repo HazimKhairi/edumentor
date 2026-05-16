@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { createDiscussionRoom } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 export const metadata = {
   title: "Ask a question | Discussion",
@@ -48,7 +49,9 @@ export default async function NewDiscussionPage({
           ) : null}
           <form action={createDiscussionRoom} className="card p-6 md:p-8 space-y-5">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Course</label>
+              <label className="block text-sm font-medium mb-1.5">
+                Course<RequiredMark />
+              </label>
               <select name="courseId" required className="input">
                 {courses.length === 0 ? (
                   <option value="">No courses available</option>
@@ -63,7 +66,9 @@ export default async function NewDiscussionPage({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Title</label>
+              <label className="block text-sm font-medium mb-1.5">
+                Title<RequiredMark />
+              </label>
               <input
                 type="text"
                 name="title"
@@ -75,7 +80,9 @@ export default async function NewDiscussionPage({
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Your question</label>
+              <label className="block text-sm font-medium mb-1.5">
+                Your question<RequiredMark />
+              </label>
               <textarea
                 name="body"
                 required

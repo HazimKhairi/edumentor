@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { createCourse } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 export const metadata = {
   title: "Add course | Admin",
@@ -40,16 +41,22 @@ export default async function AddCoursePage() {
           <form action={createCourse} className="card p-6 md:p-8 space-y-6">
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">URL slug</label>
+                <label className="block text-sm font-medium mb-1.5">
+                  URL slug<RequiredMark />
+                </label>
                 <input type="text" name="id" required placeholder="cs110" className="input" />
                 <p className="text-xs text-ink-muted mt-1.5">URL-friendly id.</p>
               </div>
               <div className="col-span-6 md:col-span-4">
-                <label className="block text-sm font-medium mb-1.5">Course code</label>
+                <label className="block text-sm font-medium mb-1.5">
+                  Course code<RequiredMark />
+                </label>
                 <input type="text" name="code" required placeholder="MAT CS110" className="input" />
               </div>
               <div className="col-span-12 md:col-span-5">
-                <label className="block text-sm font-medium mb-1.5">Course title</label>
+                <label className="block text-sm font-medium mb-1.5">
+                  Course title<RequiredMark />
+                </label>
                 <input type="text" name="title" required placeholder="Discrete Structures for Computing" className="input" />
               </div>
             </div>

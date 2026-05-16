@@ -3,6 +3,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { requireRole } from "@/lib/session";
 import { createRubric } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 export const metadata = {
   title: "Add rubric | Admin",
@@ -42,7 +43,7 @@ export default async function AddEvaluationPage() {
         <div className="mx-auto max-w-[900px] px-6 py-10">
           <form action={createRubric} className="card p-6 md:p-8 space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Rubric title</label>
+              <label className="block text-sm font-medium mb-1.5">Rubric title<RequiredMark /></label>
               <input
                 type="text"
                 name="title"

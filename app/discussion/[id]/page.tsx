@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import { postReply, toggleRoomPin } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 export async function generateStaticParams() {
   const rows = await db.discussionRoom.findMany({ select: { id: true } });
@@ -152,7 +153,9 @@ export default async function DiscussionThreadPage({
           )}
 
           <div className="card p-5 mt-6">
-            <h3 className="font-semibold text-base mb-3">Your reply</h3>
+            <h3 className="font-semibold text-base mb-3">
+              Your reply<RequiredMark />
+            </h3>
             {error ? (
               <div className="mb-3 rounded-md border border-oxblood/40 bg-oxblood/[0.06] px-3 py-2 text-sm text-oxblood">
                 {decodeURIComponent(error)}

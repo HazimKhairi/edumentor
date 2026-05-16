@@ -6,6 +6,7 @@ import { StarPicker } from "@/components/star-picker";
 import { requireUser } from "@/lib/session";
 import { coursesForUser, getFeedbackView } from "@/lib/queries";
 import { submitFeedback } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 export const metadata = {
   title: "Reviews | EduMentor",
@@ -81,7 +82,7 @@ export default async function FeedbackPage({
                 <form action={submitFeedback} className="space-y-5">
                   <div>
                     <label className="block text-sm font-medium mb-1.5">
-                      Course
+                      Course<RequiredMark />
                     </label>
                     <select name="courseId" required className="input">
                       {enrolled.map((c) => (
@@ -94,14 +95,14 @@ export default async function FeedbackPage({
 
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      Overall rating
+                      Overall rating<RequiredMark />
                     </label>
                     <StarPicker />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium mb-1.5">
-                      Comment
+                      Comment<RequiredMark />
                     </label>
                     <textarea
                       name="comment"

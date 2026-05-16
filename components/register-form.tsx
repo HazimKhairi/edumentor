@@ -20,6 +20,7 @@ import {
   coursesForMentor,
 } from "@/lib/data";
 import { registerAccount } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 type FaceApi = typeof import("@vladmandic/face-api");
 
@@ -58,7 +59,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-ink mb-1">
-            Full name
+            Full name<RequiredMark />
           </label>
           <input
             type="text"
@@ -86,7 +87,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-ink mb-1">
-            Matric number
+            Matric number<RequiredMark />
           </label>
           <input
             type="text"
@@ -101,7 +102,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
         </div>
         <div>
           <label className="block text-xs font-medium text-ink mb-1">
-            Password
+            Password<RequiredMark />
           </label>
           <input
             type="password"

@@ -5,6 +5,7 @@ import { ClassFormatPicker } from "@/components/class-format-picker";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { createClassSession } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 export const metadata = {
   title: "Create class | Mentor",
@@ -40,7 +41,7 @@ export default async function NewClassPage() {
         <div className="mx-auto max-w-[900px] px-6 py-10">
           <form action={createClassSession} className="card p-6 md:p-8 space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Course</label>
+              <label className="block text-sm font-medium mb-1.5">Course<RequiredMark /></label>
               <select name="courseId" required className="input">
                 {courses.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -51,7 +52,7 @@ export default async function NewClassPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Topic</label>
+              <label className="block text-sm font-medium mb-1.5">Topic<RequiredMark /></label>
               <input type="text" name="topic" required placeholder="Strong induction on trees" className="input" />
               <p className="text-xs text-ink-muted mt-1.5">
                 One sentence describing the focus of this session.
@@ -60,17 +61,17 @@ export default async function NewClassPage() {
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Date</label>
+                <label className="block text-sm font-medium mb-1.5">Date<RequiredMark /></label>
                 <input type="date" name="date" required className="input" />
               </div>
               <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Start time</label>
+                <label className="block text-sm font-medium mb-1.5">Start time<RequiredMark /></label>
                 <input type="time" name="time" required defaultValue="14:00" className="input" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1.5">Room</label>
+              <label className="block text-sm font-medium mb-1.5">Room<RequiredMark /></label>
               <input type="text" name="room" required placeholder="BD-3, Block A" className="input" />
             </div>
 

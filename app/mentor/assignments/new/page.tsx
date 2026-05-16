@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { createAssignment } from "@/lib/actions";
+import { RequiredMark } from "@/components/required-mark";
 
 export const metadata = {
   title: "Add assignment | Mentor",
@@ -40,18 +41,18 @@ export default async function AddAssignmentPage() {
           <form action={createAssignment} className="card p-6 md:p-8 space-y-6">
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Code</label>
+                <label className="block text-sm font-medium mb-1.5">Code<RequiredMark /></label>
                 <input type="text" name="code" required placeholder="PS-04" className="input" />
               </div>
               <div className="col-span-12 md:col-span-9">
-                <label className="block text-sm font-medium mb-1.5">Title</label>
+                <label className="block text-sm font-medium mb-1.5">Title<RequiredMark /></label>
                 <input type="text" name="title" required placeholder="Relations, equivalence classes, partitions" className="input" />
               </div>
             </div>
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Course</label>
+                <label className="block text-sm font-medium mb-1.5">Course<RequiredMark /></label>
                 <select name="courseId" required className="input">
                   {courses.map((c) => (
                     <option key={c.id} value={c.id}>{c.code}, {c.title}</option>
@@ -83,11 +84,11 @@ export default async function AddAssignmentPage() {
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Issued</label>
+                <label className="block text-sm font-medium mb-1.5">Issued<RequiredMark /></label>
                 <input type="date" name="issued" required className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Due</label>
+                <label className="block text-sm font-medium mb-1.5">Due<RequiredMark /></label>
                 <input type="date" name="due" required className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
