@@ -171,7 +171,8 @@ export function FaceSelfEnrol({
     <div className="space-y-4">
       {alreadyEnrolled && !descriptor ? (
         <div className="rounded-md border border-fern/40 bg-fern/10 px-3 py-2 text-sm text-fern">
-          Your face is already on record. Re-capturing will replace it.
+          Your face is already on record. Re-capture must match the original
+          face, otherwise the save is rejected.
         </div>
       ) : null}
 

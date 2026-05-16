@@ -10,18 +10,26 @@ export const metadata = {
   description: "Re-capture your face descriptor for attendance.",
 };
 
-const errorCopy: Record<string, string> = {
-  missing: "Capture a face first, then click Save.",
-  invalid: "The capture failed to parse, try again.",
-};
+function errorMessage(error: string | undefined, dist: string | undefined): string | null {
+  if (!error) return null;
+  if (error === "missing") return "Capture a face first, then click Save.";
+  if (error === "invalid") return "The capture failed to parse, try again.";
+  if (error === "mismatch") {
+    return `That face does not match the one on record (distance ${
+      dist ?? "high"
+    }). Only the original account owner can replace their face.`;
+  }
+  return "Save failed, try again.";
+}
 
 export default async function FaceProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; saved?: string }>;
+  searchParams: Promise<{ error?: string; saved?: string; dist?: string }>;
 }) {
   const me = await requireUser();
-  const { error, saved } = await searchParams;
+  const { error, saved, dist } = await searchParams;
+  const errorText = errorMessage(error, dist);
 
   // Pull the descriptor flag without shipping the BLOB bytes to the client.
   const row = await db.user.findUnique({
@@ -57,9 +65,9 @@ export default async function FaceProfilePage({
               Saved. You can now confirm attendance from the live session.
             </div>
           ) : null}
-          {error && errorCopy[error] ? (
+          {errorText ? (
             <div className="mb-4 rounded-md border border-oxblood/40 bg-oxblood/[0.06] px-3 py-2 text-sm text-oxblood">
-              {errorCopy[error]}
+              {errorText}
             </div>
           ) : null}
 

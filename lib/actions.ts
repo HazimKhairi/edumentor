@@ -353,6 +353,28 @@ export async function createClassSession(formData: FormData) {
 // Face descriptor (self-enrolment for existing accounts)
 // ----------------------------------------------------------------------------
 
+// Same threshold the client uses for live matching. Keep them in lockstep so
+// "Confirm I am here" and "Save re-capture" gate at the same generosity.
+const FACE_MATCH_THRESHOLD = 0.55;
+
+function euclideanDistance(a: Float32Array, b: Float32Array): number {
+  if (a.length !== b.length) return Number.POSITIVE_INFINITY;
+  let sum = 0;
+  for (let i = 0; i < a.length; i++) {
+    const d = a[i] - b[i];
+    sum += d * d;
+  }
+  return Math.sqrt(sum);
+}
+
+function bytesToFloat32(bytes: Uint8Array): Float32Array {
+  // The stored buffer is a Float32 array of 128 numbers serialised as
+  // little-endian bytes. Wrap it back into a typed view.
+  return new Float32Array(
+    bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
+  );
+}
+
 export async function enrolMyFace(formData: FormData) {
   const me = await requireUser();
   const raw = formData.get("faceDescriptor");
@@ -360,6 +382,7 @@ export async function enrolMyFace(formData: FormData) {
     redirect("/profile/face?error=missing");
   }
   let buf: Uint8Array<ArrayBuffer> | null = null;
+  let next: Float32Array | null = null;
   try {
     const arr = JSON.parse(raw as string) as unknown;
     if (!Array.isArray(arr) || arr.length === 0) throw new Error("empty");
@@ -367,9 +390,28 @@ export async function enrolMyFace(formData: FormData) {
     const view = new Float32Array(ab);
     for (let i = 0; i < arr.length; i++) view[i] = Number(arr[i]);
     buf = new Uint8Array(ab);
+    next = view;
   } catch {
     redirect("/profile/face?error=invalid");
   }
+
+  // If a descriptor already exists on this account, the new capture must
+  // match it (same-person check). Stops a stranger from overwriting an
+  // existing face. First-time enrolment skips this gate.
+  const existing = await db.user.findUnique({
+    where: { id: me.id },
+    select: { faceDescriptor: true },
+  });
+  if (existing?.faceDescriptor && next) {
+    const stored = bytesToFloat32(existing.faceDescriptor);
+    const dist = euclideanDistance(next, stored);
+    if (dist >= FACE_MATCH_THRESHOLD) {
+      redirect(
+        `/profile/face?error=mismatch&dist=${dist.toFixed(2)}`,
+      );
+    }
+  }
+
   await db.user.update({
     where: { id: me.id },
     data: { faceDescriptor: buf },
