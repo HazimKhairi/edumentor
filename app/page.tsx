@@ -17,9 +17,16 @@ export default async function HomePage() {
 
   function ratingFor(courseCode: string) {
     const fb = FEEDBACK_ENTRIES.find((f) => f.course === courseCode);
-    if (fb) return { rating: fb.score, reviews: fb.n * 11 };
-    return { rating: 4.5, reviews: 84 };
+    return fb ? { rating: fb.score, reviews: fb.n } : {};
   }
+
+  // Pull hero numbers from STATS so they always agree with the trust bar
+  // and the rest of the site.
+  const menteeCount = STATS.find((s) => s.label === "Mentees enrolled")?.value ?? "0";
+  const mentorCount = STATS.find((s) => s.label === "Student mentors")?.value ?? "0";
+  const avgRating = FEEDBACK_ENTRIES.length
+    ? FEEDBACK_ENTRIES.reduce((s, f) => s + f.score, 0) / FEEDBACK_ENTRIES.length
+    : null;
 
   return (
     <>
@@ -53,14 +60,22 @@ export default async function HomePage() {
             </form>
 
             <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-ink-muted">
-              <div className="flex items-center gap-2">
-                <StarRating value={4.6} />
-                <span>average mentor rating</span>
-              </div>
+              {avgRating !== null ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <StarRating value={avgRating} />
+                    <span>average mentor rating</span>
+                  </div>
+                  <span className="hidden sm:inline">,</span>
+                </>
+              ) : null}
+              <span>
+                <span className="font-semibold text-ink">{menteeCount}</span> mentees enrolled
+              </span>
               <span className="hidden sm:inline">,</span>
-              <span><span className="font-semibold text-ink">158</span> mentees enrolled</span>
-              <span className="hidden sm:inline">,</span>
-              <span><span className="font-semibold text-ink">12</span> student mentors</span>
+              <span>
+                <span className="font-semibold text-ink">{mentorCount}</span> student mentors
+              </span>
             </div>
           </div>
 

@@ -22,10 +22,10 @@ export default async function CoursesPage({
   ]);
 
   const ratingMap = new Map(
-    feedback.map((f) => [f.course, { rating: f.score, reviews: f.n * 11 }]),
+    feedback.map((f) => [f.course, { rating: f.score, reviews: f.n }]),
   );
-  const ratingFor = (code: string) =>
-    ratingMap.get(code) ?? { rating: 4.5, reviews: 84 };
+  const ratingFor = (code: string): { rating?: number; reviews?: number } =>
+    ratingMap.get(code) ?? {};
 
   const query = (q ?? "").trim().toLowerCase();
   const filtered = query

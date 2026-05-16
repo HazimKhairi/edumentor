@@ -11,8 +11,8 @@ type CourseTile = {
   cohort: string;
   pace: string;
   color: string;
-  rating: number;
-  reviews: number;
+  rating?: number;
+  reviews?: number;
 };
 
 type Category = "All" | "Computer Science" | "Mathematics" | "Statistics" | "Foundation";

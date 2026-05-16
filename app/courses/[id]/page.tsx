@@ -45,7 +45,9 @@ export default async function Page({
     : null;
 
   const fb = feedback.find((f) => f.course === course.code);
-  const r = fb ? { rating: fb.score, reviews: fb.n * 11 } : { rating: 4.5, reviews: 84 };
+  const r: { rating?: number; reviews?: number } = fb
+    ? { rating: fb.score, reviews: fb.n }
+    : {};
   const fillPct = course.capacity
     ? Math.round((course.enrolled / course.capacity) * 100)
     : 0;
@@ -84,7 +86,11 @@ export default async function Page({
             <p className="mt-3 text-ink-soft leading-relaxed max-w-2xl">{course.abstract}</p>
 
             <div className="mt-5 flex flex-wrap items-center gap-4 text-sm">
-              <StarRating value={r.rating} count={r.reviews} size="sm" />
+              {typeof r.rating === "number" ? (
+                <StarRating value={r.rating} count={r.reviews} size="sm" />
+              ) : (
+                <span className="text-xs text-ink-muted">No reviews yet</span>
+              )}
               <span className="text-ink-muted">|</span>
               <span><span className="font-semibold tabular">{course.enrolled}</span> mentees enrolled</span>
               <span className="text-ink-muted">|</span>
@@ -216,7 +222,11 @@ export default async function Page({
                   <p className="text-xs text-ink-muted">
                     B.Sc. CS student, CGPA 3.20+ , Faculty of Computer & Mathematical Sciences
                   </p>
-                  <div className="mt-2"><StarRating value={r.rating} count={r.reviews} size="sm" /></div>
+                  {typeof r.rating === "number" ? (
+                    <div className="mt-2">
+                      <StarRating value={r.rating} count={r.reviews} size="sm" />
+                    </div>
+                  ) : null}
                   <p className="text-sm mt-3 text-ink-soft leading-relaxed">
                     Patient and clear. Has already passed this course, runs peer
                     sessions every Thursday under {course.lecturer}.

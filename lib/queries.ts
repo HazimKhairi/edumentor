@@ -235,15 +235,28 @@ export async function getRosterForSession(sessionId: string) {
 // ----------------------------------------------------------------------------
 
 export async function getStats() {
-  const [courses, mentees, mentors] = await Promise.all([
+  const [courses, mentees, mentors, closedAttendance] = await Promise.all([
     db.course.count(),
     db.user.count({ where: { role: "Mentee" } }),
     db.user.count({ where: { role: "Mentor" } }),
+    db.menteeAttendance.findMany({
+      where: { session: { state: "Closed" } },
+      select: { menteeConfirmed: true, mentorVerified: true },
+    }),
   ]);
+  const total = closedAttendance.length;
+  const counted = closedAttendance.filter(
+    (r) => r.menteeConfirmed && r.mentorVerified,
+  ).length;
+  const accuracy =
+    total > 0
+      ? `${(Math.round((counted / total) * 1000) / 10).toFixed(1)}%`
+      : "—";
+
   return [
     { label: "Active courses",       value: String(courses).padStart(2, "0"), caption: "this semester" },
     { label: "Mentees enrolled",     value: String(mentees),                   caption: "across cohorts" },
     { label: "Student mentors",      value: String(mentors).padStart(2, "0"),  caption: "across all faculties" },
-    { label: "Attendance accuracy",  value: "98.4%",                            caption: "face recognition, last 30 days" },
+    { label: "Attendance accuracy",  value: accuracy,                          caption: total > 0 ? `${counted} of ${total} sessions verified` : "no sessions closed yet" },
   ];
 }
