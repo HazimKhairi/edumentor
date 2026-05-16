@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { NAV } from "@/lib/data";
 
+// Every link below points to a real route in this app. Add only after the
+// matching page exists.
 const COLS = [
   {
     title: "Learn",
@@ -10,24 +11,35 @@ const COLS = [
       { label: "My dashboard", href: "/dashboard" },
       { label: "Discussion rooms", href: "/discussion" },
       { label: "Assignments", href: "/assignments" },
+      { label: "Attendance", href: "/attendance" },
+      { label: "Reviews", href: "/feedback" },
     ],
   },
   {
     title: "Mentor",
     links: [
       { label: "Become a mentor (CGPA 3.20+)", href: "/register" },
-      { label: "Mentor handbook", href: "#" },
-      { label: "Lecturer console", href: "/admin" },
-      { label: "Community guidelines", href: "#" },
+      { label: "Mentor console", href: "/mentor" },
+      { label: "Schedule a class", href: "/mentor/classes/new" },
+      { label: "Create an assignment", href: "/mentor/assignments/new" },
     ],
   },
   {
-    title: "About",
+    title: "Admin",
     links: [
-      { label: "Our mission", href: "#" },
-      { label: "Reports & impact", href: "/reports" },
-      { label: "Press", href: "#" },
-      { label: "Contact", href: "#" },
+      { label: "Admin console", href: "/admin" },
+      { label: "Manage users", href: "/admin/users" },
+      { label: "Manage courses", href: "/admin/courses" },
+      { label: "Evaluation rubrics", href: "/admin/evaluations" },
+      { label: "Reports", href: "/reports" },
+    ],
+  },
+  {
+    title: "Account",
+    links: [
+      { label: "Sign in", href: "/login" },
+      { label: "Create account", href: "/register" },
+      { label: "Capture face", href: "/profile/face" },
     ],
   },
 ];
@@ -36,33 +48,28 @@ export function SiteFooter() {
   return (
     <footer className="mt-24 bg-paper-dark/50 border-t border-rule">
       <div className="mx-auto max-w-[1400px] px-6 py-14 grid grid-cols-12 gap-8">
-        {/* Brand */}
         <div className="col-span-12 md:col-span-4">
           <Link href="/" className="flex items-center">
-            <Image src="/logo.png" alt="EduMentor" width={200} height={60} className="h-14 w-auto" />
+            <Image
+              src="/logo.png"
+              alt="EduMentor"
+              width={200}
+              height={60}
+              className="h-14 w-auto"
+            />
           </Link>
           <p className="mt-4 text-sm text-ink-muted leading-relaxed max-w-sm">
             A learning platform for mentor-led classrooms. Built for UiTM,
             open to any cohort that wants to share a syllabus, a discussion,
             and an honest review.
           </p>
-          <form className="mt-6 flex items-center gap-2 max-w-sm">
-            <input
-              type="email"
-              placeholder="you@uitm.edu.my"
-              className="input flex-1"
-            />
-            <button type="submit" className="btn btn-primary btn-sm">
-              Subscribe
-            </button>
-          </form>
-          <p className="mt-2 text-xs text-ink-muted">
-            One letter a week. Class digests and recommended reading.
+          <p className="mt-6 text-xs text-ink-muted">
+            Faculty of Computer &amp; Mathematical Sciences, UiTM
           </p>
         </div>
 
         {COLS.map((col) => (
-          <div key={col.title} className="col-span-6 md:col-span-2 md:col-start-auto">
+          <div key={col.title} className="col-span-6 md:col-span-2">
             <h4 className="text-sm font-semibold text-ink mb-4">{col.title}</h4>
             <ul className="space-y-2">
               {col.links.map((l) => (
@@ -78,29 +85,15 @@ export function SiteFooter() {
             </ul>
           </div>
         ))}
-
-        <div className="col-span-12 md:col-span-2">
-          <h4 className="text-sm font-semibold text-ink mb-4">Sections</h4>
-          <ul className="space-y-2">
-            {NAV.slice(0, 5).map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className="text-sm text-ink-muted hover:text-oxblood transition-colors">
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
 
       <div className="border-t border-rule">
         <div className="mx-auto max-w-[1400px] px-6 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-ink-muted">
           <div>© 2026 EduMentor | A learning platform for UiTM, FCMS</div>
           <div className="flex items-center gap-5">
-            <Link href="#" className="hover:text-ink">Privacy</Link>
-            <Link href="#" className="hover:text-ink">Terms</Link>
-            <Link href="#" className="hover:text-ink">Conduct</Link>
-            <Link href="#" className="hover:text-ink">Accessibility</Link>
+            <Link href="/" className="hover:text-ink">Home</Link>
+            <Link href="/courses" className="hover:text-ink">Courses</Link>
+            <Link href="/login" className="hover:text-ink">Sign in</Link>
           </div>
         </div>
       </div>
