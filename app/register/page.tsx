@@ -18,8 +18,8 @@ export default async function RegisterPage() {
     <main className="min-h-screen grid grid-cols-1 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
       <aside className="hidden lg:flex sticky top-0 h-screen relative p-10 text-bone flex-col justify-between overflow-hidden">
         <Image
-          src="/images/uitm-register.jpg"
-          alt="UiTM Melaka students and lecturers at a faculty event"
+          src="/images/mentor-peer.jpg"
+          alt="A pair of students learning together, mentor and mentee"
           fill
           priority
           sizes="(min-width: 1024px) 42vw, 100vw"

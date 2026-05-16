@@ -47,8 +47,8 @@ export default async function LoginPage({
     <main className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
       <aside className="hidden lg:flex relative p-12 text-bone flex-col justify-between overflow-hidden">
         <Image
-          src="/images/uitm-login.jpg"
-          alt="UiTM lecturers and students at a community service event"
+          src="/images/mentor-tutoring.jpg"
+          alt="A senior student tutoring a junior over open textbooks"
           fill
           priority
           sizes="(min-width: 1024px) 50vw, 100vw"
