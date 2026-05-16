@@ -1,12 +1,22 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
+import { createCourse } from "@/lib/actions";
 
 export const metadata = {
   title: "Add course | Admin",
 };
 
-export default function AddCoursePage() {
+export default async function AddCoursePage() {
+  await requireRole("Admin");
+  const lecturers = await db.user.findMany({
+    where: { role: "Admin" },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+
   return (
     <>
       <SiteNav />
@@ -27,22 +37,27 @@ export default function AddCoursePage() {
 
       <section>
         <div className="mx-auto max-w-[900px] px-6 py-10">
-          <form className="card p-6 md:p-8 space-y-6">
+          <form action={createCourse} className="card p-6 md:p-8 space-y-6">
             <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-12 md:col-span-4">
-                <label className="block text-sm font-medium mb-1.5">Course code</label>
-                <input type="text" placeholder="MAT CS110" className="input" />
-                <p className="text-xs text-ink-muted mt-1.5">Use the official UiTM code.</p>
+              <div className="col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">URL slug</label>
+                <input type="text" name="id" required placeholder="cs110" className="input" />
+                <p className="text-xs text-ink-muted mt-1.5">URL-friendly id.</p>
               </div>
-              <div className="col-span-12 md:col-span-8">
+              <div className="col-span-6 md:col-span-4">
+                <label className="block text-sm font-medium mb-1.5">Course code</label>
+                <input type="text" name="code" required placeholder="MAT CS110" className="input" />
+              </div>
+              <div className="col-span-12 md:col-span-5">
                 <label className="block text-sm font-medium mb-1.5">Course title</label>
-                <input type="text" placeholder="Discrete Structures for Computing" className="input" />
+                <input type="text" name="title" required placeholder="Discrete Structures for Computing" className="input" />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Abstract</label>
               <textarea
+                name="abstract"
                 rows={4}
                 placeholder="Short description shown on the catalogue card."
                 className="input"
@@ -52,32 +67,40 @@ export default function AddCoursePage() {
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Mentor</label>
-                <select className="input">
-                  <option>Select mentor</option>
-                  <option>Adam Iskandar Razak</option>
-                  <option>Nadia Aiman Zulkifli</option>
-                  <option>Daniel Hakimi Othman</option>
+                <label className="block text-sm font-medium mb-1.5">Lecturer</label>
+                <select name="lecturerId" className="input">
+                  <option value="">Unassigned</option>
+                  {lecturers.map((l) => (
+                    <option key={l.id} value={l.id}>{l.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="col-span-12 md:col-span-6">
                 <label className="block text-sm font-medium mb-1.5">Cohort</label>
-                <input type="text" placeholder="B.Sc. CS, Year 1" className="input" />
+                <input type="text" name="cohort" placeholder="B.Sc. CS, Year 1" className="input" />
               </div>
             </div>
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">Semester</label>
+                <select name="semester" defaultValue={1} className="input">
+                  {[1, 2, 3, 4, 5, 6].map((s) => (
+                    <option key={s} value={s}>Semester {s}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Sessions</label>
-                <input type="number" defaultValue={24} className="input" />
+                <input type="number" name="sessions" defaultValue={24} className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Capacity</label>
-                <input type="number" defaultValue={60} className="input" />
+                <input type="number" name="capacity" defaultValue={60} className="input" />
               </div>
-              <div className="col-span-12 md:col-span-6">
+              <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Pace</label>
-                <input type="text" placeholder="Tue & Thu, 14:00" className="input" />
+                <input type="text" name="pace" placeholder="Tue & Thu, 14:00" className="input" />
               </div>
             </div>
 
@@ -91,7 +114,7 @@ export default function AddCoursePage() {
                   { v: "ink", c: "#1e293b" },
                 ].map((p, i) => (
                   <label key={p.v} className="cursor-pointer">
-                    <input type="radio" name="colour" value={p.v} defaultChecked={i === 0} className="sr-only peer" />
+                    <input type="radio" name="color" value={p.v} defaultChecked={i === 0} className="sr-only peer" />
                     <span
                       className="size-9 rounded-md inline-block border-2 border-rule peer-checked:border-ink"
                       style={{ backgroundColor: p.c }}
@@ -102,14 +125,9 @@ export default function AddCoursePage() {
               </div>
             </div>
 
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" className="size-4 accent-oxblood" defaultChecked />
-              <span>Publish immediately to the catalogue</span>
-            </label>
-
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
               <Link href="/admin/courses" className="btn btn-ghost">Cancel</Link>
-              <Link href="/admin/courses" className="btn btn-primary">Save course</Link>
+              <button type="submit" className="btn btn-primary">Save course</button>
             </div>
           </form>
         </div>

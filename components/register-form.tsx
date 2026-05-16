@@ -19,6 +19,7 @@ import {
   coursesForMentee,
   coursesForMentor,
 } from "@/lib/data";
+import { registerAccount } from "@/lib/actions";
 
 type FaceApi = typeof import("@vladmandic/face-api");
 
@@ -40,6 +41,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
   const [semester, setSemester] = useState<Semester>(1);
   const [pickedCourses, setPickedCourses] = useState<string[]>([]);
   const [faceCaptured, setFaceCaptured] = useState(false);
+  const [faceDescriptor, setFaceDescriptor] = useState<number[] | null>(null);
 
   // Reset course picks when role or semester changes — they may no longer be eligible.
   useEffect(() => {
@@ -47,7 +49,12 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
   }, [role, semester]);
 
   return (
-    <form className="space-y-4">
+    <form action={registerAccount} className="space-y-4">
+      <input type="hidden" name="semester" value={semester} />
+      <input type="hidden" name="faceDescriptor" value={faceDescriptor ? JSON.stringify(faceDescriptor) : ""} />
+      {pickedCourses.map((id) => (
+        <input key={id} type="hidden" name="courseIds" value={id} />
+      ))}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-ink mb-1">
@@ -55,6 +62,8 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
           </label>
           <input
             type="text"
+            name="name"
+            required
             placeholder="Aiman Hakimi"
             className="input py-2 text-sm"
             autoComplete="name"
@@ -66,6 +75,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
           </label>
           <input
             type="email"
+            name="email"
             placeholder="2023607832@student.uitm.edu.my"
             className="input py-2 text-sm"
             autoComplete="email"
@@ -80,6 +90,8 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
           </label>
           <input
             type="text"
+            name="matric"
+            required
             value={matric}
             onChange={(e) => setMatric(e.target.value)}
             placeholder="2023607832"
@@ -93,7 +105,10 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
           </label>
           <input
             type="password"
-            placeholder="At least 10 chars"
+            name="password"
+            required
+            minLength={6}
+            placeholder="At least 6 chars"
             className="input py-2 text-sm"
             autoComplete="new-password"
           />
@@ -156,8 +171,14 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
       <FaceCaptureStep
         matric={matric}
         captured={faceCaptured}
-        onCapture={() => setFaceCaptured(true)}
-        onReset={() => setFaceCaptured(false)}
+        onCapture={(descriptor) => {
+          setFaceCaptured(true);
+          setFaceDescriptor(descriptor);
+        }}
+        onReset={() => {
+          setFaceCaptured(false);
+          setFaceDescriptor(null);
+        }}
       />
 
       {role === "Mentor" ? <MentorEligibilityFields /> : null}
@@ -177,9 +198,9 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
         </span>
       </label>
 
-      <Link href="/login" className="btn btn-primary w-full">
+      <button type="submit" className="btn btn-primary w-full">
         Create account
-      </Link>
+      </button>
 
       <p className="text-[11px] text-ink-muted text-center">
         Admin (lecturer) accounts are issued internally and cannot self-register.
@@ -302,6 +323,7 @@ function MentorEligibilityFields() {
           </label>
           <input
             type="number"
+            name="cgpa"
             step="0.01"
             min="0"
             max="4"
@@ -333,7 +355,7 @@ function FaceCaptureStep({
 }: {
   matric: string;
   captured: boolean;
-  onCapture: () => void;
+  onCapture: (descriptor: number[]) => void;
   onReset: () => void;
 }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -358,8 +380,9 @@ function FaceCaptureStep({
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const map = JSON.parse(raw) as Record<string, number[]>;
-      if (map[matric.trim()]) {
-        onCapture();
+      const desc = map[matric.trim()];
+      if (desc) {
+        onCapture(desc);
       }
     } catch {
       // ignore
@@ -491,11 +514,12 @@ function FaceCaptureStep({
         setStatusMessage("No face detected.");
         return;
       }
+      const descArray = Array.from(detection.descriptor);
       const raw = window.localStorage.getItem(STORAGE_KEY);
       const map = raw ? (JSON.parse(raw) as Record<string, number[]>) : {};
-      map[matric.trim()] = Array.from(detection.descriptor);
+      map[matric.trim()] = descArray;
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(map));
-      onCapture();
+      onCapture(descArray);
       setStatusMessage("Face captured.");
       stopCamera();
     } catch (e) {

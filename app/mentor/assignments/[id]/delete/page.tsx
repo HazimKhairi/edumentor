@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
+import { deleteAssignment } from "@/lib/actions";
 
 export async function generateStaticParams() {
   const rows = await db.assignment.findMany({ select: { id: true } });
@@ -70,16 +71,17 @@ export default async function DeleteAssignmentPage({
               <span>I understand this action cannot be undone.</span>
             </label>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
+            <form action={deleteAssignment} className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
+              <input type="hidden" name="id" value={a.id} />
               <Link href="/mentor/assignments" className="btn btn-ghost">Cancel</Link>
-              <Link
-                href="/mentor/assignments"
+              <button
+                type="submit"
                 className="btn"
                 style={{ backgroundColor: "var(--color-oxblood)", color: "var(--color-bone)" }}
               >
                 Delete assignment
-              </Link>
-            </div>
+              </button>
+            </form>
           </div>
         </div>
       </section>

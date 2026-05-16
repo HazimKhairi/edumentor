@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { getCourseView } from "@/lib/queries";
+import { deleteCourse } from "@/lib/actions";
 
 export async function generateStaticParams() {
   const rows = await db.course.findMany({ select: { id: true } });
@@ -68,16 +69,17 @@ export default async function DeleteCoursePage({
               <span>I understand this will archive {c.enrolled} mentee records and cannot be undone.</span>
             </label>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
+            <form action={deleteCourse} className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
+              <input type="hidden" name="id" value={c.id} />
               <Link href="/admin/courses" className="btn btn-ghost">Cancel</Link>
-              <Link
-                href="/admin/courses"
+              <button
+                type="submit"
                 className="btn"
                 style={{ backgroundColor: "var(--color-oxblood)", color: "var(--color-bone)" }}
               >
                 Delete course
-              </Link>
-            </div>
+              </button>
+            </form>
           </div>
         </div>
       </section>

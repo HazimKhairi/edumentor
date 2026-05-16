@@ -2,12 +2,21 @@ import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { ClassFormatPicker } from "@/components/class-format-picker";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
+import { createClassSession } from "@/lib/actions";
 
 export const metadata = {
   title: "Create class | Mentor",
 };
 
-export default function NewClassPage() {
+export default async function NewClassPage() {
+  await requireRole(["Mentor", "Admin"]);
+  const courses = await db.course.findMany({
+    select: { id: true, code: true, title: true },
+    orderBy: { semester: "asc" },
+  });
+
   return (
     <>
       <SiteNav />
@@ -29,20 +38,21 @@ export default function NewClassPage() {
 
       <section>
         <div className="mx-auto max-w-[900px] px-6 py-10">
-          <form className="card p-6 md:p-8 space-y-6">
+          <form action={createClassSession} className="card p-6 md:p-8 space-y-6">
             <div>
               <label className="block text-sm font-medium mb-1.5">Course</label>
-              <select className="input">
-                <option>MAT CS110, Discrete Structures</option>
-                <option>CSC 234, Algorithms in Practice</option>
-                <option>MAT 210, Linear Algebra for ML</option>
-                <option>STA 116, Statistical Reasoning</option>
+              <select name="courseId" required className="input">
+                {courses.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.code}, {c.title}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Topic</label>
-              <input type="text" placeholder="Strong induction on trees" className="input" />
+              <input type="text" name="topic" required placeholder="Strong induction on trees" className="input" />
               <p className="text-xs text-ink-muted mt-1.5">
                 One sentence describing the focus of this session.
               </p>
@@ -51,55 +61,24 @@ export default function NewClassPage() {
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
                 <label className="block text-sm font-medium mb-1.5">Date</label>
-                <input type="date" className="input" />
+                <input type="date" name="date" required className="input" />
               </div>
               <div className="col-span-12 md:col-span-6">
                 <label className="block text-sm font-medium mb-1.5">Start time</label>
-                <input type="time" defaultValue="14:00" className="input" />
+                <input type="time" name="time" required defaultValue="14:00" className="input" />
               </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Duration</label>
-                <select className="input" defaultValue="120">
-                  <option value="60">1 hour</option>
-                  <option value="90">1 hour 30 minutes</option>
-                  <option value="120">2 hours</option>
-                  <option value="180">3 hours</option>
-                </select>
-              </div>
-              <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Room</label>
-                <input type="text" placeholder="BD-3, Block A" className="input" />
-              </div>
+            <div>
+              <label className="block text-sm font-medium mb-1.5">Room</label>
+              <input type="text" name="room" required placeholder="BD-3, Block A" className="input" />
             </div>
 
             <ClassFormatPicker />
 
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Notes for mentees</label>
-              <textarea
-                rows={3}
-                placeholder="What to bring, what to read beforehand, etc."
-                className="input"
-                style={{ fontFamily: "var(--font-sans)", lineHeight: 1.6 }}
-              />
-            </div>
-
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" className="size-4 accent-oxblood" defaultChecked />
-              <span>Enable face-recognition attendance for this session</span>
-            </label>
-
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" className="size-4 accent-oxblood" defaultChecked />
-              <span>Notify enrolled mentees by email</span>
-            </label>
-
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
               <Link href="/mentor/classes" className="btn btn-ghost">Cancel</Link>
-              <Link href="/mentor/classes" className="btn btn-primary">Schedule class</Link>
+              <button type="submit" className="btn btn-primary">Schedule class</button>
             </div>
           </form>
         </div>

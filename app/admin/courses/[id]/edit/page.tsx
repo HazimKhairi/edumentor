@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { getCourseView } from "@/lib/queries";
+import { updateCourse } from "@/lib/actions";
 
 export async function generateStaticParams() {
   const rows = await db.course.findMany({ select: { id: true } });
@@ -20,6 +21,12 @@ export default async function EditCoursePage({
   const { id } = await params;
   const c = await getCourseView(id);
   if (!c) notFound();
+
+  const lecturers = await db.user.findMany({
+    where: { role: "Admin" },
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
 
   return (
     <>
@@ -39,21 +46,23 @@ export default async function EditCoursePage({
 
       <section>
         <div className="mx-auto max-w-[900px] px-6 py-10">
-          <form className="card p-6 md:p-8 space-y-6">
+          <form action={updateCourse} className="card p-6 md:p-8 space-y-6">
+            <input type="hidden" name="id" value={c.id} />
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-4">
                 <label className="block text-sm font-medium mb-1.5">Course code</label>
-                <input type="text" defaultValue={c.code} className="input" />
+                <input type="text" name="code" defaultValue={c.code} className="input" />
               </div>
               <div className="col-span-12 md:col-span-8">
                 <label className="block text-sm font-medium mb-1.5">Course title</label>
-                <input type="text" defaultValue={c.title} className="input" />
+                <input type="text" name="title" defaultValue={c.title} className="input" />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-1.5">Abstract</label>
               <textarea
+                name="abstract"
                 rows={4}
                 defaultValue={c.abstract}
                 className="input"
@@ -63,38 +72,61 @@ export default async function EditCoursePage({
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
-                <label className="block text-sm font-medium mb-1.5">Mentor</label>
-                <select className="input" defaultValue={c.mentor}>
-                  <option>Adam Iskandar Razak</option>
-                  <option>Nadia Aiman Zulkifli</option>
-                  <option>Daniel Hakimi Othman</option>
+                <label className="block text-sm font-medium mb-1.5">Lecturer</label>
+                <select name="lecturerId" defaultValue={c.lecturerId ?? ""} className="input">
+                  <option value="">Unassigned</option>
+                  {lecturers.map((l) => (
+                    <option key={l.id} value={l.id}>{l.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="col-span-12 md:col-span-6">
                 <label className="block text-sm font-medium mb-1.5">Cohort</label>
-                <input type="text" defaultValue={c.cohort} className="input" />
+                <input type="text" name="cohort" defaultValue={c.cohort} className="input" />
               </div>
             </div>
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">Semester</label>
+                <select name="semester" defaultValue={c.semester} className="input">
+                  {[1, 2, 3, 4, 5, 6].map((s) => (
+                    <option key={s} value={s}>Semester {s}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Sessions</label>
-                <input type="number" defaultValue={c.sessions} className="input" />
+                <input type="number" name="sessions" defaultValue={c.sessions} className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Capacity</label>
-                <input type="number" defaultValue={c.capacity} className="input" />
+                <input type="number" name="capacity" defaultValue={c.capacity} className="input" />
               </div>
-              <div className="col-span-12 md:col-span-6">
+              <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Pace</label>
-                <input type="text" defaultValue={c.pace} className="input" />
+                <input type="text" name="pace" defaultValue={c.pace} className="input" />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Course progress</label>
-              <input type="number" defaultValue={c.progress} className="input max-w-[160px]" />
-              <p className="text-xs text-ink-muted mt-1.5">% of syllabus completed this term.</p>
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">Progress %</label>
+                <input type="number" name="progress" defaultValue={c.progress} className="input" min="0" max="100" />
+              </div>
+              <div className="col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">Enrolled</label>
+                <input type="number" name="enrolled" defaultValue={c.enrolled} className="input" min="0" />
+              </div>
+              <div className="col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">Colour</label>
+                <select name="color" defaultValue={c.color} className="input">
+                  <option value="oxblood">oxblood</option>
+                  <option value="fern">fern</option>
+                  <option value="saffron">saffron</option>
+                  <option value="ink">ink</option>
+                </select>
+              </div>
             </div>
 
             <div className="flex items-center justify-between gap-3 pt-4 border-t border-rule">
@@ -103,7 +135,7 @@ export default async function EditCoursePage({
               </Link>
               <div className="flex items-center gap-3">
                 <Link href="/admin/courses" className="btn btn-ghost">Cancel</Link>
-                <Link href="/admin/courses" className="btn btn-primary">Save changes</Link>
+                <button type="submit" className="btn btn-primary">Save changes</button>
               </div>
             </div>
           </form>

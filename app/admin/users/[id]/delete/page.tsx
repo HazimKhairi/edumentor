@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
+import { deleteUser } from "@/lib/actions";
 
 export async function generateStaticParams() {
   const rows = await db.user.findMany({ select: { id: true } });
@@ -68,16 +69,17 @@ export default async function DeleteUserPage({
               <span>I understand this action cannot be undone.</span>
             </label>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
+            <form action={deleteUser} className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
+              <input type="hidden" name="userId" value={u.id} />
               <Link href="/admin/users" className="btn btn-ghost">Cancel</Link>
-              <Link
-                href="/admin/users"
+              <button
+                type="submit"
                 className="btn"
                 style={{ backgroundColor: "var(--color-oxblood)", color: "var(--color-bone)" }}
               >
                 Delete user
-              </Link>
-            </div>
+              </button>
+            </form>
           </div>
         </div>
       </section>

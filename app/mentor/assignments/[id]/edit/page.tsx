@@ -4,7 +4,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
-import { getAssignmentsView } from "@/lib/queries";
+import { updateAssignment } from "@/lib/actions";
 
 export async function generateStaticParams() {
   const rows = await db.assignment.findMany({ select: { id: true } });
@@ -18,9 +18,16 @@ export default async function EditAssignmentPage({
 }) {
   await requireRole(["Mentor", "Admin"]);
   const { id } = await params;
-  const all = await getAssignmentsView();
-  const a = all.find((x) => x.id === id);
+  const a = await db.assignment.findUnique({
+    where: { id },
+    include: { course: { select: { code: true } } },
+  });
   if (!a) notFound();
+
+  const courses = await db.course.findMany({
+    select: { id: true, code: true, title: true },
+    orderBy: { semester: "asc" },
+  });
 
   return (
     <>
@@ -41,31 +48,31 @@ export default async function EditAssignmentPage({
 
       <section>
         <div className="mx-auto max-w-[900px] px-6 py-10">
-          <form className="card p-6 md:p-8 space-y-6">
+          <form action={updateAssignment} className="card p-6 md:p-8 space-y-6">
+            <input type="hidden" name="id" value={a.id} />
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Code</label>
-                <input type="text" defaultValue={a.code} className="input" />
+                <input type="text" name="code" defaultValue={a.code} className="input" />
               </div>
               <div className="col-span-12 md:col-span-9">
                 <label className="block text-sm font-medium mb-1.5">Title</label>
-                <input type="text" defaultValue={a.title} className="input" />
+                <input type="text" name="title" defaultValue={a.title} className="input" />
               </div>
             </div>
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
                 <label className="block text-sm font-medium mb-1.5">Course</label>
-                <select className="input" defaultValue={a.course}>
-                  <option>MAT CS110</option>
-                  <option>CSC 234</option>
-                  <option>MAT 210</option>
-                  <option>STA 116</option>
+                <select name="courseId" className="input" defaultValue={a.courseId}>
+                  {courses.map((c) => (
+                    <option key={c.id} value={c.id}>{c.code}, {c.title}</option>
+                  ))}
                 </select>
               </div>
               <div className="col-span-12 md:col-span-6">
                 <label className="block text-sm font-medium mb-1.5">Type</label>
-                <select className="input" defaultValue={a.type}>
+                <select name="type" className="input" defaultValue={a.type}>
                   <option>Problem Set</option>
                   <option>Lab</option>
                   <option>Essay</option>
@@ -78,6 +85,7 @@ export default async function EditAssignmentPage({
             <div>
               <label className="block text-sm font-medium mb-1.5">Brief</label>
               <textarea
+                name="note"
                 rows={5}
                 defaultValue={a.note}
                 className="input"
@@ -88,23 +96,34 @@ export default async function EditAssignmentPage({
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Issued</label>
-                <input type="text" defaultValue={a.issued} className="input" />
+                <input type="date" name="issued" defaultValue={a.issued.toISOString().slice(0, 10)} className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Due</label>
-                <input type="text" defaultValue={a.due} className="input" />
+                <input type="date" name="due" defaultValue={a.due.toISOString().slice(0, 10)} className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Weight</label>
-                <input type="number" defaultValue={a.weight} className="input" />
+                <input type="number" name="weight" defaultValue={a.weight} className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Status</label>
-                <select className="input" defaultValue={a.status}>
-                  <option>Open</option>
-                  <option>Closing soon</option>
-                  <option>Closed</option>
+                <select name="status" className="input" defaultValue={a.status}>
+                  <option value="Open">Open</option>
+                  <option value="ClosingSoon">Closing soon</option>
+                  <option value="Closed">Closed</option>
                 </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">Submissions</label>
+                <input type="number" name="submissions" defaultValue={a.submissions} className="input" min="0" />
+              </div>
+              <div className="col-span-6 md:col-span-3">
+                <label className="block text-sm font-medium mb-1.5">Cohort size</label>
+                <input type="number" name="ofCount" defaultValue={a.ofCount} className="input" min="0" />
               </div>
             </div>
 
@@ -114,7 +133,7 @@ export default async function EditAssignmentPage({
               </Link>
               <div className="flex items-center gap-3">
                 <Link href="/mentor/assignments" className="btn btn-ghost">Cancel</Link>
-                <Link href="/mentor/assignments" className="btn btn-primary">Save changes</Link>
+                <button type="submit" className="btn btn-primary">Save changes</button>
               </div>
             </div>
           </form>

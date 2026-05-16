@@ -1,20 +1,21 @@
 import Link from "next/link";
-import { Plus, X } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
+import { db } from "@/lib/db";
+import { requireRole } from "@/lib/session";
+import { createAssignment } from "@/lib/actions";
 
 export const metadata = {
   title: "Add assignment | Mentor",
 };
 
-const STARTER_RUBRIC = [
-  { key: "Correctness", weight: 40 },
-  { key: "Clarity of writing", weight: 25 },
-  { key: "Completeness", weight: 20 },
-  { key: "Formatting and notation", weight: 15 },
-];
+export default async function AddAssignmentPage() {
+  await requireRole(["Mentor", "Admin"]);
+  const courses = await db.course.findMany({
+    select: { id: true, code: true, title: true },
+    orderBy: { semester: "asc" },
+  });
 
-export default function AddAssignmentPage() {
   return (
     <>
       <SiteNav />
@@ -36,31 +37,30 @@ export default function AddAssignmentPage() {
 
       <section>
         <div className="mx-auto max-w-[900px] px-6 py-10">
-          <form className="card p-6 md:p-8 space-y-6">
+          <form action={createAssignment} className="card p-6 md:p-8 space-y-6">
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Code</label>
-                <input type="text" placeholder="PS-04" className="input" />
+                <input type="text" name="code" required placeholder="PS-04" className="input" />
               </div>
               <div className="col-span-12 md:col-span-9">
                 <label className="block text-sm font-medium mb-1.5">Title</label>
-                <input type="text" placeholder="Relations, equivalence classes, partitions" className="input" />
+                <input type="text" name="title" required placeholder="Relations, equivalence classes, partitions" className="input" />
               </div>
             </div>
 
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-12 md:col-span-6">
                 <label className="block text-sm font-medium mb-1.5">Course</label>
-                <select className="input">
-                  <option>MAT CS110, Discrete Structures</option>
-                  <option>CSC 234, Algorithms in Practice</option>
-                  <option>MAT 210, Linear Algebra for ML</option>
-                  <option>STA 116, Statistical Reasoning</option>
+                <select name="courseId" required className="input">
+                  {courses.map((c) => (
+                    <option key={c.id} value={c.id}>{c.code}, {c.title}</option>
+                  ))}
                 </select>
               </div>
               <div className="col-span-12 md:col-span-6">
                 <label className="block text-sm font-medium mb-1.5">Type</label>
-                <select className="input">
+                <select name="type" className="input">
                   <option>Problem Set</option>
                   <option>Lab</option>
                   <option>Essay</option>
@@ -73,6 +73,7 @@ export default function AddAssignmentPage() {
             <div>
               <label className="block text-sm font-medium mb-1.5">Brief</label>
               <textarea
+                name="note"
                 rows={5}
                 placeholder="Describe what mentees need to do, what to submit, and what success looks like."
                 className="input"
@@ -83,67 +84,25 @@ export default function AddAssignmentPage() {
             <div className="grid grid-cols-12 gap-4">
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Issued</label>
-                <input type="date" className="input" />
+                <input type="date" name="issued" required className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Due</label>
-                <input type="date" className="input" />
+                <input type="date" name="due" required className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
                 <label className="block text-sm font-medium mb-1.5">Weight</label>
-                <input type="number" defaultValue={10} className="input" />
+                <input type="number" name="weight" defaultValue={10} className="input" />
               </div>
               <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Late penalty</label>
-                <input type="text" defaultValue="-2 points/day" className="input" />
+                <label className="block text-sm font-medium mb-1.5">Cohort size</label>
+                <input type="number" name="ofCount" defaultValue={48} className="input" />
               </div>
             </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium">Grading rubric</label>
-                <span className="text-xs text-ink-muted">Total must equal 100%</span>
-              </div>
-              <ul className="space-y-2 mb-3">
-                {STARTER_RUBRIC.map((r, i) => (
-                  <li key={i} className="card p-3 flex items-center gap-3">
-                    <span className="text-xs text-ink-muted tabular w-6">{i + 1}</span>
-                    <input type="text" defaultValue={r.key} className="input py-1.5 text-sm border-transparent hover:border-rule focus:border-ink flex-1" />
-                    <input type="number" defaultValue={r.weight} className="input py-1.5 text-sm w-20" />
-                    <span className="text-xs text-ink-muted">%</span>
-                    <button type="button" className="size-8 rounded-sm hover:bg-paper-dark text-ink-muted flex items-center justify-center" aria-label="Remove">
-                      <X size={14} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              <button type="button" className="btn btn-ghost btn-sm">
-                <Plus size={14} /> Add criterion
-              </button>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1.5">Submission format</label>
-              <div className="flex flex-wrap gap-2">
-                {["PDF", "LaTeX source", "Code repo", "Slides", "Video"].map((f, i) => (
-                  <label key={f} className="cursor-pointer">
-                    <input type="checkbox" defaultChecked={i === 0} className="sr-only peer" />
-                    <span className="px-3 py-1.5 rounded-full text-sm border border-rule peer-checked:bg-ink peer-checked:text-bone peer-checked:border-ink">
-                      {f}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
-              <input type="checkbox" className="size-4 accent-oxblood" defaultChecked />
-              <span>Publish immediately and notify mentees</span>
-            </label>
 
             <div className="flex items-center justify-end gap-3 pt-4 border-t border-rule">
               <Link href="/mentor/assignments" className="btn btn-ghost">Cancel</Link>
-              <Link href="/mentor/assignments" className="btn btn-primary">Save assignment</Link>
+              <button type="submit" className="btn btn-primary">Save assignment</button>
             </div>
           </form>
         </div>

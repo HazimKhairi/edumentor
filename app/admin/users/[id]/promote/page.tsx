@@ -17,6 +17,7 @@ import {
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { getCoursesView } from "@/lib/queries";
+import { promoteToMentor } from "@/lib/actions";
 
 export async function generateStaticParams() {
   const rows = await db.user.findMany({
@@ -67,7 +68,8 @@ export default async function PromoteMenteePage({
       </section>
 
       <section>
-        <div className="mx-auto max-w-[800px] px-6 pb-12 space-y-6">
+        <form action={promoteToMentor} className="mx-auto max-w-[800px] px-6 pb-12 space-y-6">
+          <input type="hidden" name="userId" value={u.id} />
           <div className="card p-5">
             <div className="flex items-start gap-4">
               <div className="size-12 rounded-full bg-paper-dark text-ink-muted flex items-center justify-center text-sm font-semibold shrink-0">
@@ -142,6 +144,8 @@ export default async function PromoteMenteePage({
                     <input
                       type="checkbox"
                       id={`subject-${c.id}`}
+                      name="courseIds"
+                      value={c.id}
                       className="size-4 mt-0.5 accent-oxblood"
                       defaultChecked={i < MENTOR_SUBJECT_CAP}
                     />
@@ -172,25 +176,25 @@ export default async function PromoteMenteePage({
             <Link href={`/admin/users/${u.id}`} className="btn btn-ghost">
               Cancel
             </Link>
-            <Link
-              href="/admin/users"
-              aria-disabled={!canPromote}
+            <button
+              type="submit"
+              disabled={!canPromote}
               className={
                 canPromote
                   ? "btn btn-primary"
-                  : "btn btn-primary opacity-50 pointer-events-none"
+                  : "btn btn-primary opacity-50 cursor-not-allowed"
               }
             >
               <ArrowUpCircle size={16} />
               Confirm promotion
-            </Link>
+            </button>
           </div>
 
           <p className="text-xs text-ink-muted">
-            Demo: this flow does not yet write to the database. Phase 4 will wire up
-            the actual role mutation + audit log.
+            The user&apos;s role flips to Mentor and their enrollments are replaced
+            with the picked subjects. No audit log yet, that can be added later.
           </p>
-        </div>
+        </form>
       </section>
 
       <SiteFooter />
