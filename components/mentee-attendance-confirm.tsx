@@ -353,7 +353,19 @@ export function MenteeAttendanceConfirm({
                 disabled={modelStatus !== "ready" || cameraStatus === "requesting"}
                 className="btn btn-primary"
               >
-                <Camera size={16} /> Start camera
+                {modelStatus === "loading" ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Loading models
+                  </>
+                ) : cameraStatus === "requesting" ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Starting camera
+                  </>
+                ) : (
+                  <>
+                    <Camera size={16} /> Start camera
+                  </>
+                )}
               </button>
             ) : (
               <button type="button" onClick={stopCamera} className="btn btn-ghost">

@@ -437,6 +437,13 @@ function FaceCaptureStep({
     const stream = video?.srcObject as MediaStream | null;
     stream?.getTracks().forEach((t) => t.stop());
     if (video) video.srcObject = null;
+    // Clear the overlay canvas, otherwise the last-frame bounding box stays
+    // painted over the black "Camera off" panel.
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
     setCameraStatus("idle");
     setFaceCount(0);
   }, []);

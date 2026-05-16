@@ -155,6 +155,13 @@ export function FaceAttendance({
     const stream = video?.srcObject as MediaStream | null;
     stream?.getTracks().forEach((t) => t.stop());
     if (video) video.srcObject = null;
+    // Detection loop paints labels + bounding boxes onto the overlay canvas
+    // every tick. Wipe it on stop so the last-frame artwork does not linger.
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
     setCameraStatus("idle");
     setDetectedFaceCount(0);
   }, []);
@@ -535,7 +542,19 @@ export function FaceAttendance({
                 }
                 className="btn btn-primary"
               >
-                <Camera size={16} /> Start camera
+                {modelStatus === "loading" ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Loading models
+                  </>
+                ) : cameraStatus === "requesting" ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin" /> Starting camera
+                  </>
+                ) : (
+                  <>
+                    <Camera size={16} /> Start camera
+                  </>
+                )}
               </button>
             ) : (
               <button

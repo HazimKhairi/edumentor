@@ -76,6 +76,13 @@ export function FaceSelfEnrol({
     const stream = video?.srcObject as MediaStream | null;
     stream?.getTracks().forEach((t) => t.stop());
     if (video) video.srcObject = null;
+    // The detection loop paints bounding boxes on the canvas every tick.
+    // Wipe it on stop so the last-frame rectangle does not linger.
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
     setCameraStatus("idle");
     setFaceCount(0);
   }, []);
@@ -251,6 +258,10 @@ export function FaceSelfEnrol({
               {modelStatus === "loading" ? (
                 <>
                   <Loader2 size={14} className="animate-spin" /> Loading models
+                </>
+              ) : cameraStatus === "requesting" ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" /> Starting camera
                 </>
               ) : (
                 <>
