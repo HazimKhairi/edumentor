@@ -1,0 +1,255 @@
+// Prisma 7 schema. Datasource URL lives in prisma.config.ts, not here.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+// ----------------------------------------------------------------------------
+// Enums
+// ----------------------------------------------------------------------------
+
+enum Role {
+  Admin
+  Mentor
+  Mentee
+}
+
+enum UserStatus {
+  Active
+  Probation
+  Suspended
+}
+
+enum ClassFormat {
+  InPerson
+  Online
+  Hybrid
+}
+
+enum ClassState {
+  Live
+  Scheduled
+  Closed
+}
+
+enum AssignmentStatus {
+  Open
+  ClosingSoon
+  Closed
+}
+
+enum EnrollmentRole {
+  Mentor
+  Mentee
+}
+
+// ----------------------------------------------------------------------------
+// Models
+// ----------------------------------------------------------------------------
+
+model User {
+  id              String     @id @default(cuid())
+  name            String
+  identity        String     @unique
+  email           String?    @unique
+  passwordHash    String?
+  role            Role
+  status          UserStatus @default(Active)
+  joined          DateTime   @default(now())
+  semester        Int?
+  cgpa            Float?
+  faceDescriptor  Bytes?     @db.LongBlob
+
+  passedCourses    PassedSubject[]
+  enrollments      Enrollment[]
+  taughtCourses    Course[]              @relation("CourseLecturer")
+  attendances      MenteeAttendance[]
+  startedRooms     DiscussionRoom[]
+  messages         DiscussionMessage[]
+  feedbackGiven    FeedbackEntry[]       @relation("FeedbackAuthor")
+  feedbackReceived FeedbackEntry[]       @relation("FeedbackTarget")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Course {
+  id        String  @id
+  code      String  @unique
+  title     String
+  cohort    String
+  semester  Int
+  capacity  Int
+  enrolled  Int     @default(0)
+  pace      String
+  color     String
+  abstract  String  @db.Text
+  progress  Int     @default(0)
+  sessions  Int     @default(0)
+
+  lecturerId String?
+  lecturer   User?   @relation("CourseLecturer", fields: [lecturerId], references: [id])
+
+  enrollments Enrollment[]
+  passedBy    PassedSubject[]
+  classes     ClassSession[]
+  attendance  AttendanceSession[]
+  assignments Assignment[]
+  rooms       DiscussionRoom[]
+  feedback    FeedbackEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Enrollment {
+  userId   String
+  courseId String
+  asRole   EnrollmentRole
+  joinedAt DateTime       @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([userId, courseId, asRole])
+  @@index([courseId, asRole])
+}
+
+model PassedSubject {
+  userId   String
+  courseId String
+  passedAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([userId, courseId])
+}
+
+model ClassSession {
+  id          String      @id @default(cuid())
+  courseId    String
+  topic       String
+  date        DateTime
+  time        String
+  room        String
+  state       ClassState  @default(Scheduled)
+  format      ClassFormat
+  meetingLink String?
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model AttendanceSession {
+  id       String     @id @default(cuid())
+  courseId String
+  date     DateTime
+  time     String
+  room     String
+  expected Int
+  present  Int        @default(0)
+  state    ClassState @default(Scheduled)
+
+  course  Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  records MenteeAttendance[]
+
+  createdAt DateTime @default(now())
+}
+
+model MenteeAttendance {
+  sessionId       String
+  menteeId        String
+  menteeConfirmed Boolean   @default(false)
+  mentorVerified  Boolean   @default(false)
+  recognisedAt    DateTime?
+  verifiedAt      DateTime?
+
+  session AttendanceSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  mentee  User              @relation(fields: [menteeId], references: [id], onDelete: Cascade)
+
+  @@id([sessionId, menteeId])
+  @@index([menteeId])
+}
+
+model Assignment {
+  id          String           @id @default(cuid())
+  code        String
+  title       String
+  courseId    String
+  issued      DateTime
+  due         DateTime
+  weight      Int
+  status      AssignmentStatus @default(Open)
+  submissions Int              @default(0)
+  ofCount     Int              @default(0) @map("of_count")
+  type        String
+  note        String           @db.Text
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model DiscussionRoom {
+  id        String   @id @default(cuid())
+  title     String
+  courseId  String
+  starterId String
+  members   Int      @default(0)
+  posts     Int      @default(0)
+  pinned    Boolean  @default(false)
+  excerpt   String   @db.Text
+  lastAt    DateTime @default(now())
+
+  course   Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  starter  User                @relation(fields: [starterId], references: [id], onDelete: Cascade)
+  messages DiscussionMessage[]
+
+  createdAt DateTime @default(now())
+}
+
+model DiscussionMessage {
+  id       String  @id @default(cuid())
+  roomId   String?
+  authorId String
+  body     String  @db.Text
+  time     String
+
+  room   DiscussionRoom? @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  author User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model FeedbackEntry {
+  id       String  @id @default(cuid())
+  courseId String
+  mentorId String
+  authorId String?
+  score    Float
+  n        Int     @default(1)
+  comment  String  @db.Text
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  mentor User   @relation("FeedbackTarget", fields: [mentorId], references: [id], onDelete: Cascade)
+  author User?  @relation("FeedbackAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+}
+
+model EvaluationRubric {
+  id     String  @id @default(cuid())
+  title  String
+  target String
+  items  Json
+  scale  Int     @default(5)
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
