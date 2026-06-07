@@ -3,6 +3,9 @@ import Link from "next/link";
 import { AuthError } from "next-auth";
 import { signIn } from "@/auth";
 import { RequiredMark } from "@/components/required-mark";
+import { PasswordField } from "@/components/password-field";
+import { dashboardFor } from "@/lib/data";
+import { db } from "@/lib/db";
 
 export const metadata = {
   title: "Sign in | EduMentor",
@@ -20,11 +23,22 @@ export default async function LoginPage({
     "use server";
     const identity = String(formData.get("identity") ?? "").trim();
     const password = String(formData.get("password") ?? "");
+    // Route to the right console based on role, unless the caller passed an
+    // explicit callbackUrl (e.g. they hit /login after being kicked from a
+    // protected page and want to return there).
+    let redirectTo = callbackUrl;
+    if (!redirectTo) {
+      const u = await db.user.findUnique({
+        where: { identity },
+        select: { role: true },
+      });
+      redirectTo = u ? dashboardFor(u.role) : "/dashboard";
+    }
     try {
       await signIn("credentials", {
         identity,
         password,
-        redirectTo: callbackUrl || "/dashboard",
+        redirectTo,
       });
     } catch (e) {
       // signIn throws to perform the redirect on success — let those bubble.
@@ -111,7 +125,8 @@ export default async function LoginPage({
 
           <h1 className="text-2xl font-bold mb-1">Welcome back</h1>
           <p className="text-ink-muted text-sm mb-6">
-            Matric for student. FCMS staff number for lecturer.
+            Matric for student. FCMS staff number for lecturer. Type{" "}
+            <span className="font-semibold tabular">admin</span> for the registrar account.
           </p>
 
           {errorCopy ? (
@@ -136,33 +151,13 @@ export default async function LoginPage({
                 name="identity"
                 type="text"
                 required
-                placeholder="e.g. 2023607832"
-                defaultValue="2023607832"
+                placeholder="Matric, staff number, or admin"
                 className="input"
                 autoComplete="username"
               />
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label htmlFor="password" className="text-sm font-medium text-ink">
-                  Password<RequiredMark />
-                </label>
-                <span className="text-xs text-ink-muted">
-                  Demo seed: <span className="font-semibold tabular">edu1234</span>
-                </span>
-              </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                placeholder="Enter your password"
-                defaultValue="edu1234"
-                className="input"
-                autoComplete="current-password"
-              />
-            </div>
+            <PasswordField />
 
             <button type="submit" className="btn btn-primary btn-lg w-full">
               Sign in

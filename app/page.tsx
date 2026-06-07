@@ -6,7 +6,6 @@ import { CourseCard } from "@/components/course-card";
 import { CategoryFilterableGrid } from "@/components/category-filterable-grid";
 import { SectionHeading } from "@/components/section-heading";
 import { StarRating } from "@/components/star-rating";
-import { IllustrationMentor } from "@/components/illustrations";
 import { ROLES } from "@/lib/data";
 import { getCoursesView, getFeedbackView, getStats } from "@/lib/queries";
 
@@ -184,53 +183,6 @@ export default async function HomePage() {
                 </Link>
               </article>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* MENTOR SPOTLIGHT */}
-      <section>
-        <div className="mx-auto max-w-[1400px] px-6 py-16 grid grid-cols-12 gap-8 items-center">
-          <div className="col-span-12 md:col-span-5">
-            <div className="card p-0 overflow-hidden">
-              <div className="relative aspect-square">
-                <IllustrationMentor className="absolute inset-0 w-full h-full" />
-                <div
-                  className="absolute inset-x-0 bottom-0 p-6"
-                  style={{ background: "linear-gradient(to top, rgba(28,26,23,0.85), rgba(28,26,23,0))", color: "var(--color-bone)" }}
-                >
-                  <div className="text-sm font-semibold mb-1" style={{ color: "var(--color-saffron)" }}>
-                    Mentor of the term
-                  </div>
-                  <div className="text-2xl font-bold">Adam Iskandar Razak</div>
-                  <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    Final-year B.Sc. CS, MAT CS110 peer mentor
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="col-span-12 md:col-span-7">
-            <SectionHeading
-              eyebrow="Mentor spotlight"
-              title="Patient. Rigorous. Always on time for office hours."
-            />
-            <blockquote className="text-2xl md:text-3xl font-bold text-ink-soft leading-snug">
-              <span className="display-italic text-oxblood">“</span>
-              The aim of a good classroom is to make criticism feel like
-              kindness, and kindness feel like rigour.
-              <span className="display-italic text-oxblood">”</span>
-            </blockquote>
-            <div className="mt-5 flex items-center gap-4">
-              <StarRating value={4.7} count={451} size="md" />
-              <span className="text-sm text-ink-muted">,</span>
-              <span className="text-sm text-ink-muted">24 sessions this term</span>
-            </div>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/courses" className="btn btn-primary">Open her courses</Link>
-              <Link href="/discussion" className="btn btn-ghost">Read her room</Link>
-            </div>
           </div>
         </div>
       </section>

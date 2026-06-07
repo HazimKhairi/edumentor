@@ -10,6 +10,7 @@ import type { Course, User } from "@prisma/client";
 
 export type CourseView = Course & {
   mentor: string;
+  mentorId: string | null;
   lecturer: string;
 };
 
@@ -19,7 +20,7 @@ export async function getCoursesView(): Promise<CourseView[]> {
       lecturer: { select: { name: true } },
       enrollments: {
         where: { asRole: "Mentor" },
-        include: { user: { select: { name: true } } },
+        include: { user: { select: { id: true, name: true } } },
         take: 1,
       },
     },
@@ -28,6 +29,7 @@ export async function getCoursesView(): Promise<CourseView[]> {
   return courses.map((c) => ({
     ...c,
     mentor: c.enrollments[0]?.user.name ?? "—",
+    mentorId: c.enrollments[0]?.user.id ?? null,
     lecturer: c.lecturer?.name ?? "—",
   }));
 }
@@ -39,7 +41,7 @@ export async function getCourseView(id: string): Promise<CourseView | null> {
       lecturer: { select: { name: true } },
       enrollments: {
         where: { asRole: "Mentor" },
-        include: { user: { select: { name: true } } },
+        include: { user: { select: { id: true, name: true } } },
         take: 1,
       },
     },
@@ -48,8 +50,24 @@ export async function getCourseView(id: string): Promise<CourseView | null> {
   return {
     ...c,
     mentor: c.enrollments[0]?.user.name ?? "—",
+    mentorId: c.enrollments[0]?.user.id ?? null,
     lecturer: c.lecturer?.name ?? "—",
   };
+}
+
+// Courses the user is enrolled in, but only in the given role. Used for
+// scoping feedback / dashboard / assignments to the role-appropriate slice.
+export async function coursesForUserAsRole(
+  userId: string,
+  asRole: "Mentor" | "Mentee",
+): Promise<CourseView[]> {
+  const all = await getCoursesView();
+  const enrollments = await db.enrollment.findMany({
+    where: { userId, asRole },
+    select: { courseId: true },
+  });
+  const ids = new Set(enrollments.map((e) => e.courseId));
+  return all.filter((c) => ids.has(c.id));
 }
 
 export async function coursesForUser(user: User): Promise<CourseView[]> {

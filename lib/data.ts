@@ -63,14 +63,51 @@ export const ROLES: {
   },
 ];
 
-export const NAV = [
-  { href: "/dashboard", label: "Desk", numeral: "01" },
-  { href: "/courses", label: "Courses", numeral: "02" },
-  { href: "/discussion", label: "Discussion", numeral: "03" },
-  { href: "/assignments", label: "Assignments", numeral: "04" },
-  { href: "/attendance", label: "Attendance", numeral: "05" },
-  { href: "/feedback", label: "Feedback", numeral: "06" },
+// Role-aware navigation. Admin gets the admin console links only; mentor + mentee
+// share the same student-facing nav but each page filters its own data by role.
+// Courses catalogue is hidden from both mentor and mentee — they only see what
+// they are enrolled in or teaching.
+const NAV_STUDENT = [
+  { href: "/dashboard", label: "Desk" },
+  { href: "/discussion", label: "Discussion" },
+  { href: "/assignments", label: "Assignments" },
+  { href: "/attendance", label: "Attendance" },
+  { href: "/feedback", label: "Feedback" },
 ];
+
+const NAV_MENTOR = [
+  { href: "/mentor", label: "Mentor console" },
+  { href: "/discussion", label: "Discussion" },
+  { href: "/mentor/assignments", label: "Assignments" },
+  { href: "/mentor/classes", label: "Classes" },
+  { href: "/attendance", label: "Attendance" },
+  { href: "/feedback", label: "Feedback" },
+];
+
+const NAV_ADMIN = [
+  { href: "/admin", label: "Dashboard" },
+  { href: "/admin/users", label: "Users" },
+  { href: "/admin/courses", label: "Courses" },
+  { href: "/admin/evaluations", label: "Evaluations" },
+  { href: "/reports", label: "Reports" },
+];
+
+// Public visitor (no session) — minimal landing nav.
+const NAV_PUBLIC: { href: string; label: string }[] = [];
+
+export function navFor(role?: Role | null) {
+  if (role === "Admin") return NAV_ADMIN;
+  if (role === "Mentor") return NAV_MENTOR;
+  if (role === "Mentee") return NAV_STUDENT;
+  return NAV_PUBLIC;
+}
+
+// Default redirect after sign-in, per role.
+export function dashboardFor(role: Role): string {
+  if (role === "Admin") return "/admin";
+  if (role === "Mentor") return "/mentor";
+  return "/dashboard";
+}
 
 // Pure filters: callers pass the candidate list from the DB.
 export function coursesForMentee<T extends { semester: number }>(

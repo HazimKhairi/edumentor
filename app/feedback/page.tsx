@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { StarRating } from "@/components/star-rating";
 import { StarPicker } from "@/components/star-picker";
 import { requireUser } from "@/lib/session";
-import { coursesForUser, getFeedbackView } from "@/lib/queries";
+import { coursesForUserAsRole, getFeedbackView } from "@/lib/queries";
 import { submitFeedback } from "@/lib/actions";
 import { RequiredMark } from "@/components/required-mark";
 
@@ -25,14 +25,24 @@ export default async function FeedbackPage({
 }) {
   const me = await requireUser();
   const { error, submitted } = await searchParams;
-  const [enrolled, allFeedback] = await Promise.all([
-    coursesForUser(me),
+  // Mentees rate their own enrolled courses. Mentors can rate other mentors,
+  // so we use their Mentee enrollments (a mentor might also be a mentee for
+  // their own semester). A mentor never sees their own course in the picker.
+  const enrollmentRole = me.role === "Mentor" ? "Mentor" : "Mentee";
+  const [scopedCourses, allFeedback] = await Promise.all([
+    coursesForUserAsRole(me.id, enrollmentRole),
     getFeedbackView(),
   ]);
-  const avg = allFeedback.length
-    ? allFeedback.reduce((s, f) => s + f.score, 0) / allFeedback.length
+  // M3: a mentor cannot evaluate themselves. Drop any course where the
+  // current user is the assigned mentor.
+  const enrolled = scopedCourses.filter((c) => c.mentorId !== me.id);
+  // Me6: feedback sidebar shows reviews only for courses this user can see.
+  const allowedCourseCodes = new Set(enrolled.map((c) => c.code));
+  const feedback = allFeedback.filter((f) => allowedCourseCodes.has(f.course));
+  const avg = feedback.length
+    ? feedback.reduce((s, f) => s + f.score, 0) / feedback.length
     : 0;
-  const totalResponses = allFeedback.reduce((s, f) => s + f.n, 0);
+  const totalResponses = feedback.reduce((s, f) => s + f.n, 0);
 
   return (
     <>
@@ -155,18 +165,18 @@ export default async function FeedbackPage({
                 </span>
               </div>
               <p className="text-sm mt-2" style={{ color: "rgba(255,255,255,0.8)" }}>
-                {totalResponses} responses across {allFeedback.length} reviews
+                {totalResponses} responses across {feedback.length} reviews
               </p>
             </div>
 
             <h3 className="font-semibold text-base mb-3 mt-6">Recent reviews</h3>
-            {allFeedback.length === 0 ? (
+            {feedback.length === 0 ? (
               <p className="text-sm text-ink-muted">
                 No reviews yet. Be the first.
               </p>
             ) : (
               <ul className="space-y-3">
-                {allFeedback.map((f) => (
+                {feedback.map((f) => (
                   <li key={f.id} className="card p-5">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs text-ink-muted">{f.course}</span>
