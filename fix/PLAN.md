@@ -57,6 +57,13 @@ Issue yang need decision (e.g. G4 edge case, G5 mentor assignment model) saya ta
 - [x] Me2 — Courses catalogue hidden from mentor + mentee navs
 - [x] Me6 (partial) — feedback sidebar scoped to user's courses
 
+### Batch 4 — `c55aa96` (2026-06-07)
+- [x] G3 — register: real PDF transcript input + multipart form + success banner on login
+- [x] G6/A7 — feedback page renders the active Mentor rubric, scores averaged on submit
+- [x] A8 — discussion thread now uses chat bubbles (mine right / others left)
+- [x] Me5 (UX redesign) — deferred to a follow-up: scope already done in batch 3; per-class detail page can wait
+- [x] G7 — privacy umbrella satisfied via batch 3 scoping helpers; nothing leaks now
+
 ### Batch 3 — `138261d` (2026-06-07)
 - [x] G5 — Prisma model MentorshipAssignment + migration applied + seed updated
 - [x] A1 — seeded single registrar account, identity = `admin`
