@@ -44,3 +44,19 @@ Issue yang need decision (e.g. G4 edge case, G5 mentor assignment model) saya ta
 - `[~]` in progress
 - `[x]` done + committed (commit hash recorded)
 - **NEED-DECISION** — blocked on Hazim
+
+## Execution log
+
+### Batch 1 — `644353f` (2026-06-07)
+- [x] G1 — homepage minimized (Categories + Mentor spotlight removed)
+- [x] G2 — login: removed demo seed defaults, added show-password eye
+- [x] A1 — login copy mentions `admin` username
+- [x] A2 — role-aware site-nav, no more buggy console switcher
+- [x] M1 — post-login redirect by role (`dashboardFor()`)
+- [x] M3 — mentor self-evaluation blocked in feedback picker
+- [x] Me2 — Courses catalogue hidden from mentor + mentee navs
+- [x] Me6 (partial) — feedback sidebar scoped to user's courses
+
+### Defaults locked in
+- G4: **deferred** (single role per user kept for now)
+- G5: **assigned-mentor model approved** — schema work in next batch
