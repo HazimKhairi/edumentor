@@ -57,6 +57,17 @@ Issue yang need decision (e.g. G4 edge case, G5 mentor assignment model) saya ta
 - [x] Me2 — Courses catalogue hidden from mentor + mentee navs
 - [x] Me6 (partial) — feedback sidebar scoped to user's courses
 
+### Batch 3 — `138261d` (2026-06-07)
+- [x] G5 — Prisma model MentorshipAssignment + migration applied + seed updated
+- [x] A1 — seeded single registrar account, identity = `admin`
+- [x] M2 — mentor console scoped by enrollment-as-Mentor, no more name match
+- [x] M4 — mentor/assignments + mentor/classes filtered by taught courses
+- [x] Me1 — /dashboard scoped by enrollment-as-Mentee; dead catalogue links removed
+- [x] Me3 (scope) — /discussion server-filtered by my courseIds (per-mentor split deferred — needs DiscussionRoom.mentorId)
+- [x] Me4 — /assignments scoped to my courseIds
+- [x] Me5 (partial) — /attendance live + history scoped to my courseIds
+- [x] Me6 — feedback already done in batch 1; reconfirmed under helper
+
 ### Batch 2 — `73f6b20` (2026-06-07)
 - [x] A3 — Editor's note section removed from reports page
 - [x] A4 — Reports gained per-course breakdown (enrolment, attendance %, rating)
