@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpCircle, BookOpen, GraduationCap, Mail, ShieldAlert, Trash2 } from "lucide-react";
+import { BookOpen, GraduationCap, ShieldAlert, Trash2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
@@ -84,23 +84,12 @@ export default async function UserProfilePage({
             </div>
 
             <div className="flex items-center gap-2">
-              {u.role === "Mentee" ? (
-                <Link
-                  href={`/admin/users/${u.id}/promote`}
-                  className="btn btn-primary btn-sm"
-                >
-                  <ArrowUpCircle size={14} /> Promote to mentor
-                </Link>
-              ) : null}
-              <button className="btn btn-ghost btn-sm" type="button">
-                <Mail size={14} /> Message
-              </button>
               <Link
                 href={`/admin/users/${u.id}/delete`}
                 className="btn btn-ghost btn-sm"
                 aria-label="Delete user"
               >
-                <Trash2 size={14} />
+                <Trash2 size={14} /> Delete
               </Link>
             </div>
           </div>

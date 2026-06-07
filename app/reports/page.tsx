@@ -2,7 +2,71 @@ import { TrendingUp } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { StarRating } from "@/components/star-rating";
+import { db } from "@/lib/db";
 import { getCoursesView, getFeedbackView, getStats } from "@/lib/queries";
+
+type CourseRow = {
+  id: string;
+  code: string;
+  title: string;
+  mentor: string;
+  enrolled: number;
+  capacity: number;
+  attendancePct: number | null;
+  rating: number | null;
+  responses: number;
+};
+
+async function getCourseBreakdown(): Promise<CourseRow[]> {
+  // Pull attendance counts grouped by course in one shot, then enrich.
+  const [courses, attendanceAgg, feedbackAgg] = await Promise.all([
+    getCoursesView(),
+    db.attendanceSession.findMany({
+      where: { state: "Closed" },
+      select: {
+        courseId: true,
+        records: {
+          select: { menteeConfirmed: true, mentorVerified: true },
+        },
+      },
+    }),
+    db.feedbackEntry.groupBy({
+      by: ["courseId"],
+      _avg: { score: true },
+      _sum: { n: true },
+    }),
+  ]);
+
+  const attMap = new Map<string, { total: number; verified: number }>();
+  for (const s of attendanceAgg) {
+    const row = attMap.get(s.courseId) ?? { total: 0, verified: 0 };
+    for (const r of s.records) {
+      row.total += 1;
+      if (r.menteeConfirmed && r.mentorVerified) row.verified += 1;
+    }
+    attMap.set(s.courseId, row);
+  }
+  const fbMap = new Map(
+    feedbackAgg.map((f) => [f.courseId, { avg: f._avg.score, n: f._sum.n ?? 0 }]),
+  );
+
+  return courses.map((c) => {
+    const att = attMap.get(c.id);
+    const fb = fbMap.get(c.id);
+    return {
+      id: c.id,
+      code: c.code,
+      title: c.title,
+      mentor: c.mentor,
+      enrolled: c.enrolled,
+      capacity: c.capacity,
+      attendancePct:
+        att && att.total > 0 ? Math.round((att.verified / att.total) * 100) : null,
+      rating: fb?.avg ?? null,
+      responses: fb?.n ?? 0,
+    };
+  });
+}
 
 export const metadata = {
   title: "Reports | EduMentor",
@@ -18,10 +82,11 @@ const sevBadge: Record<string, string> = {
 };
 
 export default async function ReportsPage() {
-  const [COURSES, FEEDBACK_ENTRIES, STATS] = await Promise.all([
+  const [COURSES, FEEDBACK_ENTRIES, STATS, COURSE_ROWS] = await Promise.all([
     getCoursesView(),
     getFeedbackView(),
     getStats(),
+    getCourseBreakdown(),
   ]);
   const totalEnrolled = COURSES.reduce((s, c) => s + c.enrolled, 0);
   const totalCapacity = COURSES.reduce((s, c) => s + c.capacity, 0);
@@ -193,20 +258,63 @@ export default async function ReportsPage() {
 
       <section>
         <div className="mx-auto max-w-[1400px] px-6 py-12">
-          <div className="card p-6 md:p-8 grid grid-cols-12 gap-6">
-            <div className="col-span-12 md:col-span-9">
-              <p className="text-sm font-semibold text-oxblood mb-2">Editor&apos;s note</p>
-              <h3 className="text-2xl md:text-3xl font-bold leading-snug">
-                The term is on schedule. Two cohorts will need additional
-                office-hour slots before the midterm. One camera fault is
-                scheduled for replacement on Friday.
-              </h3>
-            </div>
-            <div className="col-span-12 md:col-span-3 md:border-l md:border-rule md:pl-6 text-sm text-ink-muted">
-              <div>Filed by Registrar</div>
-              <div>04 May 2026, 14:42</div>
-              <div className="mt-3 font-semibold text-ink">, EduMentor</div>
-            </div>
+          <h2 className="font-semibold text-lg mb-4">By course</h2>
+          <p className="text-sm text-ink-muted mb-4">
+            Attendance, enrolment and feedback per course — to monitor the
+            programme course by course, not just overall.
+          </p>
+          <div className="card p-0 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-paper-dark/50 text-xs text-ink-muted">
+                <tr className="text-left">
+                  <th className="px-4 py-3 font-semibold">Course</th>
+                  <th className="px-4 py-3 font-semibold">Mentor</th>
+                  <th className="px-4 py-3 font-semibold text-right">Enrolled</th>
+                  <th className="px-4 py-3 font-semibold text-right">Attendance</th>
+                  <th className="px-4 py-3 font-semibold text-right">Rating</th>
+                  <th className="px-4 py-3 font-semibold text-right">Responses</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-rule">
+                {COURSE_ROWS.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-ink-muted">
+                      No courses yet.
+                    </td>
+                  </tr>
+                ) : (
+                  COURSE_ROWS.map((c) => (
+                    <tr key={c.id} className="hover:bg-paper-dark/30">
+                      <td className="px-4 py-3">
+                        <div className="font-medium">{c.code}</div>
+                        <div className="text-xs text-ink-muted">{c.title}</div>
+                      </td>
+                      <td className="px-4 py-3">{c.mentor}</td>
+                      <td className="px-4 py-3 text-right tabular text-ink-muted">
+                        {c.enrolled}/{c.capacity}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular">
+                        {c.attendancePct === null ? (
+                          <span className="text-ink-muted">—</span>
+                        ) : (
+                          `${c.attendancePct}%`
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular">
+                        {c.rating === null ? (
+                          <span className="text-ink-muted">—</span>
+                        ) : (
+                          c.rating.toFixed(1)
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular text-ink-muted">
+                        {c.responses}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </section>

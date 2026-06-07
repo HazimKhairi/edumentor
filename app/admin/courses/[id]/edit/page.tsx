@@ -87,7 +87,7 @@ export default async function EditCoursePage({
             </div>
 
             <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6 md:col-span-3">
+              <div className="col-span-12 md:col-span-4">
                 <label className="block text-sm font-medium mb-1.5">Semester</label>
                 <select name="semester" defaultValue={c.semester} className="input">
                   {[1, 2, 3, 4, 5, 6].map((s) => (
@@ -95,39 +95,12 @@ export default async function EditCoursePage({
                   ))}
                 </select>
               </div>
-              <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Sessions</label>
-                <input type="number" name="sessions" defaultValue={c.sessions} className="input" />
-              </div>
-              <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Capacity</label>
-                <input type="number" name="capacity" defaultValue={c.capacity} className="input" />
-              </div>
-              <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Pace</label>
-                <input type="text" name="pace" defaultValue={c.pace} className="input" />
-              </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Progress %</label>
-                <input type="number" name="progress" defaultValue={c.progress} className="input" min="0" max="100" />
-              </div>
-              <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Enrolled</label>
-                <input type="number" name="enrolled" defaultValue={c.enrolled} className="input" min="0" />
-              </div>
-              <div className="col-span-6 md:col-span-3">
-                <label className="block text-sm font-medium mb-1.5">Colour</label>
-                <select name="color" defaultValue={c.color} className="input">
-                  <option value="oxblood">oxblood</option>
-                  <option value="fern">fern</option>
-                  <option value="saffron">saffron</option>
-                  <option value="ink">ink</option>
-                </select>
-              </div>
-            </div>
+            <p className="text-xs text-ink-muted bg-paper-dark/40 rounded-sm px-3 py-2">
+              Sessions, capacity, pace, progress, enrolment and colour are
+              derived from the live course activity and cannot be edited here.
+            </p>
 
             <div className="flex items-center justify-between gap-3 pt-4 border-t border-rule">
               <Link href={`/admin/courses/${c.id}/delete`} className="text-sm text-oxblood hover:text-oxblood-deep font-medium">

@@ -144,39 +144,6 @@ export async function registerAccount(formData: FormData) {
 // User mutations (admin)
 // ----------------------------------------------------------------------------
 
-export async function promoteToMentor(formData: FormData) {
-  await requireRole("Admin");
-  const userId = getString(formData, "userId");
-  const courseIdsRaw = formData.getAll("courseIds");
-  const courseIds = courseIdsRaw.filter((x): x is string => typeof x === "string");
-
-  const u = await db.user.findUnique({ where: { id: userId } });
-  if (!u || u.role !== "Mentee") redirect("/admin/users?error=not-mentee");
-
-  if ((u.cgpa ?? 0) < MENTOR_MIN_CGPA) {
-    redirect(`/admin/users/${userId}/promote?error=cgpa`);
-  }
-  if (courseIds.length > MENTOR_SUBJECT_CAP) {
-    redirect(`/admin/users/${userId}/promote?error=cap`);
-  }
-
-  await db.$transaction([
-    db.user.update({ where: { id: userId }, data: { role: "Mentor" } }),
-    db.enrollment.deleteMany({ where: { userId } }),
-    db.enrollment.createMany({
-      data: courseIds.map((courseId) => ({
-        userId,
-        courseId,
-        asRole: "Mentor" as const,
-      })),
-    }),
-  ]);
-
-  revalidatePath("/admin/users");
-  revalidatePath(`/admin/users/${userId}`);
-  redirect("/admin/users");
-}
-
 export async function deleteUser(formData: FormData) {
   await requireRole("Admin");
   const userId = getString(formData, "userId");
@@ -224,7 +191,17 @@ export async function updateCourse(formData: FormData) {
   await requireRole("Admin");
   const id = getString(formData, "id");
   if (!id) redirect("/admin/courses");
-  const data = courseDataFromForm(formData);
+  // A5: admin can only edit the basic record fields. Capacity, sessions,
+  // pace, enrolled, progress and colour are derived from live activity and
+  // must not be settable via this form.
+  const data = {
+    code: getString(formData, "code"),
+    title: getString(formData, "title"),
+    abstract: getString(formData, "abstract"),
+    semester: getInt(formData, "semester", 1),
+    cohort: getString(formData, "cohort"),
+    lecturerId: getOptionalString(formData, "lecturerId"),
+  };
   await db.course.update({ where: { id }, data });
   revalidatePath("/admin/courses");
   revalidatePath(`/courses/${id}`);

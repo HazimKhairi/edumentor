@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { UserPlus } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
@@ -38,16 +37,11 @@ export default async function AdminUsersPage() {
             <Link href="/admin" className="hover:text-ink">Admin</Link>{" / "}
             <span className="text-ink">Users</span>
           </div>
-          <div className="flex items-baseline justify-between flex-wrap gap-3">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Manage users</h1>
-              <p className="mt-1 text-sm text-ink-muted">
-                {users.length} total, {counts.Mentee ?? 0} mentees, {counts.Mentor ?? 0} mentors, {counts.Admin ?? 0} lecturers.
-              </p>
-            </div>
-            <button className="btn btn-primary btn-sm" type="button">
-              <UserPlus size={14} /> Invite user
-            </button>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">Manage users</h1>
+            <p className="mt-1 text-sm text-ink-muted">
+              {users.length} total, {counts.Mentee ?? 0} mentees, {counts.Mentor ?? 0} mentors, {counts.Admin ?? 0} lecturers.
+            </p>
           </div>
         </div>
       </section>

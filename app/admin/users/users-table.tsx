@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowUpCircle, Search, Trash2 } from "lucide-react";
+import { Search, Trash2 } from "lucide-react";
 import type { Role } from "@prisma/client";
 
 const roleBadge: Record<string, string> = {
@@ -128,16 +128,6 @@ export function UsersTable({ users }: { users: AdminUserRow[] }) {
                   <td className="px-4 py-3 text-ink-muted tabular">{u.joined}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      {u.role === "Mentee" ? (
-                        <Link
-                          href={`/admin/users/${u.id}/promote`}
-                          className="size-8 rounded-sm border border-rule hover:border-oxblood hover:bg-oxblood/5 hover:text-oxblood flex items-center justify-center"
-                          aria-label={`Promote ${u.name} to mentor`}
-                          title="Promote to mentor"
-                        >
-                          <ArrowUpCircle size={14} />
-                        </Link>
-                      ) : null}
                       <Link
                         href={`/admin/users/${u.id}/delete`}
                         className="size-8 rounded-sm border border-rule hover:border-oxblood hover:bg-oxblood/5 hover:text-oxblood flex items-center justify-center"
