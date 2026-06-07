@@ -57,6 +57,13 @@ Issue yang need decision (e.g. G4 edge case, G5 mentor assignment model) saya ta
 - [x] Me2 — Courses catalogue hidden from mentor + mentee navs
 - [x] Me6 (partial) — feedback sidebar scoped to user's courses
 
+### Batch 2 — `73f6b20` (2026-06-07)
+- [x] A3 — Editor's note section removed from reports page
+- [x] A4 — Reports gained per-course breakdown (enrolment, attendance %, rating)
+- [x] A5 — Course edit form stripped to code/title/abstract/semester/cohort/lecturer; updateCourse() server action narrowed to match
+- [x] A6 — Invite-user button + promote-to-mentor route + Message stub all removed; admin users now view/search/delete only
+- [x] A7 — confirmed evaluations page already shows view + edit only (no delete) — no code change
+
 ### Defaults locked in
 - G4: **deferred** (single role per user kept for now)
-- G5: **assigned-mentor model approved** — schema work in next batch
+- G5: **assigned-mentor model approved** — schema work in batch 3
