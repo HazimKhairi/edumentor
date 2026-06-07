@@ -116,6 +116,21 @@ export async function registerAccount(formData: FormData) {
     }
   }
 
+  // G3: persist transcript upload (mentor candidates only — silently
+  // ignored for mentees). We save to disk for the registrar to inspect;
+  // no DB column to keep this round small.
+  if (role === "Mentor") {
+    const file = getFile(formData, "transcript");
+    if (file && file.size > 0) {
+      try {
+        await saveUploadedFile(file, "transcripts");
+      } catch (e) {
+        console.error("transcript save failed", e);
+        redirect("/register?error=upload");
+      }
+    }
+  }
+
   const passwordHash = await bcrypt.hash(password, 10);
 
   await db.user.create({
@@ -574,9 +589,21 @@ export async function withdrawSubmission(formData: FormData) {
 export async function submitFeedback(formData: FormData) {
   const me = await requireUser();
   const courseId = getString(formData, "courseId");
-  const score = Math.max(1, Math.min(5, getInt(formData, "score", 0)));
   const comment = getString(formData, "comment");
   const anonymous = formData.get("anonymous") === "on";
+
+  // G6: prefer the rubric-driven scores (r0, r1, … ). Average them. If the
+  // rubric is not active we fall back to the plain "score" field.
+  const rubricScores: number[] = [];
+  for (let i = 0; i < 20; i++) {
+    const v = formData.get(`r${i}`);
+    if (typeof v !== "string") continue;
+    const n = Number.parseInt(v, 10);
+    if (Number.isFinite(n) && n > 0) rubricScores.push(Math.min(5, n));
+  }
+  const score = rubricScores.length
+    ? Math.max(1, Math.min(5, rubricScores.reduce((a, b) => a + b, 0) / rubricScores.length))
+    : Math.max(1, Math.min(5, getInt(formData, "score", 0)));
 
   if (!courseId || score < 1 || !comment) {
     redirect("/feedback?error=missing");

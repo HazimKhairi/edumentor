@@ -81,74 +81,85 @@ export default async function DiscussionThreadPage({
       <section>
         <div className="mx-auto max-w-[900px] px-6 py-8 space-y-3">
           {room.messages.length === 0 ? (
-            <p className="text-sm text-ink-muted">No replies yet.</p>
+            <p className="text-sm text-ink-muted">No messages yet.</p>
           ) : (
-            <ul className="space-y-3">
-              {room.messages.map((m, i) => (
-                <li
-                  key={m.id}
-                  className={`card p-5 ${m.author.role === "Mentor" ? "border-oxblood/30" : ""}`}
-                >
-                  <div className="flex items-start gap-3">
-                    <div
-                      className={`size-10 rounded-full flex items-center justify-center font-semibold text-sm shrink-0 ${
-                        m.author.role === "Mentor"
-                          ? "bg-oxblood text-bone"
-                          : "bg-paper-dark text-ink"
-                      }`}
-                    >
-                      {m.author.name
-                        .split(" ")
-                        .map((p) => p[0])
-                        .slice(0, 2)
-                        .join("")}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                        <span className="font-semibold text-sm">{m.author.name}</span>
-                        {m.author.role === "Mentor" ? (
-                          <span className="badge badge-oxblood">Mentor</span>
-                        ) : m.author.role === "Mentee" ? (
-                          <span className="badge badge-muted">Mentee</span>
-                        ) : (
-                          <span className="badge badge-saffron">Admin</span>
-                        )}
-                        <span className="text-xs text-ink-muted">, {m.time}</span>
-                        {i === 0 ? (
-                          <span className="text-xs text-ink-muted">, original post</span>
+            <ul className="space-y-4">
+              {room.messages.map((m) => {
+                const mine = m.authorId === me.id;
+                const initials = m.author.name
+                  .split(" ")
+                  .map((p) => p[0])
+                  .slice(0, 2)
+                  .join("");
+                return (
+                  <li
+                    key={m.id}
+                    className={`flex items-end gap-2 ${mine ? "justify-end" : "justify-start"}`}
+                  >
+                    {!mine ? (
+                      <div
+                        className={`size-8 rounded-full flex items-center justify-center font-semibold text-xs shrink-0 ${
+                          m.author.role === "Mentor"
+                            ? "bg-oxblood text-bone"
+                            : "bg-paper-dark text-ink"
+                        }`}
+                        aria-hidden
+                      >
+                        {initials}
+                      </div>
+                    ) : null}
+                    <div className={`max-w-[70%] ${mine ? "items-end" : "items-start"} flex flex-col`}>
+                      {!mine ? (
+                        <span className="text-[11px] text-ink-muted mb-1 px-1">
+                          {m.author.name}
+                          {m.author.role === "Mentor" ? ", Mentor" : ""}
+                        </span>
+                      ) : null}
+                      <div
+                        className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                          mine
+                            ? "bg-oxblood text-bone rounded-br-sm"
+                            : "bg-paper-dark text-ink rounded-bl-sm"
+                        }`}
+                        style={{ whiteSpace: "pre-line" }}
+                      >
+                        {m.body}
+                        {m.fileName && m.filePath ? (
+                          <a
+                            href={m.filePath}
+                            target="_blank"
+                            rel="noopener"
+                            className={`mt-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-xs ${
+                              mine
+                                ? "bg-bone/10 hover:bg-bone/15"
+                                : "bg-bone/60 hover:bg-bone"
+                            }`}
+                          >
+                            <FileText size={12} />
+                            <span className="truncate">{m.fileName}</span>
+                          </a>
+                        ) : null}
+                        {m.linkUrl ? (
+                          <a
+                            href={m.linkUrl}
+                            target="_blank"
+                            rel="noopener"
+                            className={`mt-2 flex items-center gap-1.5 text-xs underline ${
+                              mine ? "text-bone/90" : "text-oxblood"
+                            }`}
+                          >
+                            <ExternalLink size={12} />
+                            <span className="truncate">{m.linkUrl}</span>
+                          </a>
                         ) : null}
                       </div>
-                      <p className="text-base leading-relaxed whitespace-pre-line">
-                        {m.body}
-                      </p>
-                      {m.fileName && m.filePath ? (
-                        <a
-                          href={m.filePath}
-                          target="_blank"
-                          rel="noopener"
-                          className="mt-3 card p-2.5 flex items-center gap-2.5 hover:border-ink w-fit max-w-full"
-                        >
-                          <span className="size-7 rounded bg-oxblood/15 text-oxblood flex items-center justify-center shrink-0">
-                            <FileText size={12} />
-                          </span>
-                          <span className="text-xs font-medium truncate">{m.fileName}</span>
-                        </a>
-                      ) : null}
-                      {m.linkUrl ? (
-                        <a
-                          href={m.linkUrl}
-                          target="_blank"
-                          rel="noopener"
-                          className="mt-2 inline-flex items-center gap-1.5 text-xs text-oxblood hover:underline"
-                        >
-                          <ExternalLink size={12} />
-                          <span className="truncate">{m.linkUrl}</span>
-                        </a>
-                      ) : null}
+                      <span className={`text-[10px] text-ink-muted mt-1 px-1 ${mine ? "text-right" : "text-left"}`}>
+                        {m.time}
+                      </span>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
 

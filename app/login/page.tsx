@@ -15,9 +15,9 @@ export const metadata = {
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; callbackUrl?: string }>;
+  searchParams: Promise<{ error?: string; callbackUrl?: string; registered?: string }>;
 }) {
-  const { error, callbackUrl } = await searchParams;
+  const { error, callbackUrl, registered } = await searchParams;
 
   async function signInAction(formData: FormData) {
     "use server";
@@ -129,6 +129,14 @@ export default async function LoginPage({
             <span className="font-semibold tabular">admin</span> for the registrar account.
           </p>
 
+          {registered ? (
+            <div
+              role="status"
+              className="mb-5 rounded-md border border-fern/40 bg-fern/10 px-3 py-2 text-sm text-fern"
+            >
+              Account created. Sign in with your matric and password.
+            </div>
+          ) : null}
           {errorCopy ? (
             <div
               role="alert"

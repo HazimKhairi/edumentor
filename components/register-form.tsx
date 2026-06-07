@@ -50,7 +50,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
   }, [role, semester]);
 
   return (
-    <form action={registerAccount} className="space-y-4">
+    <form action={registerAccount} encType="multipart/form-data" className="space-y-4">
       <input type="hidden" name="semester" value={semester} />
       <input type="hidden" name="faceDescriptor" value={faceDescriptor ? JSON.stringify(faceDescriptor) : ""} />
       {pickedCourses.map((id) => (
@@ -336,12 +336,13 @@ function MentorEligibilityFields() {
           <label className="block text-xs font-medium text-ink mb-1">
             Latest transcript (PDF)
           </label>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm w-full justify-center border border-dashed border-rule"
-          >
-            Browse files, up to 5 MB
-          </button>
+          <input
+            type="file"
+            name="transcript"
+            accept="application/pdf,.pdf"
+            className="block w-full text-xs file:mr-3 file:rounded-sm file:border file:border-rule file:bg-paper-dark file:text-ink file:px-3 file:py-1.5 file:cursor-pointer hover:file:bg-paper-dark/70"
+          />
+          <p className="text-[10px] text-ink-muted mt-1">PDF, up to 8 MB.</p>
         </div>
       </div>
     </div>

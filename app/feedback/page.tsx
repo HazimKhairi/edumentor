@@ -6,6 +6,7 @@ import { StarPicker } from "@/components/star-picker";
 import { requireUser } from "@/lib/session";
 import { coursesForUserAsRole, getFeedbackView } from "@/lib/queries";
 import { submitFeedback } from "@/lib/actions";
+import { db } from "@/lib/db";
 import { RequiredMark } from "@/components/required-mark";
 
 export const metadata = {
@@ -36,6 +37,13 @@ export default async function FeedbackPage({
   // M3: a mentor cannot evaluate themselves. Drop any course where the
   // current user is the assigned mentor.
   const enrolled = scopedCourses.filter((c) => c.mentorId !== me.id);
+  // G6/A7: pick up the active mentor-evaluation rubric (admin-authored).
+  // Items render as per-criterion star pickers below.
+  const rubric = await db.evaluationRubric.findFirst({
+    where: { active: true, target: "Mentor" },
+    orderBy: { createdAt: "desc" },
+  });
+  const rubricItems = Array.isArray(rubric?.items) ? (rubric!.items as string[]) : [];
   // Me6: feedback sidebar shows reviews only for courses this user can see.
   const allowedCourseCodes = new Set(enrolled.map((c) => c.code));
   const feedback = allFeedback.filter((f) => allowedCourseCodes.has(f.course));
@@ -103,12 +111,35 @@ export default async function FeedbackPage({
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      Overall rating<RequiredMark />
-                    </label>
-                    <StarPicker />
-                  </div>
+                  {rubricItems.length > 0 ? (
+                    <div className="rounded-md border border-rule bg-paper-dark/40 p-4 space-y-3">
+                      <div>
+                        <p className="text-sm font-semibold">{rubric!.title}</p>
+                        <p className="text-xs text-ink-muted">
+                          Rate each criterion. Overall score is the average.
+                        </p>
+                      </div>
+                      <ul className="divide-y divide-rule">
+                        {rubricItems.map((item, i) => (
+                          <li key={item} className="py-2 flex items-center justify-between gap-3 flex-wrap">
+                            <span className="text-sm flex-1 min-w-[12rem]">{item}</span>
+                            <StarPicker
+                              name={`r${i}`}
+                              size={20}
+                              showLabel={false}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Overall rating<RequiredMark />
+                      </label>
+                      <StarPicker />
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium mb-1.5">

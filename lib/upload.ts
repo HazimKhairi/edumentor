@@ -42,7 +42,7 @@ function safeBase(name: string): string {
 // provided (empty FormData entry). Throws on size or type violation.
 export async function saveUploadedFile(
   file: File | null,
-  subdir: "submissions" | "discussion",
+  subdir: "submissions" | "discussion" | "transcripts",
 ): Promise<SavedFile | null> {
   if (!file || typeof file === "string") return null;
   if (file.size === 0) return null;
