@@ -7,6 +7,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import {
   attendanceForUser,
+  courseIdsForUser,
   getAttendanceSessionsView,
   getRosterForSession,
 } from "@/lib/queries";
@@ -24,9 +25,12 @@ const stateBadge: Record<string, string> = {
 
 export default async function AttendancePage() {
   const me = await requireUser();
+  // Me5 (partial): scope live + history by my courses. Full by-class
+  // click-through redesign comes after this round.
+  const myCourseIds = await courseIdsForUser(me.id, me.role);
 
   const liveRecord = await db.attendanceSession.findFirst({
-    where: { state: "Live" },
+    where: { state: "Live", courseId: { in: myCourseIds } },
     include: { course: { select: { code: true } } },
   });
   const live = liveRecord
@@ -40,7 +44,9 @@ export default async function AttendancePage() {
       }
     : null;
 
-  const sessions = await getAttendanceSessionsView();
+  const allSessions = await getAttendanceSessionsView();
+  const myCourseIdSet = new Set(myCourseIds);
+  const sessions = allSessions.filter((s) => myCourseIdSet.has(s.courseId));
   const closed = sessions.filter((s) => s.state === "Closed");
 
   const rosterForRecognition = live ? await getRosterForSession(live.id) : [];

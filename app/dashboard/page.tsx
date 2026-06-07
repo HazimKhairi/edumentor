@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CalendarClock, ClipboardList, Radio } from "lucide-react";
+import { CalendarClock, ClipboardList, Radio } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import {
   attendanceRate,
-  coursesForUser,
+  coursesForUserAsRole,
   getAssignmentsView,
   getUpcomingEvents,
 } from "@/lib/queries";
@@ -19,7 +19,8 @@ export const metadata = {
 
 export default async function DashboardPage() {
   const me = await requireUser();
-  const myCourses = await coursesForUser(me);
+  // Me1: dashboard scoped strictly to courses I am enrolled in as a Mentee.
+  const myCourses = await coursesForUserAsRole(me.id, "Mentee");
   const myCourseCodes = myCourses.map((c) => c.code);
 
   const [liveSession, openAssignments, myEvents, myAttendance] = await Promise.all([
@@ -89,21 +90,12 @@ export default async function DashboardPage() {
         <div className="mx-auto max-w-[1200px] px-6 py-6">
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="font-semibold text-lg">Continue learning</h2>
-            <Link
-              href="/courses"
-              className="text-sm text-ink-muted hover:text-ink inline-flex items-center gap-1"
-            >
-              Browse catalogue <ArrowRight size={12} />
-            </Link>
           </div>
 
           {myCourses.length === 0 ? (
             <div className="card p-6 text-sm text-ink-muted">
-              You are not enrolled in any course yet.{" "}
-              <Link href="/courses" className="text-oxblood font-semibold">
-                Browse the catalogue
-              </Link>{" "}
-              to start.
+              You are not enrolled in any course yet. An admin will assign
+              you once registration closes.
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

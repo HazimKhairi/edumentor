@@ -3,7 +3,8 @@ import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { requireRole } from "@/lib/session";
-import { getAssignmentsView } from "@/lib/queries";
+import { db } from "@/lib/db";
+import { courseIdsForUser, getAssignmentsView } from "@/lib/queries";
 
 export const metadata = {
   title: "Manage assignments | Mentor",
@@ -16,8 +17,16 @@ const statusBadge: Record<string, string> = {
 };
 
 export default async function MentorAssignmentsPage() {
-  await requireRole(["Mentor", "Admin"]);
-  const assignments = await getAssignmentsView();
+  const user = await requireRole(["Mentor", "Admin"]);
+  // M4: only assignments for courses I actually mentor (or all, if admin).
+  const myCourseIds = await courseIdsForUser(user.id, user.role);
+  const myCourseCodes = (
+    await db.course.findMany({
+      where: { id: { in: myCourseIds } },
+      select: { code: true },
+    })
+  ).map((c) => c.code);
+  const assignments = await getAssignmentsView(myCourseCodes);
 
   return (
     <>

@@ -26,6 +26,7 @@ async function main() {
   await db.discussionRoom.deleteMany();
   await db.feedbackEntry.deleteMany();
   await db.classSession.deleteMany();
+  await db.mentorshipAssignment.deleteMany();
   await db.enrollment.deleteMany();
   await db.passedSubject.deleteMany();
   await db.evaluationRubric.deleteMany();
@@ -35,7 +36,9 @@ async function main() {
   console.log("Seeding users…");
   await db.user.createMany({
     data: [
-      // Lecturers (admins)
+      // Single registrar/admin account — username = "admin".
+      { id: "u-admin", name: "Admin", identity: "admin", passwordHash, role: "Admin", status: "Active", joined: new Date("2018-02-12") },
+      // Lecturers (still Admin role for course ownership; not used to sign in).
       { id: "u-009", name: "Dr. Aishah Mokhtar", identity: "FCMS-184", passwordHash, role: "Admin", status: "Active", joined: new Date("2018-02-12") },
       { id: "u-010", name: "Dr. Faiz Rashid",    identity: "FCMS-209", passwordHash, role: "Admin", status: "Active", joined: new Date("2020-08-04") },
       { id: "u-011", name: "Pn. Liyana Hashim",  identity: "FCMS-232", passwordHash, role: "Admin", status: "Active", joined: new Date("2022-01-10") },
@@ -151,6 +154,20 @@ async function main() {
     ).length;
     await db.course.update({ where: { id: courseId }, data: { enrolled: count } });
   }
+
+  console.log("Seeding mentorship assignments (one mentor per mentee per course)…");
+  await db.mentorshipAssignment.createMany({
+    data: [
+      // MAT133 mentees → Adam (sem 3)
+      { menteeId: "u-001", mentorId: "u-006", courseId: "mat133" },
+      { menteeId: "u-002", mentorId: "u-006", courseId: "mat133" },
+      // MAT183 mentees → Adam (sem 3)
+      { menteeId: "u-003", mentorId: "u-006", courseId: "mat183" },
+      { menteeId: "u-004", mentorId: "u-006", courseId: "mat183" },
+      // MAT210 mentees → Nadia (sem 5)
+      { menteeId: "u-005", mentorId: "u-007", courseId: "mat210" },
+    ],
+  });
 
   console.log("Seeding passed subjects (mentor eligibility evidence)…");
   await db.passedSubject.createMany({

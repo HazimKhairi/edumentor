@@ -4,7 +4,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
-import { getAssignmentsView, coursesForUser } from "@/lib/queries";
+import { getAssignmentsView, coursesForUserAsRole } from "@/lib/queries";
 
 export const metadata = {
   title: "Mentor console | EduMentor",
@@ -41,8 +41,8 @@ export default async function MentorLanding() {
     },
   ];
 
-  const allCourses = await coursesForUser(user);
-  const myCourses = allCourses.filter((c) => c.mentor === user.name);
+  // M2: scope strictly by enrollment-as-Mentor, never by name match.
+  const myCourses = await coursesForUserAsRole(user.id, "Mentor");
   const myCourseCodes = myCourses.map((c) => c.code);
   const myAssignments = await getAssignmentsView(myCourseCodes);
   const upcoming = await db.classSession.findMany({

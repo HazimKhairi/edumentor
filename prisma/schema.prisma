@@ -73,6 +73,8 @@ model User {
   feedbackGiven     FeedbackEntry[]        @relation("FeedbackAuthor")
   feedbackReceived  FeedbackEntry[]        @relation("FeedbackTarget")
   submissions       AssignmentSubmission[]
+  mentorAssignments  MentorshipAssignment[] @relation("MentorshipMentor")
+  menteeAssignments  MentorshipAssignment[] @relation("MentorshipMentee")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -102,6 +104,7 @@ model Course {
   assignments Assignment[]
   rooms       DiscussionRoom[]
   feedback    FeedbackEntry[]
+  mentorshipAssignments MentorshipAssignment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -264,6 +267,24 @@ model FeedbackEntry {
   author User?  @relation("FeedbackAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
+}
+
+// One row per (mentee, course) — the mentee belongs to exactly one mentor for
+// that course. This is what scopes discussion rooms, assignment views and
+// feedback in the student-facing pages.
+model MentorshipAssignment {
+  menteeId String
+  mentorId String
+  courseId String
+  assignedAt DateTime @default(now())
+
+  mentee User   @relation("MentorshipMentee", fields: [menteeId], references: [id], onDelete: Cascade)
+  mentor User   @relation("MentorshipMentor", fields: [mentorId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([menteeId, courseId])
+  @@index([mentorId, courseId])
+  @@index([courseId])
 }
 
 model EvaluationRubric {

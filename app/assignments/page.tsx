@@ -3,7 +3,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { AssignmentsTabs } from "@/components/assignments-tabs";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { getAssignmentsView } from "@/lib/queries";
+import { courseIdsForUser, getAssignmentsView } from "@/lib/queries";
 
 export const metadata = {
   title: "Assignments | EduMentor",
@@ -12,7 +12,16 @@ export const metadata = {
 
 export default async function AssignmentsPage() {
   const me = await requireUser();
-  const assignments = await getAssignmentsView();
+  // Me4: only show assignments for courses I am enrolled in (or, if mentor,
+  // teaching). Without this, Nazrul (MAT183 mentee) sees MAT133/MAT210/etc.
+  const myCourseIds = await courseIdsForUser(me.id, me.role);
+  const myCourseCodes = (
+    await db.course.findMany({
+      where: { id: { in: myCourseIds } },
+      select: { code: true },
+    })
+  ).map((c) => c.code);
+  const assignments = await getAssignmentsView(myCourseCodes);
   const mySubmissions = await db.assignmentSubmission.findMany({
     where: { menteeId: me.id },
     select: { assignmentId: true, grade: true },

@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { DiscussionFilter } from "@/components/discussion-filter";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { coursesForUser, getRoomsView } from "@/lib/queries";
+import { courseIdsForUser, getRoomsView } from "@/lib/queries";
 
 export const metadata = {
   title: "Discussion | EduMentor",
@@ -14,12 +14,16 @@ export const metadata = {
 
 export default async function DiscussionPage() {
   const me = await requireUser();
-  const rooms = await getRoomsView();
-  const enrolledRows = await db.enrollment.findMany({
-    where: { userId: me.id },
-    select: { courseId: true },
+  // Me3: only rooms for courses I am part of (enrolled mentee, or teaching
+  // mentor, or admin sees everything).
+  const myCourseIds = await courseIdsForUser(me.id, me.role);
+  const myCourseIdSet = new Set(myCourseIds);
+  const allRooms = await getRoomsView();
+  const rooms = allRooms.filter((r) => myCourseIdSet.has(r.courseId));
+  const myCourses = await db.course.findMany({
+    where: { id: { in: myCourseIds } },
+    select: { code: true },
   });
-  const myCourses = await coursesForUser(me);
   const myCourseCodes = myCourses.map((c) => c.code);
 
   const rowsForClient = rooms.map((r) => ({
@@ -33,9 +37,6 @@ export default async function DiscussionPage() {
     last: r.last,
     starterId: r.starterId,
   }));
-
-  const enrolledCount = enrolledRows.length;
-  void enrolledCount;
 
   return (
     <>

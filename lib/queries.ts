@@ -70,6 +70,49 @@ export async function coursesForUserAsRole(
   return all.filter((c) => ids.has(c.id));
 }
 
+// ----------------------------------------------------------------------------
+// Mentorship assignment scoping (G5)
+// ----------------------------------------------------------------------------
+
+// IDs of mentees a mentor is assigned to, optionally narrowed by course.
+export async function menteeIdsForMentor(
+  mentorId: string,
+  courseId?: string,
+): Promise<string[]> {
+  const rows = await db.mentorshipAssignment.findMany({
+    where: { mentorId, ...(courseId ? { courseId } : {}) },
+    select: { menteeId: true },
+  });
+  return rows.map((r) => r.menteeId);
+}
+
+// The mentee's assigned mentor + courseIds. A mentee may have multiple
+// (mentor, course) pairs if enrolled in multiple courses.
+export async function mentorshipsForMentee(menteeId: string) {
+  return db.mentorshipAssignment.findMany({
+    where: { menteeId },
+    select: { mentorId: true, courseId: true },
+  });
+}
+
+// Course IDs the user has access to: as a mentee, the courses they enrolled
+// in; as a mentor, the courses they teach; as an admin, all courses.
+export async function courseIdsForUser(
+  userId: string,
+  role: "Admin" | "Mentor" | "Mentee",
+): Promise<string[]> {
+  if (role === "Admin") {
+    const rows = await db.course.findMany({ select: { id: true } });
+    return rows.map((r) => r.id);
+  }
+  const asRole = role === "Mentor" ? "Mentor" : "Mentee";
+  const rows = await db.enrollment.findMany({
+    where: { userId, asRole },
+    select: { courseId: true },
+  });
+  return rows.map((r) => r.courseId);
+}
+
 export async function coursesForUser(user: User): Promise<CourseView[]> {
   const all = await getCoursesView();
   const enrollments = await db.enrollment.findMany({
