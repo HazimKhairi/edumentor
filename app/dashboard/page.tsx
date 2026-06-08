@@ -1,16 +1,19 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CalendarClock, ClipboardList, Radio } from "lucide-react";
+import { CalendarClock, ClipboardList, Lock, Radio, Star } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { CourseCard } from "@/components/course-card";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
+import { chooseMentor } from "@/lib/actions";
 import {
   attendanceRate,
+  chosenCourseIdsForMentee,
   coursesForUserAsRole,
   getAssignmentsView,
   getUpcomingEvents,
+  pendingMentorChoices,
 } from "@/lib/queries";
 
 export const metadata = {
@@ -18,15 +21,29 @@ export const metadata = {
   description: "Continue learning, today's events, assignments due.",
 };
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ chosen?: string; error?: string }>;
+}) {
   const me = await requireUser();
   // Mentee desk is mentee-only. Mentors and admins land here only via stale
   // links — bounce them to their own console so they never see the mentee
   // course list mixed into their view.
   if (me.role === "Mentor") redirect("/mentor");
   if (me.role === "Admin") redirect("/admin");
-  // Me1: dashboard scoped strictly to courses I am enrolled in as a Mentee.
-  const myCourses = await coursesForUserAsRole(me.id, "Mentee");
+  const { chosen, error } = await searchParams;
+
+  // A mentee must pick a mentor for each enrolled course before its content
+  // unlocks. Pending = enrolled but no mentor chosen; active = mentor chosen.
+  const [allCourses, pending, chosenIds] = await Promise.all([
+    coursesForUserAsRole(me.id, "Mentee"),
+    pendingMentorChoices(me.id),
+    chosenCourseIdsForMentee(me.id),
+  ]);
+  const chosenSet = new Set(chosenIds);
+  // Me1 + gate: active sections scoped strictly to courses with a chosen mentor.
+  const myCourses = allCourses.filter((c) => chosenSet.has(c.id));
   const myCourseCodes = myCourses.map((c) => c.code);
 
   const [liveSession, openAssignments, myEvents, myAttendance] = await Promise.all([
@@ -62,11 +79,98 @@ export default async function DashboardPage() {
             Welcome back, {firstName}
           </h1>
           <p className="text-sm text-ink-muted mt-1">
-            {myCourses.length} courses enrolled, {myAttendance}% attendance verified
+            {myCourses.length} active, {pending.length} awaiting a mentor, {myAttendance}% attendance verified
             {nextDue ? `, ${nextDue.code} due ${nextDue.due}` : ""}.
           </p>
         </div>
       </section>
+
+      {chosen ? (
+        <section>
+          <div className="mx-auto max-w-[1200px] px-6 pb-2">
+            <div className="rounded-md border border-fern/40 bg-fern/[0.06] px-4 py-2.5 text-sm text-fern font-medium">
+              Mentor chosen. The course is unlocked , classes, assignments and your group discussion are now open.
+            </div>
+          </div>
+        </section>
+      ) : null}
+      {error ? (
+        <section>
+          <div className="mx-auto max-w-[1200px] px-6 pb-2">
+            <div className="rounded-md border border-oxblood/40 bg-oxblood/[0.06] px-4 py-2.5 text-sm text-oxblood">
+              {error === "mentor-full"
+                ? "That mentor just filled up. Pick another one."
+                : "Could not record your choice. Try again."}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {pending.length > 0 ? (
+        <section>
+          <div className="mx-auto max-w-[1200px] px-6 py-4">
+            <div className="flex items-center gap-2 mb-1">
+              <Lock size={16} className="text-oxblood" />
+              <h2 className="font-semibold text-lg">Choose your mentor</h2>
+            </div>
+            <p className="text-sm text-ink-muted mb-4">
+              You are enrolled but haven&apos;t picked a mentor yet. Pick one per
+              subject to unlock its classes, assignments and discussion group.
+            </p>
+            <div className="space-y-4">
+              {pending.map((p) => (
+                <div key={p.course.id} className="card p-5">
+                  <div className="flex items-baseline justify-between gap-2 mb-3">
+                    <div>
+                      <div className="text-xs text-ink-muted">{p.course.code}, Semester {p.course.semester}</div>
+                      <div className="font-semibold">{p.course.title}</div>
+                    </div>
+                  </div>
+                  {p.mentors.length === 0 ? (
+                    <p className="text-sm text-ink-muted">
+                      No mentors assigned to this subject yet. Check back once the
+                      admin assigns one.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {p.mentors.map((m) => (
+                        <form key={m.mentorId} action={chooseMentor} className="contents">
+                          <input type="hidden" name="courseId" value={p.course.id} />
+                          <input type="hidden" name="mentorId" value={m.mentorId} />
+                          <div className="rounded-md border border-rule p-3 flex flex-col gap-2">
+                            <div className="font-medium text-sm">{m.name}</div>
+                            <div className="text-xs text-ink-muted flex items-center gap-2 flex-wrap">
+                              {m.rating != null ? (
+                                <span className="inline-flex items-center gap-1">
+                                  <Star size={11} className="text-saffron fill-saffron" />
+                                  {m.rating.toFixed(1)}
+                                </span>
+                              ) : (
+                                <span>New mentor</span>
+                              )}
+                              {m.cgpa != null ? <span>CGPA {m.cgpa.toFixed(2)}</span> : null}
+                            </div>
+                            <div className="text-xs text-ink-muted">
+                              {m.full ? "Full" : `${m.remaining} of ${m.capacity} slots left`}
+                            </div>
+                            <button
+                              type="submit"
+                              disabled={m.full}
+                              className="btn btn-primary btn-sm w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {m.full ? "Full" : "Choose"}
+                            </button>
+                          </div>
+                        </form>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {liveSession ? (
         <section>
@@ -100,8 +204,9 @@ export default async function DashboardPage() {
 
           {myCourses.length === 0 ? (
             <div className="card p-6 text-sm text-ink-muted">
-              You are not enrolled in any course yet. An admin will assign
-              you once registration closes.
+              {pending.length > 0
+                ? "Pick a mentor above to unlock your first course."
+                : "You are not enrolled in any course yet. An admin will assign you once registration closes."}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

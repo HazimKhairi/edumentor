@@ -828,6 +828,57 @@ export async function enrolInCourse(formData: FormData) {
   redirect("/dashboard?enrolled=1");
 }
 
+// Mentee picks one mentor for a course they are enrolled in. Enforces: the
+// mentee is enrolled, the mentor offers the course, a slot is free, and the
+// mentee has not already chosen for this course. This is the gate — until a
+// MentorshipAssignment exists, the course's classes/assignments/discussion
+// stay locked for the mentee.
+export async function chooseMentor(formData: FormData) {
+  const me = await requireUser();
+  const courseId = getString(formData, "courseId");
+  const mentorId = getString(formData, "mentorId");
+  if (me.role !== "Mentee") redirect("/dashboard?error=not-mentee");
+  if (!courseId || !mentorId) redirect("/dashboard?error=missing");
+
+  // Must be enrolled as a mentee in this course.
+  const enrolled = await db.enrollment.findUnique({
+    where: {
+      userId_courseId_asRole: { userId: me.id, courseId, asRole: "Mentee" },
+    },
+  });
+  if (!enrolled) redirect("/dashboard?error=not-enrolled");
+
+  // Already chose? Idempotent, no double pick.
+  const existing = await db.mentorshipAssignment.findUnique({
+    where: { menteeId_courseId: { menteeId: me.id, courseId } },
+  });
+  if (existing) redirect("/dashboard");
+
+  // Mentor must offer this course.
+  const offering = await db.enrollment.findUnique({
+    where: {
+      userId_courseId_asRole: { userId: mentorId, courseId, asRole: "Mentor" },
+    },
+  });
+  if (!offering) redirect(`/dashboard?error=invalid-mentor`);
+
+  // Capacity check — count current mentees for this (mentor, course).
+  const cap = offering.capacity ?? MENTOR_MENTEE_CAP;
+  const taken = await db.mentorshipAssignment.count({
+    where: { mentorId, courseId },
+  });
+  if (taken >= cap) redirect(`/dashboard?error=mentor-full`);
+
+  await db.mentorshipAssignment.create({
+    data: { menteeId: me.id, mentorId, courseId },
+  });
+  revalidatePath("/dashboard");
+  revalidatePath("/discussion");
+  revalidatePath("/assignments");
+  revalidatePath("/attendance");
+  redirect("/dashboard?chosen=1");
+}
+
 export async function dropEnrolment(formData: FormData) {
   const me = await requireUser();
   const courseId = getString(formData, "courseId");
