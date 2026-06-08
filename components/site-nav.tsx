@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ChevronDown, LogOut, Search } from "lucide-react";
 import { navFor } from "@/lib/data";
 import { auth, signOut } from "@/auth";
+import { getUserCapabilities } from "@/lib/session";
 
 async function signOutAction() {
   "use server";
@@ -16,7 +17,19 @@ export async function SiteNav() {
     ? user.name.split(" ").map((p) => p[0]).slice(0, 2).join("")
     : "GU";
 
-  const nav = navFor(user?.role ?? null);
+  let nav = navFor(user?.role ?? null);
+  // G4 dual-role: surface the other console when the user has both capacities.
+  let switchLink: { href: string; label: string } | null = null;
+  if (user?.id) {
+    const caps = await getUserCapabilities(user.id);
+    if (user.role === "Mentor" && caps.isMentee) {
+      nav = [...nav, { href: "/dashboard", label: "My learning" }];
+      switchLink = { href: "/dashboard", label: "Switch to my learning" };
+    } else if (user.role === "Mentee" && caps.isMentor) {
+      nav = [...nav, { href: "/mentor", label: "Mentor console" }];
+      switchLink = { href: "/mentor", label: "Switch to mentor console" };
+    }
+  }
   const homeHref =
     user?.role === "Admin"
       ? "/admin"
@@ -97,6 +110,11 @@ export async function SiteNav() {
                       ? "Mentor console"
                       : "My learning"}
                 </Link>
+                {switchLink ? (
+                  <Link href={switchLink.href} className="block px-3 py-2 text-sm hover:bg-paper-dark">
+                    {switchLink.label}
+                  </Link>
+                ) : null}
                 {user.role !== "Admin" ? (
                   <Link href="/profile/face" className="block px-3 py-2 text-sm hover:bg-paper-dark">
                     Capture face

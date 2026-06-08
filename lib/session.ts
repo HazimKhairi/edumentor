@@ -25,3 +25,14 @@ export async function requireRole(allowed: Role | Role[]) {
   if (!list.includes(user.role)) redirect("/dashboard");
   return user;
 }
+
+// G4 dual-role: a user can act in more than one capacity. Capabilities are
+// derived from enrollments, not just User.role, so a Mentor who also studies a
+// course (or vice versa) gets both consoles.
+export async function getUserCapabilities(userId: string) {
+  const [mentorCount, menteeCount] = await Promise.all([
+    db.enrollment.count({ where: { userId, asRole: "Mentor" } }),
+    db.enrollment.count({ where: { userId, asRole: "Mentee" } }),
+  ]);
+  return { isMentor: mentorCount > 0, isMentee: menteeCount > 0 };
+}

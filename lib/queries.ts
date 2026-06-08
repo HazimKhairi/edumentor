@@ -193,16 +193,20 @@ export async function courseIdsForUser(
     const rows = await db.course.findMany({ select: { id: true } });
     return rows.map((r) => r.id);
   }
-  // Mentee access is gated by mentor choice: only courses where they have
-  // picked a mentor count. Enrolled-but-unpicked courses stay locked.
-  if (role === "Mentee") {
-    return chosenCourseIdsForMentee(userId);
-  }
-  const rows = await db.enrollment.findMany({
-    where: { userId, asRole: "Mentor" },
-    select: { courseId: true },
-  });
-  return rows.map((r) => r.courseId);
+  // G4 dual-role: a user may both mentor some courses and study others as a
+  // mentee. Accessible courses are the union of:
+  //   - courses they teach (Enrollment asRole=Mentor), and
+  //   - courses they study where a mentor has been chosen (gated).
+  // Pure mentees get only their chosen courses; pure mentors only their taught
+  // courses — the union collapses to the right thing in both cases.
+  const [mentorRows, chosen] = await Promise.all([
+    db.enrollment.findMany({
+      where: { userId, asRole: "Mentor" },
+      select: { courseId: true },
+    }),
+    chosenCourseIdsForMentee(userId),
+  ]);
+  return [...new Set([...mentorRows.map((r) => r.courseId), ...chosen])];
 }
 
 export async function coursesForUser(user: User): Promise<CourseView[]> {

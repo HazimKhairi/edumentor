@@ -878,10 +878,11 @@ export async function chooseMentor(formData: FormData) {
   const me = await requireUser();
   const courseId = getString(formData, "courseId");
   const mentorId = getString(formData, "mentorId");
-  if (me.role !== "Mentee") redirect("/dashboard?error=not-mentee");
   if (!courseId || !mentorId) redirect("/dashboard?error=missing");
 
-  // Must be enrolled as a mentee in this course.
+  // Anyone enrolled as a mentee in this course may pick (G4: a mentor studying
+  // their own-semester course counts too). The enrollment check below is the
+  // real gate, not User.role.
   const enrolled = await db.enrollment.findUnique({
     where: {
       userId_courseId_asRole: { userId: me.id, courseId, asRole: "Mentee" },

@@ -27,11 +27,16 @@ export default async function DashboardPage({
   searchParams: Promise<{ chosen?: string; error?: string }>;
 }) {
   const me = await requireUser();
-  // Mentee desk is mentee-only. Mentors and admins land here only via stale
-  // links — bounce them to their own console so they never see the mentee
-  // course list mixed into their view.
-  if (me.role === "Mentor") redirect("/mentor");
+  // Admins never have a mentee desk. Mentors land here only if they ALSO study
+  // a course as a mentee (G4 dual-role) — otherwise bounce them to their
+  // console so they never see an empty mentee view.
   if (me.role === "Admin") redirect("/admin");
+  if (me.role === "Mentor") {
+    const menteeEnrolments = await db.enrollment.count({
+      where: { userId: me.id, asRole: "Mentee" },
+    });
+    if (menteeEnrolments === 0) redirect("/mentor");
+  }
   const { chosen, error } = await searchParams;
 
   // A mentee must pick a mentor for each enrolled course before its content

@@ -145,6 +145,9 @@ async function main() {
     { userId: "u-004", courseId: "mat183", asRole: "Mentee" },
     { userId: "u-005", courseId: "mat210", asRole: "Mentee" },
     { userId: "u-012", courseId: "mat183", asRole: "Mentee" }, // pending pick
+    // G4 dual-role: Adam (sem 3) mentors MAT133/MAT183 AND studies MAT210 (his
+    // own semester) as a mentee under Nadia. Proves a user can hold both.
+    { userId: "u-006", courseId: "mat210", asRole: "Mentee" },
 
     // Mentors — capacity = mentee slots the admin granted for this offering.
     // MAT183 has TWO mentors so a sem-2 mentee gets a real choice.
@@ -177,6 +180,8 @@ async function main() {
       { menteeId: "u-004", mentorId: "u-006", courseId: "mat183" },
       // MAT210 mentees → Nadia (sem 5)
       { menteeId: "u-005", mentorId: "u-007", courseId: "mat210" },
+      // Adam (mentor elsewhere) studies MAT210 under Nadia — dual-role demo.
+      { menteeId: "u-006", mentorId: "u-007", courseId: "mat210" },
     ],
   });
 
