@@ -248,6 +248,19 @@ async function main() {
     ],
   });
 
+  console.log("Seeding assignment submissions (so grading has real work)…");
+  await db.assignmentSubmission.createMany({
+    data: [
+      // as-01 PS-04 (MAT133, mentor Adam) — Aiman submitted, already graded.
+      { assignmentId: "as-01", menteeId: "u-001", body: "My six function-composition problems with working shown.", linkUrl: "https://example.com/aiman-ps04", grade: "A-" },
+      // as-02 LAB-02 (MAT183, mentor Adam) — two submissions, ungraded (to grade in demo).
+      { assignmentId: "as-02", menteeId: "u-003", body: "Eight limit problems, squeeze theorem used on three.", linkUrl: "https://example.com/faris-lab02" },
+      { assignmentId: "as-02", menteeId: "u-004", body: "Limit calculations attached. Unsure about problem 6." },
+      // as-03 ESSAY-01 (MAT210, mentor Nadia) — Hafiz submitted, graded, closed.
+      { assignmentId: "as-03", menteeId: "u-005", body: "1300-word essay analysing the KL rail network as a graph.", grade: "B+" },
+    ],
+  });
+
   console.log("Seeding discussion rooms + messages…");
   await db.discussionRoom.createMany({
     data: [
