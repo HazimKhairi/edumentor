@@ -3,6 +3,7 @@
 
 import { db } from "@/lib/db";
 import type { Course, User } from "@prisma/client";
+import { MENTOR_MENTEE_CAP } from "@/lib/data";
 
 // ----------------------------------------------------------------------------
 // Courses
@@ -95,6 +96,93 @@ export async function mentorshipsForMentee(menteeId: string) {
   });
 }
 
+// Course IDs where the mentee has already CHOSEN a mentor. These are the only
+// courses whose classes / assignments / discussion the mentee may access. A
+// course the mentee enrolled in but hasn't picked a mentor for is "pending"
+// and stays gated until they choose (SV Syaza: pick first, then join).
+export async function chosenCourseIdsForMentee(menteeId: string): Promise<string[]> {
+  const rows = await db.mentorshipAssignment.findMany({
+    where: { menteeId },
+    select: { courseId: true },
+  });
+  return rows.map((r) => r.courseId);
+}
+
+// A mentor option a mentee can pick for one course: who they are, their slot
+// limit, how many mentees already chose them, and whether a slot remains.
+export type MentorOption = {
+  mentorId: string;
+  name: string;
+  cgpa: number | null;
+  rating: number | null;
+  capacity: number;
+  taken: number;
+  remaining: number;
+  full: boolean;
+};
+
+// All mentors the admin has assigned to a course, with live slot accounting.
+export async function mentorOptionsForCourse(courseId: string): Promise<MentorOption[]> {
+  const offerings = await db.enrollment.findMany({
+    where: { courseId, asRole: "Mentor" },
+    include: { user: { select: { id: true, name: true, cgpa: true } } },
+  });
+  if (offerings.length === 0) return [];
+
+  // Live mentee counts per mentor for this course.
+  const counts = await db.mentorshipAssignment.groupBy({
+    by: ["mentorId"],
+    where: { courseId },
+    _count: { menteeId: true },
+  });
+  const countMap = new Map(counts.map((c) => [c.mentorId, c._count.menteeId]));
+
+  // Average feedback rating per mentor for this course.
+  const ratings = await db.feedbackEntry.groupBy({
+    by: ["mentorId"],
+    where: { courseId },
+    _avg: { score: true },
+  });
+  const ratingMap = new Map(ratings.map((r) => [r.mentorId, r._avg.score]));
+
+  return offerings.map((o) => {
+    const capacity = o.capacity ?? MENTOR_MENTEE_CAP;
+    const taken = countMap.get(o.user.id) ?? 0;
+    const remaining = Math.max(0, capacity - taken);
+    return {
+      mentorId: o.user.id,
+      name: o.user.name,
+      cgpa: o.user.cgpa,
+      rating: ratingMap.get(o.user.id) ?? null,
+      capacity,
+      taken,
+      remaining,
+      full: remaining <= 0,
+    };
+  });
+}
+
+// Courses the mentee enrolled in but has NOT yet chosen a mentor for, each with
+// its pickable mentor options. Drives the dashboard mentor-picker.
+export async function pendingMentorChoices(menteeId: string) {
+  const [enrollments, chosen] = await Promise.all([
+    db.enrollment.findMany({
+      where: { userId: menteeId, asRole: "Mentee" },
+      include: { course: { select: { id: true, code: true, title: true, semester: true } } },
+    }),
+    chosenCourseIdsForMentee(menteeId),
+  ]);
+  const chosenSet = new Set(chosen);
+  const pending = enrollments.filter((e) => !chosenSet.has(e.courseId));
+
+  return Promise.all(
+    pending.map(async (e) => ({
+      course: e.course,
+      mentors: await mentorOptionsForCourse(e.courseId),
+    })),
+  );
+}
+
 // Course IDs the user has access to: as a mentee, the courses they enrolled
 // in; as a mentor, the courses they teach; as an admin, all courses.
 export async function courseIdsForUser(
@@ -105,9 +193,13 @@ export async function courseIdsForUser(
     const rows = await db.course.findMany({ select: { id: true } });
     return rows.map((r) => r.id);
   }
-  const asRole = role === "Mentor" ? "Mentor" : "Mentee";
+  // Mentee access is gated by mentor choice: only courses where they have
+  // picked a mentor count. Enrolled-but-unpicked courses stay locked.
+  if (role === "Mentee") {
+    return chosenCourseIdsForMentee(userId);
+  }
   const rows = await db.enrollment.findMany({
-    where: { userId, asRole },
+    where: { userId, asRole: "Mentor" },
     select: { courseId: true },
   });
   return rows.map((r) => r.courseId);

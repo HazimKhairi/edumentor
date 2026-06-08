@@ -115,6 +115,10 @@ model Enrollment {
   courseId String
   asRole   EnrollmentRole
   joinedAt DateTime       @default(now())
+  // Mentee-slot limit for this offering. Only meaningful when asRole = Mentor:
+  // how many mentees this mentor will accept for this course. Null falls back
+  // to MENTOR_MENTEE_CAP. Set/edited by the admin when assigning the mentor.
+  capacity Int?
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)

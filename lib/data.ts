@@ -21,6 +21,10 @@ export type Semester = (typeof SEMESTERS)[number];
 export const MENTOR_SUBJECT_CAP = 3;
 // Mentors must hold this CGPA or above.
 export const MENTOR_MIN_CGPA = 3.2;
+// Default mentee-slot limit per mentor per course, used when an offering does
+// not set its own Enrollment.capacity. Keeps mentor:mentee ratios balanced so
+// no single mentor is oversubscribed (SV Syaza's balance concern).
+export const MENTOR_MENTEE_CAP = 5;
 
 export const ROLES: {
   key: Role;

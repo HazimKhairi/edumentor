@@ -52,6 +52,9 @@ async function main() {
       { id: "u-003", name: "Faris Adlan",      identity: "2023611901", passwordHash, role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 2, cgpa: 3.31 },
       { id: "u-004", name: "Liyana Aziz",      identity: "2023612200", passwordHash, role: "Mentee", status: "Probation", joined: new Date("2024-09-01"), semester: 2, cgpa: 2.41 },
       { id: "u-005", name: "Hafiz Ridzwan",    identity: "2023612555", passwordHash, role: "Mentee", status: "Active",    joined: new Date("2024-09-01"), semester: 3, cgpa: 3.62 },
+      // Sem-2 mentee with NO mentor chosen yet — demonstrates the pick-a-mentor
+      // flow and the gate (locked out of MAT183 content until they choose).
+      { id: "u-012", name: "Iman Danish Sofian", identity: "2024611002", passwordHash, role: "Mentee", status: "Active", joined: new Date("2025-09-01"), semester: 2, cgpa: 3.45 },
     ],
   });
   console.log(`  → all users password = "${DEFAULT_PASSWORD}"`);
@@ -129,19 +132,27 @@ async function main() {
   console.log("Seeding enrollments…");
   // Mentee column matches each mentee's own semester (canonical rule).
   // Mentor column: each course gets a mentor whose semester is strictly later.
-  const enrollments: { userId: string; courseId: string; asRole: "Mentor" | "Mentee" }[] = [
+  const enrollments: {
+    userId: string;
+    courseId: string;
+    asRole: "Mentor" | "Mentee";
+    capacity?: number;
+  }[] = [
     // Mentees (joined exactly the course for their semester)
     { userId: "u-001", courseId: "mat133", asRole: "Mentee" },
     { userId: "u-002", courseId: "mat133", asRole: "Mentee" },
     { userId: "u-003", courseId: "mat183", asRole: "Mentee" },
     { userId: "u-004", courseId: "mat183", asRole: "Mentee" },
     { userId: "u-005", courseId: "mat210", asRole: "Mentee" },
+    { userId: "u-012", courseId: "mat183", asRole: "Mentee" }, // pending pick
 
-    // Mentors
-    { userId: "u-006", courseId: "mat133", asRole: "Mentor" }, // Adam, sem 3
-    { userId: "u-006", courseId: "mat183", asRole: "Mentor" }, // Adam, sem 3
-    { userId: "u-007", courseId: "mat210", asRole: "Mentor" }, // Nadia, sem 5
-    { userId: "u-008", courseId: "sta116", asRole: "Mentor" }, // Daniel, sem 6
+    // Mentors — capacity = mentee slots the admin granted for this offering.
+    // MAT183 has TWO mentors so a sem-2 mentee gets a real choice.
+    { userId: "u-006", courseId: "mat133", asRole: "Mentor", capacity: 4 }, // Adam, sem 3
+    { userId: "u-006", courseId: "mat183", asRole: "Mentor", capacity: 4 }, // Adam, sem 3
+    { userId: "u-008", courseId: "mat183", asRole: "Mentor", capacity: 3 }, // Daniel, sem 6
+    { userId: "u-007", courseId: "mat210", asRole: "Mentor", capacity: 4 }, // Nadia, sem 5
+    { userId: "u-008", courseId: "sta116", asRole: "Mentor", capacity: 3 }, // Daniel, sem 6
   ];
   await db.enrollment.createMany({ data: enrollments });
 
