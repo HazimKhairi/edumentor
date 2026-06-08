@@ -57,6 +57,24 @@ Issue yang need decision (e.g. G4 edge case, G5 mentor assignment model) saya ta
 - [x] Me2 — Courses catalogue hidden from mentor + mentee navs
 - [x] Me6 (partial) — feedback sidebar scoped to user's courses
 
+### Batch 5 — SV Syaza round 2 (2026-06-08) — mentor-assignment model
+Theme: admin assigns mentors to subjects, mentee picks one (capped), content
+gated until picked, grading, admin discussion access, 404s.
+- [x] G5(admin) — `40cafe0` Enrollment.capacity (mentee-slot cap) + scoping helpers
+  (chosenCourseIdsForMentee, mentorOptionsForCourse, pendingMentorChoices); seed
+  gained a 2nd mentor on MAT183 + one pending mentee (u-012)
+- [x] G5(admin UI) — `9af29cc` /admin/courses/[id] mentor-pool manager: assign /
+  remove mentors, set capacity, mentee roster + chosen mentor (fixes 404)
+- [x] Admin discussion — `9af29cc` Discussion added to admin nav; admin opens +
+  posts in every room; non-admins scope-guarded out of other groups' rooms
+- [x] G5(mentee) — `4f5deaa` chooseMentor action (cap + single-pick enforced) +
+  dashboard "Choose your mentor" picker; discussion/assignments/attendance gated
+  to courses where a mentor was chosen (flows via courseIdsForUser)
+- [x] Grading — `9eff1b3` /mentor/assignments/[id] grade page (assigned mentees'
+  submissions + grade input) + gradeSubmission action (fixes 404 + grading gap)
+- [x] Endpoint sweep — every link target resolves; both missing detail routes
+  (admin course, mentor assignment) created; smoke-tested all 3 roles authed
+
 ### Batch 4 — `c55aa96` (2026-06-07)
 - [x] G3 — register: real PDF transcript input + multipart form + success banner on login
 - [x] G6/A7 — feedback page renders the active Mentor rubric, scores averaged on submit
