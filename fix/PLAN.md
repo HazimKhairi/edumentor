@@ -57,6 +57,18 @@ Issue yang need decision (e.g. G4 edge case, G5 mentor assignment model) saya ta
 - [x] Me2 — Courses catalogue hidden from mentor + mentee navs
 - [x] Me6 (partial) — feedback sidebar scoped to user's courses
 
+### Batch 7 — caveat close-out (2026-06-08) — `5c16be5`
+Non-PDF engineering caveats raised after batch 6. Diagram (item 1) left to Hazim.
+- [x] (2) Dual-role self-registration — Mentor can tick "also studying my own
+  semester as a mentee" and pick own-sem subjects; saved as Mentee enrolments
+- [x] (3) enrolInCourse opened to non-admins so a dual Mentor self-enrols as mentee
+- [x] (4) AttendanceSession.classId FK — reliable class↔session link, replaces the
+  fragile time+room match (kept as legacy fallback); seed + migration applied
+- [x] (5) Removed encType from server-action forms — React warning gone (verified
+  0 occurrences in dev log)
+- grading demo data: seeded real AssignmentSubmission rows (`78f4440`) so the
+  grade page isn't empty on a fresh seed
+
 ### Batch 6 — close-out (2026-06-08) — last 2 deferred items
 - [x] Me5 (UX redesign) — `042c2fd` /attendance by-class list + /attendance/[classId]
   detail page (class info + live face widget or recorded roster, mentor controls)
