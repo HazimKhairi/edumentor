@@ -5,10 +5,12 @@ import { FaceAttendance } from "@/components/face-attendance";
 import { MenteeAttendanceConfirm } from "@/components/mentee-attendance-confirm";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
+import { ChevronRight, Radio } from "lucide-react";
 import {
   attendanceForUser,
   courseIdsForUser,
   getAttendanceSessionsView,
+  getClassesForUser,
   getRosterForSession,
 } from "@/lib/queries";
 
@@ -49,6 +51,9 @@ export default async function AttendancePage() {
   const sessions = allSessions.filter((s) => myCourseIdSet.has(s.courseId));
   const closed = sessions.filter((s) => s.state === "Closed");
 
+  // Me5: by-class list — click a class to see its info + attendance.
+  const myClasses = await getClassesForUser(myCourseIds);
+
   const rosterForRecognition = live ? await getRosterForSession(live.id) : [];
 
   const myTrail = me.role === "Mentee" ? await attendanceForUser(me.id) : [];
@@ -85,6 +90,46 @@ export default async function AttendancePage() {
             their roster and taps <span className="font-semibold text-ink">Verify</span>.
             A session only counts when both signatures are recorded.
           </p>
+        </div>
+      </section>
+
+      <section>
+        <div className="mx-auto max-w-[1200px] px-6 py-4">
+          <h2 className="font-semibold text-sm mb-3">My classes</h2>
+          {myClasses.length === 0 ? (
+            <div className="card p-5 text-sm text-ink-muted">
+              No classes for your courses yet.
+            </div>
+          ) : (
+            <ul className="card p-0 overflow-hidden divide-y divide-rule">
+              {myClasses.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/attendance/${c.id}`}
+                    className="flex items-center gap-3 px-4 py-3 hover:bg-paper-dark/30"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium truncate">{c.topic}</span>
+                        {c.state === "Live" ? (
+                          <span className="badge badge-oxblood inline-flex items-center gap-1">
+                            <Radio size={10} className="animate-pulse" /> Live
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="text-xs text-ink-muted tabular mt-0.5">
+                        {c.course}, {c.date} {c.time}, {c.room}, mentor {c.mentor}
+                      </div>
+                    </div>
+                    {c.state !== "Live" ? (
+                      <span className="badge badge-muted shrink-0">{c.state}</span>
+                    ) : null}
+                    <ChevronRight size={16} className="text-ink-muted shrink-0" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 

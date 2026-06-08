@@ -242,6 +242,50 @@ export async function attendanceForUser(userId: string) {
   });
 }
 
+// Per-class confirmed/verified roster, used by the class detail page (Me5).
+export async function attendanceRecordsForSession(sessionId: string) {
+  return db.menteeAttendance.findMany({
+    where: { sessionId },
+    include: { mentee: { select: { id: true, name: true, identity: true } } },
+    orderBy: { mentee: { name: "asc" } },
+  });
+}
+
+// The classes (ClassSession) visible to a user, scoped to their courses, with
+// the mentor name for each. Drives the by-class list on /attendance.
+export async function getClassesForUser(courseIds: string[]) {
+  if (courseIds.length === 0) return [];
+  const classes = await db.classSession.findMany({
+    where: { courseId: { in: courseIds } },
+    include: {
+      course: {
+        select: {
+          code: true,
+          enrollments: {
+            where: { asRole: "Mentor" },
+            include: { user: { select: { name: true } } },
+            take: 1,
+          },
+        },
+      },
+    },
+    orderBy: [{ state: "asc" }, { date: "desc" }],
+  });
+  return classes.map((c) => ({
+    id: c.id,
+    courseId: c.courseId,
+    course: c.course.code,
+    topic: c.topic,
+    date: c.date.toISOString().slice(0, 10),
+    time: c.time,
+    room: c.room,
+    format: c.format,
+    meetingLink: c.meetingLink,
+    state: c.state,
+    mentor: c.course.enrollments[0]?.user.name ?? "—",
+  }));
+}
+
 // ----------------------------------------------------------------------------
 // Sessions, assignments, events
 // ----------------------------------------------------------------------------
