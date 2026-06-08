@@ -378,6 +378,47 @@ export async function deleteAssignment(formData: FormData) {
   redirect("/mentor/assignments?deleted=1");
 }
 
+// Mentor grades one mentee submission. Scoped: the assignment must belong to a
+// course the mentor teaches, and the submitting mentee must be assigned to this
+// mentor for that course. Admin may grade anything.
+export async function gradeSubmission(formData: FormData) {
+  const me = await requireRole(["Mentor", "Admin"]);
+  const submissionId = getString(formData, "submissionId");
+  const grade = getString(formData, "grade");
+  if (!submissionId) redirect("/mentor/assignments");
+
+  const sub = await db.assignmentSubmission.findUnique({
+    where: { id: submissionId },
+    include: { assignment: { select: { id: true, courseId: true } } },
+  });
+  if (!sub) redirect("/mentor/assignments");
+  const { courseId } = sub.assignment;
+
+  if (me.role === "Mentor") {
+    const teaches = await db.enrollment.findUnique({
+      where: {
+        userId_courseId_asRole: { userId: me.id, courseId, asRole: "Mentor" },
+      },
+    });
+    if (!teaches) redirect("/mentor/assignments");
+    const assigned = await db.mentorshipAssignment.findUnique({
+      where: { menteeId_courseId: { menteeId: sub.menteeId, courseId } },
+    });
+    if (!assigned || assigned.mentorId !== me.id) {
+      redirect(`/mentor/assignments/${sub.assignment.id}?error=not-your-mentee`);
+    }
+  }
+
+  await db.assignmentSubmission.update({
+    where: { id: submissionId },
+    data: { grade: grade || null },
+  });
+  revalidatePath(`/mentor/assignments/${sub.assignment.id}`);
+  revalidatePath("/assignments");
+  revalidatePath(`/assignments/${sub.assignment.id}`);
+  redirect(`/mentor/assignments/${sub.assignment.id}?graded=1`);
+}
+
 // ----------------------------------------------------------------------------
 // Class session mutations (mentor)
 // ----------------------------------------------------------------------------

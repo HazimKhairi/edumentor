@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { ClipboardCheck, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { requireRole } from "@/lib/session";
@@ -92,7 +92,7 @@ export default async function MentorAssignmentsPage() {
                     <tr key={a.id} className="hover:bg-paper-dark/30">
                       <td className="px-4 py-3 font-medium tabular">{a.code}</td>
                       <td className="px-4 py-3">
-                        <Link href={`/assignments/${a.id}`} className="font-medium hover:text-oxblood">
+                        <Link href={`/mentor/assignments/${a.id}`} className="font-medium hover:text-oxblood">
                           {a.title}
                         </Link>
                       </td>
@@ -111,6 +111,13 @@ export default async function MentorAssignmentsPage() {
                       <td className="px-4 py-3"><span className={statusBadge[a.status]}>{a.status}</span></td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
+                          <Link
+                            href={`/mentor/assignments/${a.id}`}
+                            className="size-8 rounded-sm border border-rule hover:border-ink flex items-center justify-center"
+                            aria-label={`Grade ${a.code}`}
+                          >
+                            <ClipboardCheck size={14} />
+                          </Link>
                           <Link
                             href={`/mentor/assignments/${a.id}/edit`}
                             className="size-8 rounded-sm border border-rule hover:border-ink flex items-center justify-center"
