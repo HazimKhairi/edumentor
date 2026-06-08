@@ -7,10 +7,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { deleteUser } from "@/lib/actions";
 
-export async function generateStaticParams() {
-  const rows = await db.user.findMany({ select: { id: true } });
-  return rows.map((u) => ({ id: u.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function DeleteUserPage({
   params,

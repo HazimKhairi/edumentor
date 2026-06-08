@@ -7,10 +7,7 @@ import { requireRole } from "@/lib/session";
 import { getCourseView } from "@/lib/queries";
 import { updateCourse } from "@/lib/actions";
 
-export async function generateStaticParams() {
-  const rows = await db.course.findMany({ select: { id: true } });
-  return rows.map((c) => ({ id: c.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function EditCoursePage({
   params,

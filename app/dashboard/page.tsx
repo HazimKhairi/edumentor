@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { CalendarClock, ClipboardList, Radio } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
@@ -19,6 +20,11 @@ export const metadata = {
 
 export default async function DashboardPage() {
   const me = await requireUser();
+  // Mentee desk is mentee-only. Mentors and admins land here only via stale
+  // links — bounce them to their own console so they never see the mentee
+  // course list mixed into their view.
+  if (me.role === "Mentor") redirect("/mentor");
+  if (me.role === "Admin") redirect("/admin");
   // Me1: dashboard scoped strictly to courses I am enrolled in as a Mentee.
   const myCourses = await coursesForUserAsRole(me.id, "Mentee");
   const myCourseCodes = myCourses.map((c) => c.code);

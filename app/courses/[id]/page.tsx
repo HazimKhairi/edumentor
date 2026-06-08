@@ -10,10 +10,7 @@ import { db } from "@/lib/db";
 import { getCourseView, getFeedbackView } from "@/lib/queries";
 import { dropEnrolment, enrolInCourse } from "@/lib/actions";
 
-export async function generateStaticParams() {
-  const rows = await db.course.findMany({ select: { id: true } });
-  return rows.map((c) => ({ id: c.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function Page({
   params,

@@ -293,14 +293,85 @@ export async function deleteAssignment(formData: FormData) {
   await requireRole(["Mentor", "Admin"]);
   const id = getString(formData, "id");
   if (!id) redirect("/mentor/assignments");
+  // Cascade submissions first so the assignment delete doesn't FK-fail.
+  await db.assignmentSubmission.deleteMany({ where: { assignmentId: id } });
   await db.assignment.delete({ where: { id } });
   revalidatePath("/mentor/assignments");
-  redirect("/mentor/assignments");
+  revalidatePath("/assignments");
+  revalidatePath(`/assignments/${id}`);
+  revalidatePath("/dashboard");
+  redirect("/mentor/assignments?deleted=1");
 }
 
 // ----------------------------------------------------------------------------
 // Class session mutations (mentor)
 // ----------------------------------------------------------------------------
+
+// Open a Scheduled / Closed class as Live and create the matching
+// AttendanceSession so mentees can confirm and the mentor can verify. The
+// `expected` count comes from the enrolled Mentee roster for that course.
+export async function openClassAttendance(formData: FormData) {
+  await requireRole(["Mentor", "Admin"]);
+  const classId = getString(formData, "classId");
+  if (!classId) redirect("/mentor/classes");
+
+  const klass = await db.classSession.findUnique({ where: { id: classId } });
+  if (!klass) redirect("/mentor/classes");
+
+  // Close any other Live session for this course first so the mentor never has
+  // two competing live rooms open at once.
+  await db.classSession.updateMany({
+    where: { courseId: klass.courseId, state: "Live", NOT: { id: classId } },
+    data: { state: "Closed" },
+  });
+  await db.attendanceSession.updateMany({
+    where: { courseId: klass.courseId, state: "Live" },
+    data: { state: "Closed" },
+  });
+
+  await db.classSession.update({ where: { id: classId }, data: { state: "Live" } });
+
+  const expected = await db.enrollment.count({
+    where: { courseId: klass.courseId, asRole: "Mentee" },
+  });
+
+  // Reuse the same date/time/room from the class so history reads correctly.
+  await db.attendanceSession.create({
+    data: {
+      courseId: klass.courseId,
+      date: klass.date,
+      time: klass.time,
+      room: klass.room,
+      expected,
+      state: "Live",
+    },
+  });
+
+  revalidatePath("/mentor/classes");
+  revalidatePath("/attendance");
+  revalidatePath("/dashboard");
+  redirect("/attendance");
+}
+
+// Close the live class + its attendance session in one move.
+export async function closeClassAttendance(formData: FormData) {
+  await requireRole(["Mentor", "Admin"]);
+  const classId = getString(formData, "classId");
+  if (!classId) redirect("/mentor/classes");
+
+  const klass = await db.classSession.findUnique({ where: { id: classId } });
+  if (!klass) redirect("/mentor/classes");
+
+  await db.classSession.update({ where: { id: classId }, data: { state: "Closed" } });
+  await db.attendanceSession.updateMany({
+    where: { courseId: klass.courseId, state: "Live" },
+    data: { state: "Closed" },
+  });
+
+  revalidatePath("/mentor/classes");
+  revalidatePath("/attendance");
+  redirect("/mentor/classes");
+}
 
 export async function createClassSession(formData: FormData) {
   await requireRole(["Mentor", "Admin"]);

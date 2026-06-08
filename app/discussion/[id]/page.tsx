@@ -8,10 +8,7 @@ import { requireUser } from "@/lib/session";
 import { postReply, toggleRoomPin } from "@/lib/actions";
 import { RequiredMark } from "@/components/required-mark";
 
-export async function generateStaticParams() {
-  const rows = await db.discussionRoom.findMany({ select: { id: true } });
-  return rows.map((r) => ({ id: r.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function DiscussionThreadPage({
   params,

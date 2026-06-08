@@ -13,10 +13,7 @@ import {
   getAssignmentsView,
 } from "@/lib/queries";
 
-export async function generateStaticParams() {
-  const rows = await db.user.findMany({ select: { id: true } });
-  return rows.map((u) => ({ id: u.id }));
-}
+export const dynamic = "force-dynamic";
 
 const roleBadge: Record<string, string> = {
   Admin: "badge badge-oxblood",

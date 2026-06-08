@@ -1,10 +1,13 @@
 import Link from "next/link";
-import { Plus, Camera, Video } from "lucide-react";
+import { Plus, Camera, Video, Play, Square } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { courseIdsForUser } from "@/lib/queries";
+import { closeClassAttendance, openClassAttendance } from "@/lib/actions";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Manage classes | Mentor",
@@ -90,6 +93,12 @@ export default async function MentorClassesPage() {
               <Link href="/attendance" className="btn btn-primary">
                 <Camera size={16} /> Open attendance
               </Link>
+              <form action={closeClassAttendance}>
+                <input type="hidden" name="classId" value={live.id} />
+                <button type="submit" className="btn btn-ghost">
+                  <Square size={14} /> End class
+                </button>
+              </form>
             </div>
           </div>
         </section>
@@ -139,7 +148,15 @@ export default async function MentorClassesPage() {
                       {c.state === "Live" ? (
                         <Link href="/attendance" className="text-sm text-oxblood font-medium hover:text-oxblood-deep">Open</Link>
                       ) : c.state === "Scheduled" ? (
-                        <Link href="#" className="text-sm text-ink-muted hover:text-ink">Edit</Link>
+                        <form action={openClassAttendance} className="inline">
+                          <input type="hidden" name="classId" value={c.id} />
+                          <button
+                            type="submit"
+                            className="inline-flex items-center gap-1 text-sm text-oxblood font-medium hover:text-oxblood-deep"
+                          >
+                            <Play size={12} /> Start class
+                          </button>
+                        </form>
                       ) : (
                         <Link href="/reports" className="text-sm text-ink-muted hover:text-ink">View</Link>
                       )}

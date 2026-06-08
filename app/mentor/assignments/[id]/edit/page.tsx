@@ -6,10 +6,7 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { updateAssignment } from "@/lib/actions";
 
-export async function generateStaticParams() {
-  const rows = await db.assignment.findMany({ select: { id: true } });
-  return rows.map((a) => ({ id: a.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function EditAssignmentPage({
   params,
