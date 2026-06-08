@@ -217,8 +217,8 @@ async function main() {
   console.log("Seeding attendance sessions…");
   await db.attendanceSession.createMany({
     data: [
-      { id: "ses-01", courseId: "mat133", date: new Date("2026-05-04"), time: "14:00", room: "BD-3, Block A", expected: 2,  present: 0, state: "Live" },
-      { id: "ses-02", courseId: "mat183", date: new Date("2026-05-02"), time: "10:00", room: "Lab 2",          expected: 2,  present: 2, state: "Closed" },
+      { id: "ses-01", courseId: "mat133", classId: "cls-01", date: new Date("2026-05-04"), time: "14:00", room: "BD-3, Block A", expected: 2,  present: 0, state: "Live" },
+      { id: "ses-02", courseId: "mat183", classId: "cls-03", date: new Date("2026-05-02"), time: "10:00", room: "Lab 2",          expected: 2,  present: 2, state: "Closed" },
       { id: "ses-03", courseId: "mat133", date: new Date("2026-04-29"), time: "14:00", room: "BD-3, Block A", expected: 2,  present: 2, state: "Closed" },
       { id: "ses-04", courseId: "mat210", date: new Date("2026-04-25"), time: "09:00", room: "BD-1, Block C", expected: 1,  present: 1, state: "Closed" },
     ],

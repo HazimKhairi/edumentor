@@ -57,10 +57,15 @@ export default async function ClassDetailPage({
 
   const mentorName = klass.course.enrollments[0]?.user.name ?? "—";
 
-  // Find the attendance session tied to this class. A live class has a Live
-  // session for its course; a closed class matches by date + time + room.
+  // Find the attendance session tied to this class. Prefer the direct classId
+  // link (set when the mentor opens attendance); fall back to a course + time +
+  // room match for legacy rows that predate the FK.
   const attendanceSession =
-    klass.state === "Live"
+    (await db.attendanceSession.findFirst({
+      where: { classId: klass.id },
+      orderBy: { createdAt: "desc" },
+    })) ??
+    (klass.state === "Live"
       ? await db.attendanceSession.findFirst({
           where: { courseId: klass.courseId, state: "Live" },
         })
@@ -71,7 +76,7 @@ export default async function ClassDetailPage({
             room: klass.room,
           },
           orderBy: { createdAt: "desc" },
-        });
+        }));
 
   const isLive = klass.state === "Live" && attendanceSession?.state === "Live";
 

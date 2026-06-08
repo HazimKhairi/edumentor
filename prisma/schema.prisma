@@ -150,6 +150,7 @@ model ClassSession {
   meetingLink String?
 
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  attendanceSessions AttendanceSession[]
 
   createdAt DateTime @default(now())
 }
@@ -157,6 +158,7 @@ model ClassSession {
 model AttendanceSession {
   id       String     @id @default(cuid())
   courseId String
+  classId  String?
   date     DateTime
   time     String
   room     String
@@ -165,9 +167,12 @@ model AttendanceSession {
   state    ClassState @default(Scheduled)
 
   course  Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  class   ClassSession?      @relation(fields: [classId], references: [id], onDelete: SetNull)
   records MenteeAttendance[]
 
   createdAt DateTime @default(now())
+
+  @@index([classId])
 }
 
 model MenteeAttendance {

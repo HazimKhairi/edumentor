@@ -41,21 +41,30 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
   const [role, setRole] = useState<RoleKey>("Mentee");
   const [semester, setSemester] = useState<Semester>(1);
   const [pickedCourses, setPickedCourses] = useState<string[]>([]);
+  const [alsoMentee, setAlsoMentee] = useState(false);
+  const [menteeCourses, setMenteeCourses] = useState<string[]>([]);
   const [faceCaptured, setFaceCaptured] = useState(false);
   const [faceDescriptor, setFaceDescriptor] = useState<number[] | null>(null);
 
   // Reset course picks when role or semester changes — they may no longer be eligible.
   useEffect(() => {
     setPickedCourses([]);
+    setMenteeCourses([]);
+    if (role !== "Mentor") setAlsoMentee(false);
   }, [role, semester]);
 
   return (
-    <form action={registerAccount} encType="multipart/form-data" className="space-y-4">
+    <form action={registerAccount} className="space-y-4">
       <input type="hidden" name="semester" value={semester} />
       <input type="hidden" name="faceDescriptor" value={faceDescriptor ? JSON.stringify(faceDescriptor) : ""} />
       {pickedCourses.map((id) => (
         <input key={id} type="hidden" name="courseIds" value={id} />
       ))}
+      {role === "Mentor" && alsoMentee
+        ? menteeCourses.map((id) => (
+            <input key={`m-${id}`} type="hidden" name="menteeCourseIds" value={id} />
+          ))
+        : null}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-medium text-ink mb-1">
@@ -183,6 +192,37 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
       />
 
       {role === "Mentor" ? <MentorEligibilityFields /> : null}
+
+      {role === "Mentor" ? (
+        <div className="rounded-md border border-rule bg-paper-dark/40 p-3 space-y-2">
+          <label className="flex items-start gap-2 text-xs cursor-pointer">
+            <input
+              type="checkbox"
+              checked={alsoMentee}
+              onChange={(e) => setAlsoMentee(e.target.checked)}
+              className="size-4 mt-0.5 accent-oxblood"
+            />
+            <span>
+              <span className="font-semibold text-ink">
+                I&apos;m also studying my own semester as a mentee
+              </span>
+              <span className="block text-[11px] text-ink-muted">
+                Pick the Semester {semester} subjects you are taking. You will
+                choose a mentor for each after signing in.
+              </span>
+            </span>
+          </label>
+          {alsoMentee ? (
+            <CoursePicker
+              role="Mentee"
+              semester={semester}
+              picked={menteeCourses}
+              onChange={setMenteeCourses}
+              courses={courses}
+            />
+          ) : null}
+        </div>
+      ) : null}
 
       <label className="flex items-start gap-2 text-xs text-ink-soft cursor-pointer">
         <input type="checkbox" className="size-4 mt-0.5 accent-oxblood" />

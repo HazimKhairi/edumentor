@@ -133,6 +133,24 @@ export async function registerAccount(formData: FormData) {
 
   const passwordHash = await bcrypt.hash(password, 10);
 
+  // Primary enrolments match the chosen role. A Mentor may ALSO opt to study
+  // their own-semester subjects as a mentee (G4 dual-role) — those come in as
+  // menteeCourseIds and become Mentee enrolments alongside the mentor ones.
+  const enrollmentData = courseIds.map((courseId) => ({
+    courseId,
+    asRole: role,
+  }));
+  if (role === "Mentor") {
+    const menteeCourseIds = formData
+      .getAll("menteeCourseIds")
+      .filter((x): x is string => typeof x === "string");
+    for (const courseId of menteeCourseIds) {
+      if (!courseIds.includes(courseId)) {
+        enrollmentData.push({ courseId, asRole: "Mentee" });
+      }
+    }
+  }
+
   await db.user.create({
     data: {
       name,
@@ -143,12 +161,7 @@ export async function registerAccount(formData: FormData) {
       semester,
       cgpa,
       faceDescriptor,
-      enrollments: {
-        create: courseIds.map((courseId) => ({
-          courseId,
-          asRole: role,
-        })),
-      },
+      enrollments: { create: enrollmentData },
     },
   });
 
@@ -455,6 +468,7 @@ export async function openClassAttendance(formData: FormData) {
   await db.attendanceSession.create({
     data: {
       courseId: klass.courseId,
+      classId: klass.id,
       date: klass.date,
       time: klass.time,
       room: klass.room,
@@ -827,7 +841,9 @@ export async function enrolInCourse(formData: FormData) {
   const courseId = getString(formData, "courseId");
   if (!courseId) redirect("/courses");
 
-  if (me.role !== "Mentee") {
+  // G4 dual-role: a Mentor may also study their own-semester subjects as a
+  // mentee. Only Admins are barred from enrolling as students.
+  if (me.role === "Admin") {
     redirect(`/courses/${courseId}?error=not-mentee`);
   }
 

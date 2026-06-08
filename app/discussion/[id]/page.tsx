@@ -179,7 +179,6 @@ export default async function DiscussionThreadPage({
             ) : null}
             <form
               action={postReply}
-              encType="multipart/form-data"
               className="space-y-3"
             >
               <input type="hidden" name="roomId" value={room.id} />

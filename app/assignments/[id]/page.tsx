@@ -143,7 +143,6 @@ export default async function Page({
 
                   <form
                     action={submitAssignmentWork}
-                    encType="multipart/form-data"
                     className="space-y-4"
                   >
                     <input type="hidden" name="assignmentId" value={a.id} />
