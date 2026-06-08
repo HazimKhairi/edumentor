@@ -57,6 +57,14 @@ Issue yang need decision (e.g. G4 edge case, G5 mentor assignment model) saya ta
 - [x] Me2 — Courses catalogue hidden from mentor + mentee navs
 - [x] Me6 (partial) — feedback sidebar scoped to user's courses
 
+### Batch 6 — close-out (2026-06-08) — last 2 deferred items
+- [x] Me5 (UX redesign) — `042c2fd` /attendance by-class list + /attendance/[classId]
+  detail page (class info + live face widget or recorded roster, mentor controls)
+- [x] G4 — `f2c735d` dual-role SHIPPED (was deferred). A user can mentor some
+  courses and study others as a mentee at the same time. courseIdsForUser union,
+  getUserCapabilities, relaxed dashboard/chooseMentor gates, capability-aware nav,
+  Adam seeded as the dual demo. All 25 PDF issues now closed.
+
 ### Batch 5 — SV Syaza round 2 (2026-06-08) — mentor-assignment model
 Theme: admin assigns mentors to subjects, mentee picks one (capped), content
 gated until picked, grading, admin discussion access, 404s.
