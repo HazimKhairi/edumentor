@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { Pencil, Plus, Search, Trash2, Users } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { requireRole } from "@/lib/session";
@@ -91,6 +91,13 @@ export default async function AdminCoursesPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
+                          <Link
+                            href={`/admin/courses/${c.id}`}
+                            className="size-8 rounded-sm border border-rule hover:border-ink flex items-center justify-center"
+                            aria-label={`Manage mentors for ${c.code}`}
+                          >
+                            <Users size={14} />
+                          </Link>
                           <Link
                             href={`/admin/courses/${c.id}/edit`}
                             className="size-8 rounded-sm border border-rule hover:border-ink flex items-center justify-center"

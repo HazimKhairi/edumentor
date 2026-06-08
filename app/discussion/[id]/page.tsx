@@ -5,6 +5,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
+import { courseIdsForUser } from "@/lib/queries";
 import { postReply, toggleRoomPin } from "@/lib/actions";
 import { RequiredMark } from "@/components/required-mark";
 
@@ -32,6 +33,13 @@ export default async function DiscussionThreadPage({
     },
   });
   if (!room) notFound();
+
+  // Scope guard: admin sees every room; mentor/mentee may only open a room for
+  // a course they belong to (mentee = mentor chosen, mentor = teaches it).
+  if (me.role !== "Admin") {
+    const myCourseIds = await courseIdsForUser(me.id, me.role);
+    if (!myCourseIds.includes(room.courseId)) notFound();
+  }
 
   const canModerate = me.role === "Mentor" || me.role === "Admin";
 

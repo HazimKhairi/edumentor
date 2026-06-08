@@ -92,6 +92,7 @@ const NAV_ADMIN = [
   { href: "/admin", label: "Dashboard" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/courses", label: "Courses" },
+  { href: "/discussion", label: "Discussion" },
   { href: "/admin/evaluations", label: "Evaluations" },
   { href: "/reports", label: "Reports" },
 ];

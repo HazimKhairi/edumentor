@@ -11,7 +11,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { db } from "@/lib/db";
 import { requireRole, requireUser } from "@/lib/session";
-import { MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
+import { MENTOR_MENTEE_CAP, MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
 import { saveUploadedFile } from "@/lib/upload";
 
 function getFile(fd: FormData, name: string): File | null {
@@ -231,6 +231,81 @@ export async function deleteCourse(formData: FormData) {
   revalidatePath("/admin/courses");
   revalidatePath("/courses");
   redirect("/admin/courses");
+}
+
+// ----------------------------------------------------------------------------
+// Mentor pool management (admin assigns mentors to subjects) — G5
+// ----------------------------------------------------------------------------
+
+// Admin attaches a mentor to a course as an available option for mentees, with
+// a mentee-slot capacity. Mentors must hold the Mentor role and have passed the
+// subject (course semester strictly below their own).
+export async function assignMentorToCourse(formData: FormData) {
+  await requireRole("Admin");
+  const courseId = getString(formData, "courseId");
+  const mentorId = getString(formData, "mentorId");
+  const capacity = getInt(formData, "capacity", MENTOR_MENTEE_CAP);
+  if (!courseId || !mentorId) redirect(`/admin/courses/${courseId || ""}?error=missing`);
+
+  const [course, mentor] = await Promise.all([
+    db.course.findUnique({ where: { id: courseId } }),
+    db.user.findUnique({ where: { id: mentorId } }),
+  ]);
+  if (!course || !mentor) redirect(`/admin/courses/${courseId}?error=notfound`);
+  if (mentor.role !== "Mentor") {
+    redirect(`/admin/courses/${courseId}?error=not-mentor`);
+  }
+  // Canonical rule: a mentor may only mentor subjects from a semester earlier
+  // than their own (a subject they have already passed).
+  if (mentor.semester != null && course.semester >= mentor.semester) {
+    redirect(`/admin/courses/${courseId}?error=semester`);
+  }
+
+  await db.enrollment.upsert({
+    where: {
+      userId_courseId_asRole: { userId: mentorId, courseId, asRole: "Mentor" },
+    },
+    create: { userId: mentorId, courseId, asRole: "Mentor", capacity: Math.max(1, capacity) },
+    update: { capacity: Math.max(1, capacity) },
+  });
+  revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath("/admin/courses");
+  redirect(`/admin/courses/${courseId}?assigned=1`);
+}
+
+// Admin changes only the slot capacity for an existing mentor offering.
+export async function setMentorCapacity(formData: FormData) {
+  await requireRole("Admin");
+  const courseId = getString(formData, "courseId");
+  const mentorId = getString(formData, "mentorId");
+  const capacity = getInt(formData, "capacity", MENTOR_MENTEE_CAP);
+  if (!courseId || !mentorId) redirect(`/admin/courses/${courseId || ""}`);
+  await db.enrollment.update({
+    where: {
+      userId_courseId_asRole: { userId: mentorId, courseId, asRole: "Mentor" },
+    },
+    data: { capacity: Math.max(1, capacity) },
+  });
+  revalidatePath(`/admin/courses/${courseId}`);
+  redirect(`/admin/courses/${courseId}?capacity=1`);
+}
+
+// Admin removes a mentor offering. Any mentees who chose this mentor for the
+// course are released back to "pending" so they can pick another.
+export async function removeMentorFromCourse(formData: FormData) {
+  await requireRole("Admin");
+  const courseId = getString(formData, "courseId");
+  const mentorId = getString(formData, "mentorId");
+  if (!courseId || !mentorId) redirect(`/admin/courses/${courseId || ""}`);
+  await db.$transaction([
+    db.mentorshipAssignment.deleteMany({ where: { courseId, mentorId } }),
+    db.enrollment.deleteMany({
+      where: { userId: mentorId, courseId, asRole: "Mentor" },
+    }),
+  ]);
+  revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath("/admin/courses");
+  redirect(`/admin/courses/${courseId}?removed=1`);
 }
 
 // ----------------------------------------------------------------------------
