@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { StarRating } from "@/components/star-rating";
 import { db } from "@/lib/db";
 import { getCoursesView, getFeedbackView, getStats } from "@/lib/queries";
+import { requireRole } from "@/lib/session";
 
 type CourseRow = {
   id: string;
@@ -82,6 +83,7 @@ const sevBadge: Record<string, string> = {
 };
 
 export default async function ReportsPage() {
+  await requireRole("Admin");
   const [COURSES, FEEDBACK_ENTRIES, STATS, COURSE_ROWS] = await Promise.all([
     getCoursesView(),
     getFeedbackView(),

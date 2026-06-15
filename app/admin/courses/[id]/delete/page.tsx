@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
 import { getCourseView } from "@/lib/queries";
 import { deleteCourse } from "@/lib/actions";

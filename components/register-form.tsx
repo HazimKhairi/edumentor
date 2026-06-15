@@ -46,12 +46,18 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
   const [faceCaptured, setFaceCaptured] = useState(false);
   const [faceDescriptor, setFaceDescriptor] = useState<number[] | null>(null);
 
-  // Reset course picks when role or semester changes — they may no longer be eligible.
-  useEffect(() => {
+  // Reset course picks when role or semester changes — eligibility may have shifted.
+  const changeRole = (next: RoleKey) => {
+    setRole(next);
     setPickedCourses([]);
     setMenteeCourses([]);
-    if (role !== "Mentor") setAlsoMentee(false);
-  }, [role, semester]);
+    if (next !== "Mentor") setAlsoMentee(false);
+  };
+  const changeSemester = (next: Semester) => {
+    setSemester(next);
+    setPickedCourses([]);
+    setMenteeCourses([]);
+  };
 
   return (
     <form action={registerAccount} className="space-y-4">
@@ -141,7 +147,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
                   name="role"
                   value={r.key}
                   checked={role === r.key}
-                  onChange={() => setRole(r.key as RoleKey)}
+                  onChange={() => changeRole(r.key as RoleKey)}
                   className="sr-only"
                 />
                 <span className="text-[10px] text-ink-muted font-semibold">
@@ -158,7 +164,7 @@ export function RegisterForm({ courses }: { courses: CourseOption[] }) {
           </label>
           <select
             value={semester}
-            onChange={(e) => setSemester(Number(e.target.value) as Semester)}
+            onChange={(e) => changeSemester(Number(e.target.value) as Semester)}
             className="input py-2 text-sm"
           >
             {SEMESTERS.map((s) => (
