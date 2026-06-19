@@ -11,7 +11,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { db } from "@/lib/db";
 import { requireRole, requireUser } from "@/lib/session";
-import { MENTOR_MENTEE_CAP, MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
+import { MENTOR_COURSE_CAP, MENTOR_MENTEE_CAP, MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
 import { saveUploadedFile } from "@/lib/upload";
 
 function getFile(fd: FormData, name: string): File | null {
@@ -272,6 +272,23 @@ export async function assignMentorToCourse(formData: FormData) {
   // than their own (a subject they have already passed).
   if (mentor.semester != null && course.semester >= mentor.semester) {
     redirect(`/admin/courses/${courseId}?error=semester`);
+  }
+
+  // Cap the mentor pool per subject. Only blocks adding a NEW mentor; editing
+  // the capacity of a mentor already on this course still goes through.
+  const alreadyMentor = await db.enrollment.findUnique({
+    where: {
+      userId_courseId_asRole: { userId: mentorId, courseId, asRole: "Mentor" },
+    },
+    select: { userId: true },
+  });
+  if (!alreadyMentor) {
+    const mentorCount = await db.enrollment.count({
+      where: { courseId, asRole: "Mentor" },
+    });
+    if (mentorCount >= MENTOR_COURSE_CAP) {
+      redirect(`/admin/courses/${courseId}?error=mentor-cap`);
+    }
   }
 
   await db.enrollment.upsert({

@@ -11,22 +11,26 @@ import {
   removeMentorFromCourse,
   setMentorCapacity,
 } from "@/lib/actions";
-import { MENTOR_MENTEE_CAP } from "@/lib/data";
+import { MENTOR_COURSE_CAP, MENTOR_MENTEE_CAP } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminCourseDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ error?: string }>;
 }) {
   await requireRole("Admin");
   const { id } = await params;
+  const { error } = await searchParams;
   const c = await getCourseView(id);
   if (!c) notFound();
 
   const mentors = await mentorOptionsForCourse(id);
   const assignedIds = new Set(mentors.map((m) => m.mentorId));
+  const poolFull = mentors.length >= MENTOR_COURSE_CAP;
 
   // Eligible to add: Mentor-role users who passed this subject (their semester
   // is strictly above the course semester) and aren't already in the pool.
@@ -81,12 +85,22 @@ export default async function AdminCourseDetailPage({
           <div className="lg:col-span-3 space-y-5">
             <div className="flex items-center gap-2">
               <Users size={18} className="text-oxblood" />
-              <h2 className="text-lg font-semibold">Assigned mentors</h2>
+              <h2 className="text-lg font-semibold">
+                Assigned mentors ({mentors.length}/{MENTOR_COURSE_CAP})
+              </h2>
             </div>
             <p className="text-sm text-ink-muted -mt-3">
-              Mentees pick one of these for {c.code}. Capacity caps how many
-              mentees each mentor accepts, keeping the ratio balanced.
+              Mentees pick one of these for {c.code}. A subject takes up to{" "}
+              {MENTOR_COURSE_CAP} mentors, and capacity caps how many mentees each
+              mentor accepts, keeping the ratio balanced.
             </p>
+
+            {error === "mentor-cap" ? (
+              <div className="rounded-md border border-oxblood/40 bg-oxblood/[0.06] px-3 py-2 text-sm text-oxblood">
+                This subject already has the maximum of {MENTOR_COURSE_CAP}{" "}
+                mentors. Remove one before adding another.
+              </div>
+            ) : null}
 
             {mentors.length === 0 ? (
               <div className="card p-6 text-sm text-ink-muted">
@@ -144,7 +158,12 @@ export default async function AdminCourseDetailPage({
                 <h3 className="font-medium">Assign a mentor</h3>
               </div>
               <input type="hidden" name="courseId" value={c.id} />
-              {eligible.length === 0 ? (
+              {poolFull ? (
+                <p className="text-sm text-ink-muted">
+                  Mentor pool is full ({MENTOR_COURSE_CAP} max). Remove a mentor
+                  before adding another.
+                </p>
+              ) : eligible.length === 0 ? (
                 <p className="text-sm text-ink-muted">
                   No eligible mentors left. A mentor must have passed {c.code}
                   {" "}(their semester above {c.semester}) and not already be in the pool.

@@ -25,6 +25,9 @@ export const MENTOR_MIN_CGPA = 3.2;
 // not set its own Enrollment.capacity. Keeps mentor:mentee ratios balanced so
 // no single mentor is oversubscribed (SV Syaza's balance concern).
 export const MENTOR_MENTEE_CAP = 5;
+// A subject may have at most this many mentors assigned to it (SV Syaza: cap
+// the mentor pool per subject so it stays manageable).
+export const MENTOR_COURSE_CAP = 10;
 
 export const ROLES: {
   key: Role;
