@@ -14,6 +14,7 @@ import {
   getAssignmentsView,
   getUpcomingEvents,
   pendingMentorChoices,
+  visibilityScope,
 } from "@/lib/queries";
 
 export const metadata = {
@@ -49,17 +50,20 @@ export default async function DashboardPage({
   const chosenSet = new Set(chosenIds);
   // Me1 + gate: active sections scoped strictly to courses with a chosen mentor.
   const myCourses = allCourses.filter((c) => chosenSet.has(c.id));
-  const myCourseCodes = myCourses.map((c) => c.code);
+  // Each mentee only sees content from the mentor assigned to them per course,
+  // never another mentor's of the same course. The chosen-mentor pairs that
+  // back visibilityScope are exactly the active (gated) courses above.
+  const scope = await visibilityScope(me);
 
   const [liveSession, openAssignments, myEvents, myAttendance] = await Promise.all([
     db.attendanceSession.findFirst({
-      where: { state: "Live", course: { code: { in: myCourseCodes } } },
+      where: { state: "Live", ...(scope ?? {}) },
       include: { course: { select: { code: true } } },
     }),
-    getAssignmentsView(myCourseCodes).then((rows) =>
+    getAssignmentsView(scope).then((rows) =>
       rows.filter((a) => a.status !== "Closed").slice(0, 3),
     ),
-    getUpcomingEvents(myCourseCodes),
+    getUpcomingEvents(scope),
     attendanceRate(me.id),
   ]);
 

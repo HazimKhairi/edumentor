@@ -2,7 +2,7 @@
 // match the original lib/data.ts shapes, so page templates can stay simple.
 
 import { db } from "@/lib/db";
-import type { Course, User } from "@prisma/client";
+import type { Course, User, Prisma } from "@prisma/client";
 import { MENTOR_MENTEE_CAP } from "@/lib/data";
 
 // ----------------------------------------------------------------------------
@@ -255,23 +255,75 @@ export async function attendanceRecordsForSession(sessionId: string) {
   });
 }
 
-// The classes (ClassSession) visible to a user, scoped to their courses, with
-// the mentor name for each. Drives the by-class list on /attendance.
-export async function getClassesForUser(courseIds: string[]) {
-  if (courseIds.length === 0) return [];
+// ----------------------------------------------------------------------------
+// Mentor-scoped visibility
+//
+// Each mentor handles their own mentees only. Assignments, classes, attendance
+// and discussion rooms carry a `mentorId`; these helpers limit who may see a
+// given row so a mentee under Abu never receives content created by Ali, even
+// when both mentor the same course.
+// ----------------------------------------------------------------------------
+
+type UserScope = { id: string; role: "Admin" | "Mentor" | "Mentee" };
+
+// A Prisma where-fragment scoping mentor-owned, course-bound content to a user:
+//   Admin  -> no filter (sees everything)
+//   Mentor -> rows they own
+//   Mentee -> rows owned by the mentor they are assigned to, per course
+// Dual-role users (a mentor who also studies a course as a mentee) get both.
+// The returned shape is structurally valid for any model with `mentorId` and
+// `courseId` columns.
+export async function visibilityScope(
+  user: UserScope,
+): Promise<{ OR: Array<{ mentorId: string } | { courseId: string; mentorId: string }> } | undefined> {
+  if (user.role === "Admin") return undefined;
+  const pairs = await db.mentorshipAssignment.findMany({
+    where: { menteeId: user.id },
+    select: { courseId: true, mentorId: true },
+  });
+  const or: Array<{ mentorId: string } | { courseId: string; mentorId: string }> = [
+    { mentorId: user.id }, // content this user owns as a mentor
+  ];
+  for (const p of pairs) or.push({ courseId: p.courseId, mentorId: p.mentorId });
+  return { OR: or };
+}
+
+// Strict ownership filter for mentor MANAGEMENT pages (mentor console): a
+// mentor manages only the rows they own, never content they merely study under
+// another mentor as a dual-role mentee. Admin manages everything.
+export function ownedScope(
+  user: UserScope,
+): { mentorId: string } | undefined {
+  if (user.role === "Admin") return undefined;
+  return { mentorId: user.id };
+}
+
+// Detail-page guard: may `user` open a single row owned by `mentorId` in
+// `courseId`? Mirrors visibilityScope for one-row access checks.
+export async function canSeeMentorContent(
+  user: UserScope,
+  courseId: string,
+  mentorId: string | null,
+): Promise<boolean> {
+  if (user.role === "Admin") return true;
+  if (mentorId && mentorId === user.id) return true;
+  if (!mentorId) return false;
+  const match = await db.mentorshipAssignment.findFirst({
+    where: { menteeId: user.id, courseId, mentorId },
+    select: { mentorId: true },
+  });
+  return Boolean(match);
+}
+
+// The classes (ClassSession) visible to a user, with the mentor name for each.
+// Drives the by-class list on /attendance. Pass visibilityScope(user) as the
+// where-fragment so each mentor's mentees only see their own mentor's classes.
+export async function getClassesForUser(where?: Prisma.ClassSessionWhereInput) {
   const classes = await db.classSession.findMany({
-    where: { courseId: { in: courseIds } },
+    where,
     include: {
-      course: {
-        select: {
-          code: true,
-          enrollments: {
-            where: { asRole: "Mentor" },
-            include: { user: { select: { name: true } } },
-            take: 1,
-          },
-        },
-      },
+      course: { select: { code: true } },
+      mentor: { select: { name: true } },
     },
     orderBy: [{ state: "asc" }, { date: "desc" }],
   });
@@ -286,7 +338,7 @@ export async function getClassesForUser(courseIds: string[]) {
     format: c.format,
     meetingLink: c.meetingLink,
     state: c.state,
-    mentor: c.course.enrollments[0]?.user.name ?? "—",
+    mentor: c.mentor?.name ?? "—",
   }));
 }
 
@@ -298,8 +350,11 @@ export type AttendanceSessionView = Awaited<
   ReturnType<typeof getAttendanceSessionsView>
 >[number];
 
-export async function getAttendanceSessionsView() {
+export async function getAttendanceSessionsView(
+  where?: Prisma.AttendanceSessionWhereInput,
+) {
   const rows = await db.attendanceSession.findMany({
+    where,
     include: { course: { select: { code: true } } },
     orderBy: { date: "desc" },
   });
@@ -310,11 +365,11 @@ export async function getAttendanceSessionsView() {
   }));
 }
 
-export async function getAssignmentsView(forCourseCodes?: string[]) {
+export async function getAssignmentsView(where?: Prisma.AssignmentWhereInput) {
   const rows = await db.assignment.findMany({
     include: { course: { select: { code: true } } },
     orderBy: { due: "asc" },
-    where: forCourseCodes ? { course: { code: { in: forCourseCodes } } } : undefined,
+    where,
   });
   return rows.map((a) => ({
     ...a,
@@ -327,9 +382,9 @@ export async function getAssignmentsView(forCourseCodes?: string[]) {
 }
 
 // Today's schedule, derived from ClassSession.
-export async function getUpcomingEvents(forCourseCodes?: string[]) {
+export async function getUpcomingEvents(where?: Prisma.ClassSessionWhereInput) {
   const rows = await db.classSession.findMany({
-    where: forCourseCodes ? { course: { code: { in: forCourseCodes } } } : undefined,
+    where,
     include: { course: { select: { code: true } } },
     orderBy: { date: "asc" },
     take: 6,
@@ -347,8 +402,9 @@ export async function getUpcomingEvents(forCourseCodes?: string[]) {
 // Discussion + feedback
 // ----------------------------------------------------------------------------
 
-export async function getRoomsView() {
+export async function getRoomsView(where?: Prisma.DiscussionRoomWhereInput) {
   const rows = await db.discussionRoom.findMany({
+    where,
     include: {
       course: { select: { code: true } },
       starter: { select: { name: true, role: true } },

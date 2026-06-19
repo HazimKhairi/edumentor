@@ -27,19 +27,9 @@ export default async function MentorAssignmentDetailPage({
   });
   if (!assignment) notFound();
 
-  // Mentor may only open assignments for a course they teach.
-  if (me.role === "Mentor") {
-    const teaches = await db.enrollment.findUnique({
-      where: {
-        userId_courseId_asRole: {
-          userId: me.id,
-          courseId: assignment.courseId,
-          asRole: "Mentor",
-        },
-      },
-    });
-    if (!teaches) notFound();
-  }
+  // Mentor may only open assignments they own — not another mentor's of the
+  // same course. Admin bypasses.
+  if (me.role === "Mentor" && assignment.mentorId !== me.id) notFound();
 
   // Submissions to show: a mentor sees only their assigned mentees' work; an
   // admin sees everyone's.

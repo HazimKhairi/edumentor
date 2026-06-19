@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { DiscussionFilter } from "@/components/discussion-filter";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { courseIdsForUser, getRoomsView } from "@/lib/queries";
+import { courseIdsForUser, getRoomsView, visibilityScope } from "@/lib/queries";
 
 export const metadata = {
   title: "Discussion | EduMentor",
@@ -14,12 +14,11 @@ export const metadata = {
 
 export default async function DiscussionPage() {
   const me = await requireUser();
-  // Me3: only rooms for courses I am part of (enrolled mentee, or teaching
-  // mentor, or admin sees everything).
+  // Each mentor handles their own mentees: a mentee only sees rooms owned by
+  // the mentor assigned to them per course; a mentor sees their own. Admin sees
+  // all. (myCourseIds still drives the course picker for starting a room.)
   const myCourseIds = await courseIdsForUser(me.id, me.role);
-  const myCourseIdSet = new Set(myCourseIds);
-  const allRooms = await getRoomsView();
-  const rooms = allRooms.filter((r) => myCourseIdSet.has(r.courseId));
+  const rooms = await getRoomsView(await visibilityScope(me));
   const myCourses = await db.course.findMany({
     where: { id: { in: myCourseIds } },
     select: { code: true },

@@ -9,7 +9,7 @@ import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
 import {
   attendanceRecordsForSession,
-  courseIdsForUser,
+  canSeeMentorContent,
   getRosterForSession,
 } from "@/lib/queries";
 import { closeClassAttendance, openClassAttendance } from "@/lib/actions";
@@ -33,29 +33,17 @@ export default async function ClassDetailPage({
   const klass = await db.classSession.findUnique({
     where: { id: classId },
     include: {
-      course: {
-        select: {
-          id: true,
-          code: true,
-          title: true,
-          enrollments: {
-            where: { asRole: "Mentor" },
-            include: { user: { select: { name: true } } },
-            take: 1,
-          },
-        },
-      },
+      course: { select: { id: true, code: true, title: true } },
+      mentor: { select: { name: true } },
     },
   });
   if (!klass) notFound();
 
-  // Scope: must belong to the class's course (admin bypasses).
-  if (me.role !== "Admin") {
-    const myCourseIds = await courseIdsForUser(me.id, me.role);
-    if (!myCourseIds.includes(klass.courseId)) notFound();
-  }
+  // Scope: a mentee opens only their own mentor's class; a mentor only their
+  // own. Admin bypasses.
+  if (!(await canSeeMentorContent(me, klass.courseId, klass.mentorId))) notFound();
 
-  const mentorName = klass.course.enrollments[0]?.user.name ?? "—";
+  const mentorName = klass.mentor?.name ?? "—";
 
   // Find the attendance session tied to this class. Prefer the direct classId
   // link (set when the mentor opens attendance); fall back to a course + time +

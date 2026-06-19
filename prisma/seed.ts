@@ -207,20 +207,20 @@ async function main() {
   console.log("Seeding class sessions…");
   await db.classSession.createMany({
     data: [
-      { id: "cls-01", courseId: "mat133", topic: "Functions and graphs",       date: new Date("2026-05-04"), time: "14:00", room: "BD-3, Block A", state: "Live",      format: "InPerson" },
-      { id: "cls-02", courseId: "mat133", topic: "Trigonometric identities",   date: new Date("2026-05-06"), time: "14:00", room: "Online",        state: "Scheduled", format: "Online", meetingLink: "https://meet.google.com/abc-defg-hij" },
-      { id: "cls-03", courseId: "mat183", topic: "Derivatives intuition",      date: new Date("2026-05-07"), time: "10:00", room: "Lab 2",          state: "Scheduled", format: "Hybrid", meetingLink: "https://meet.google.com/xyz-pqrs-tuv" },
-      { id: "cls-04", courseId: "mat210", topic: "Graph theory primer",        date: new Date("2026-05-08"), time: "11:00", room: "Room 4-08",     state: "Scheduled", format: "InPerson" },
+      { id: "cls-01", courseId: "mat133", mentorId: "u-006", topic: "Functions and graphs",       date: new Date("2026-05-04"), time: "14:00", room: "BD-3, Block A", state: "Live",      format: "InPerson" },
+      { id: "cls-02", courseId: "mat133", mentorId: "u-006", topic: "Trigonometric identities",   date: new Date("2026-05-06"), time: "14:00", room: "Online",        state: "Scheduled", format: "Online", meetingLink: "https://meet.google.com/abc-defg-hij" },
+      { id: "cls-03", courseId: "mat183", mentorId: "u-006", topic: "Derivatives intuition",      date: new Date("2026-05-07"), time: "10:00", room: "Lab 2",          state: "Scheduled", format: "Hybrid", meetingLink: "https://meet.google.com/xyz-pqrs-tuv" },
+      { id: "cls-04", courseId: "mat210", mentorId: "u-007", topic: "Graph theory primer",        date: new Date("2026-05-08"), time: "11:00", room: "Room 4-08",     state: "Scheduled", format: "InPerson" },
     ],
   });
 
   console.log("Seeding attendance sessions…");
   await db.attendanceSession.createMany({
     data: [
-      { id: "ses-01", courseId: "mat133", classId: "cls-01", date: new Date("2026-05-04"), time: "14:00", room: "BD-3, Block A", expected: 2,  present: 0, state: "Live" },
-      { id: "ses-02", courseId: "mat183", classId: "cls-03", date: new Date("2026-05-02"), time: "10:00", room: "Lab 2",          expected: 2,  present: 2, state: "Closed" },
-      { id: "ses-03", courseId: "mat133", date: new Date("2026-04-29"), time: "14:00", room: "BD-3, Block A", expected: 2,  present: 2, state: "Closed" },
-      { id: "ses-04", courseId: "mat210", date: new Date("2026-04-25"), time: "09:00", room: "BD-1, Block C", expected: 1,  present: 1, state: "Closed" },
+      { id: "ses-01", courseId: "mat133", mentorId: "u-006", classId: "cls-01", date: new Date("2026-05-04"), time: "14:00", room: "BD-3, Block A", expected: 2,  present: 0, state: "Live" },
+      { id: "ses-02", courseId: "mat183", mentorId: "u-006", classId: "cls-03", date: new Date("2026-05-02"), time: "10:00", room: "Lab 2",          expected: 2,  present: 2, state: "Closed" },
+      { id: "ses-03", courseId: "mat133", mentorId: "u-006", date: new Date("2026-04-29"), time: "14:00", room: "BD-3, Block A", expected: 2,  present: 2, state: "Closed" },
+      { id: "ses-04", courseId: "mat210", mentorId: "u-007", date: new Date("2026-04-25"), time: "09:00", room: "BD-1, Block C", expected: 1,  present: 1, state: "Closed" },
     ],
   });
 
@@ -241,10 +241,10 @@ async function main() {
   console.log("Seeding assignments…");
   await db.assignment.createMany({
     data: [
-      { id: "as-01", code: "PS-04",    title: "Functions, transformations, and inverses",   courseId: "mat133", issued: new Date("2026-04-22"), due: new Date("2026-05-06"), weight: 12, status: "Open",        submissions: 1, ofCount: 2,  type: "Problem Set", note: "Six problems on function composition, inverses, and transformations. Show working." },
-      { id: "as-02", code: "LAB-02",   title: "Limit calculations and the squeeze theorem", courseId: "mat183", issued: new Date("2026-04-18"), due: new Date("2026-05-02"), weight: 10, status: "ClosingSoon", submissions: 2, ofCount: 2,  type: "Lab",         note: "Work through eight limit problems. Use the squeeze theorem on at least three." },
-      { id: "as-03", code: "ESSAY-01", title: "Graphs in everyday networks",                 courseId: "mat210", issued: new Date("2026-04-12"), due: new Date("2026-04-30"), weight:  8, status: "Closed",      submissions: 1, ofCount: 1,  type: "Essay",       note: "Write 1200 to 1500 words. Pick a real-world network and analyse it as a graph." },
-      { id: "as-04", code: "PS-05",    title: "Trigonometric identities, full proofs",       courseId: "mat133", issued: new Date("2026-05-02"), due: new Date("2026-05-16"), weight: 14, status: "Open",        submissions: 0, ofCount: 2,  type: "Problem Set", note: "Prove ten standard identities. Diagrams encouraged." },
+      { id: "as-01", code: "PS-04",    title: "Functions, transformations, and inverses",   courseId: "mat133", mentorId: "u-006", issued: new Date("2026-04-22"), due: new Date("2026-05-06"), weight: 12, status: "Open",        submissions: 1, ofCount: 2,  type: "Problem Set", note: "Six problems on function composition, inverses, and transformations. Show working." },
+      { id: "as-02", code: "LAB-02",   title: "Limit calculations and the squeeze theorem", courseId: "mat183", mentorId: "u-006", issued: new Date("2026-04-18"), due: new Date("2026-05-02"), weight: 10, status: "ClosingSoon", submissions: 2, ofCount: 2,  type: "Lab",         note: "Work through eight limit problems. Use the squeeze theorem on at least three." },
+      { id: "as-03", code: "ESSAY-01", title: "Graphs in everyday networks",                 courseId: "mat210", mentorId: "u-007", issued: new Date("2026-04-12"), due: new Date("2026-04-30"), weight:  8, status: "Closed",      submissions: 1, ofCount: 1,  type: "Essay",       note: "Write 1200 to 1500 words. Pick a real-world network and analyse it as a graph." },
+      { id: "as-04", code: "PS-05",    title: "Trigonometric identities, full proofs",       courseId: "mat133", mentorId: "u-006", issued: new Date("2026-05-02"), due: new Date("2026-05-16"), weight: 14, status: "Open",        submissions: 0, ofCount: 2,  type: "Problem Set", note: "Prove ten standard identities. Diagrams encouraged." },
     ],
   });
 
@@ -264,10 +264,10 @@ async function main() {
   console.log("Seeding discussion rooms + messages…");
   await db.discussionRoom.createMany({
     data: [
-      { id: "rm-01", title: "Pre-calc study group, Thursdays",     courseId: "mat133", starterId: "u-001", members: 2, posts: 4, pinned: true,  excerpt: "Anyone want to work through the function-composition worksheet together?", lastAt: new Date() },
-      { id: "rm-02", title: "Office hours, Adam, Thursday 14:00",  courseId: "mat133", starterId: "u-006", members: 2, posts: 1, pinned: true,  excerpt: "Bring questions on transformations and inverses. Room 4-08.", lastAt: new Date() },
-      { id: "rm-03", title: "Limits intuition, the cleanest take", courseId: "mat183", starterId: "u-003", members: 2, posts: 2, pinned: false, excerpt: "I keep slipping on epsilon-delta proofs. What's the trick that finally clicked for you?", lastAt: new Date() },
-      { id: "rm-04", title: "Graph theory primer for MAT210",      courseId: "mat210", starterId: "u-007", members: 1, posts: 1, pinned: false, excerpt: "A short note on terminology before Wednesday's class. Reply if anything is unclear.", lastAt: new Date() },
+      { id: "rm-01", title: "Pre-calc study group, Thursdays",     courseId: "mat133", starterId: "u-001", mentorId: "u-006", members: 2, posts: 4, pinned: true,  excerpt: "Anyone want to work through the function-composition worksheet together?", lastAt: new Date() },
+      { id: "rm-02", title: "Office hours, Adam, Thursday 14:00",  courseId: "mat133", starterId: "u-006", mentorId: "u-006", members: 2, posts: 1, pinned: true,  excerpt: "Bring questions on transformations and inverses. Room 4-08.", lastAt: new Date() },
+      { id: "rm-03", title: "Limits intuition, the cleanest take", courseId: "mat183", starterId: "u-003", mentorId: "u-006", members: 2, posts: 2, pinned: false, excerpt: "I keep slipping on epsilon-delta proofs. What's the trick that finally clicked for you?", lastAt: new Date() },
+      { id: "rm-04", title: "Graph theory primer for MAT210",      courseId: "mat210", starterId: "u-007", mentorId: "u-007", members: 1, posts: 1, pinned: false, excerpt: "A short note on terminology before Wednesday's class. Reply if anything is unclear.", lastAt: new Date() },
     ],
   });
 

@@ -4,7 +4,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
-import { getAssignmentsView, coursesForUserAsRole } from "@/lib/queries";
+import { getAssignmentsView, coursesForUserAsRole, ownedScope } from "@/lib/queries";
 
 export const metadata = {
   title: "Mentor console | EduMentor",
@@ -43,13 +43,11 @@ export default async function MentorLanding() {
 
   // M2: scope strictly by enrollment-as-Mentor, never by name match.
   const myCourses = await coursesForUserAsRole(user.id, "Mentor");
-  const myCourseCodes = myCourses.map((c) => c.code);
-  const myAssignments = await getAssignmentsView(myCourseCodes);
+  // Each mentor sees only the assignments and sessions they own (admin: all).
+  const scope = ownedScope(user);
+  const myAssignments = await getAssignmentsView(scope);
   const upcoming = await db.classSession.findMany({
-    where: {
-      state: "Scheduled",
-      course: { code: { in: myCourseCodes } },
-    },
+    where: { state: "Scheduled", ...(scope ?? {}) },
   });
   const ratingAgg = await db.feedbackEntry.aggregate({
     where: { mentorId: user.id },

@@ -4,7 +4,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/session";
-import { courseIdsForUser } from "@/lib/queries";
+import { ownedScope } from "@/lib/queries";
 import { closeClassAttendance, openClassAttendance } from "@/lib/actions";
 
 export const dynamic = "force-dynamic";
@@ -21,11 +21,9 @@ const stateBadge: Record<string, string> = {
 
 export default async function MentorClassesPage() {
   const user = await requireRole(["Mentor", "Admin"]);
-  // M4: only classes for courses I mentor (admin sees all).
-  const myCourseIds = await courseIdsForUser(user.id, user.role);
-
+  // Each mentor sees only the classes they own (admin sees all).
   const rows = await db.classSession.findMany({
-    where: { courseId: { in: myCourseIds } },
+    where: ownedScope(user),
     include: { course: { select: { code: true } } },
     orderBy: { date: "asc" },
   });

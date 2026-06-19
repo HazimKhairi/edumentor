@@ -8,10 +8,10 @@ import { requireUser } from "@/lib/session";
 import { ChevronRight, Radio } from "lucide-react";
 import {
   attendanceForUser,
-  courseIdsForUser,
   getAttendanceSessionsView,
   getClassesForUser,
   getRosterForSession,
+  visibilityScope,
 } from "@/lib/queries";
 
 export const metadata = {
@@ -27,12 +27,12 @@ const stateBadge: Record<string, string> = {
 
 export default async function AttendancePage() {
   const me = await requireUser();
-  // Me5 (partial): scope live + history by my courses. Full by-class
-  // click-through redesign comes after this round.
-  const myCourseIds = await courseIdsForUser(me.id, me.role);
+  // Each mentor handles their own mentees: scope live, history and the by-class
+  // list to the mentor assigned to this user per course (admin sees all).
+  const scope = await visibilityScope(me);
 
   const liveRecord = await db.attendanceSession.findFirst({
-    where: { state: "Live", courseId: { in: myCourseIds } },
+    where: { state: "Live", ...(scope ?? {}) },
     include: { course: { select: { code: true } } },
   });
   const live = liveRecord
@@ -46,13 +46,11 @@ export default async function AttendancePage() {
       }
     : null;
 
-  const allSessions = await getAttendanceSessionsView();
-  const myCourseIdSet = new Set(myCourseIds);
-  const sessions = allSessions.filter((s) => myCourseIdSet.has(s.courseId));
+  const sessions = await getAttendanceSessionsView(scope);
   const closed = sessions.filter((s) => s.state === "Closed");
 
   // Me5: by-class list — click a class to see its info + attendance.
-  const myClasses = await getClassesForUser(myCourseIds);
+  const myClasses = await getClassesForUser(scope);
 
   const rosterForRecognition = live ? await getRosterForSession(live.id) : [];
 

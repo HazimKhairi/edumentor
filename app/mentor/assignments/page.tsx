@@ -3,8 +3,7 @@ import { ClipboardCheck, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { requireRole } from "@/lib/session";
-import { db } from "@/lib/db";
-import { courseIdsForUser, getAssignmentsView } from "@/lib/queries";
+import { getAssignmentsView, ownedScope } from "@/lib/queries";
 
 export const metadata = {
   title: "Manage assignments | Mentor",
@@ -18,15 +17,8 @@ const statusBadge: Record<string, string> = {
 
 export default async function MentorAssignmentsPage() {
   const user = await requireRole(["Mentor", "Admin"]);
-  // M4: only assignments for courses I actually mentor (or all, if admin).
-  const myCourseIds = await courseIdsForUser(user.id, user.role);
-  const myCourseCodes = (
-    await db.course.findMany({
-      where: { id: { in: myCourseIds } },
-      select: { code: true },
-    })
-  ).map((c) => c.code);
-  const assignments = await getAssignmentsView(myCourseCodes);
+  // Each mentor manages only the assignments they created (admin sees all).
+  const assignments = await getAssignmentsView(ownedScope(user));
 
   return (
     <>

@@ -5,7 +5,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/session";
-import { courseIdsForUser, getAssignmentsView } from "@/lib/queries";
+import { canSeeMentorContent, getAssignmentsView } from "@/lib/queries";
 import { submitAssignmentWork, withdrawSubmission } from "@/lib/actions";
 import { RequiredMark } from "@/components/required-mark";
 
@@ -39,13 +39,10 @@ export default async function Page({
   const a = assignments.find((x) => x.id === id);
   if (!a) notFound();
 
-  // Scope: only allow viewing assignments for courses the viewer is enrolled
-  // in (as Mentor for own courses, as Mentee for own subjects). Admins
-  // bypass the gate. Without this, any URL leaks any assignment.
-  if (me.role !== "Admin") {
-    const myCourseIds = await courseIdsForUser(me.id, me.role);
-    if (!myCourseIds.includes(a.courseId)) notFound();
-  }
+  // Scope: a mentee may only open an assignment from their own mentor for that
+  // course; a mentor only their own. Admins bypass. Without this, any URL
+  // leaks another mentor's assignment.
+  if (!(await canSeeMentorContent(me, a.courseId, a.mentorId))) notFound();
 
   const mySubmission = await db.assignmentSubmission.findUnique({
     where: { assignmentId_menteeId: { assignmentId: a.id, menteeId: me.id } },

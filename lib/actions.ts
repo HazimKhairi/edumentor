@@ -355,12 +355,15 @@ function assignmentDataFromForm(formData: FormData) {
 }
 
 export async function createAssignment(formData: FormData) {
-  await requireRole(["Mentor", "Admin"]);
+  const user = await requireRole(["Mentor", "Admin"]);
   const data = assignmentDataFromForm(formData);
   if (!data.code || !data.title || !data.courseId) {
     redirect("/mentor/assignments/new?error=missing");
   }
-  await db.assignment.create({ data });
+  // Own the assignment so only this mentor's mentees receive it. Admin-created
+  // assignments stay unowned (visible to admins only) until assigned.
+  const mentorId = user.role === "Mentor" ? user.id : null;
+  await db.assignment.create({ data: { ...data, mentorId } });
   revalidatePath("/mentor/assignments");
   revalidatePath("/assignments");
   redirect("/mentor/assignments");
@@ -468,6 +471,7 @@ export async function openClassAttendance(formData: FormData) {
   await db.attendanceSession.create({
     data: {
       courseId: klass.courseId,
+      mentorId: klass.mentorId,
       classId: klass.id,
       date: klass.date,
       time: klass.time,
@@ -504,7 +508,7 @@ export async function closeClassAttendance(formData: FormData) {
 }
 
 export async function createClassSession(formData: FormData) {
-  await requireRole(["Mentor", "Admin"]);
+  const user = await requireRole(["Mentor", "Admin"]);
   const courseId = getString(formData, "courseId");
   const topic = getString(formData, "topic");
   const date = getString(formData, "date");
@@ -525,6 +529,7 @@ export async function createClassSession(formData: FormData) {
   await db.classSession.create({
     data: {
       courseId,
+      mentorId: user.role === "Mentor" ? user.id : null,
       topic,
       date: parseDate(date),
       time,
@@ -990,11 +995,25 @@ export async function createDiscussionRoom(formData: FormData) {
   if (!courseId || !title || !body) {
     redirect("/discussion/new?error=missing");
   }
+  // A room belongs to one mentor's group. A mentor owns rooms they start; a
+  // mentee's room is owned by the mentor assigned to them for that course, so
+  // it stays within their own group. Admin-started rooms are unowned.
+  let mentorId: string | null = null;
+  if (me.role === "Mentor") {
+    mentorId = me.id;
+  } else if (me.role === "Mentee") {
+    const ms = await db.mentorshipAssignment.findFirst({
+      where: { menteeId: me.id, courseId },
+      select: { mentorId: true },
+    });
+    mentorId = ms?.mentorId ?? null;
+  }
   const room = await db.discussionRoom.create({
     data: {
       title,
       courseId,
       starterId: me.id,
+      mentorId,
       excerpt: body.slice(0, 280),
       posts: 1,
       members: 1,

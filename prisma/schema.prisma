@@ -75,6 +75,10 @@ model User {
   submissions       AssignmentSubmission[]
   mentorAssignments  MentorshipAssignment[] @relation("MentorshipMentor")
   menteeAssignments  MentorshipAssignment[] @relation("MentorshipMentee")
+  ownedAssignments   Assignment[]           @relation("AssignmentMentor")
+  ownedClasses       ClassSession[]         @relation("ClassMentor")
+  ownedAttendance    AttendanceSession[]    @relation("AttendanceMentor")
+  ownedRooms         DiscussionRoom[]       @relation("RoomMentor")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -141,6 +145,7 @@ model PassedSubject {
 model ClassSession {
   id          String      @id @default(cuid())
   courseId    String
+  mentorId    String?
   topic       String
   date        DateTime
   time        String
@@ -150,14 +155,18 @@ model ClassSession {
   meetingLink String?
 
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  mentor User?  @relation("ClassMentor", fields: [mentorId], references: [id], onDelete: SetNull)
   attendanceSessions AttendanceSession[]
 
   createdAt DateTime @default(now())
+
+  @@index([mentorId])
 }
 
 model AttendanceSession {
   id       String     @id @default(cuid())
   courseId String
+  mentorId String?
   classId  String?
   date     DateTime
   time     String
@@ -167,12 +176,14 @@ model AttendanceSession {
   state    ClassState @default(Scheduled)
 
   course  Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  mentor  User?              @relation("AttendanceMentor", fields: [mentorId], references: [id], onDelete: SetNull)
   class   ClassSession?      @relation(fields: [classId], references: [id], onDelete: SetNull)
   records MenteeAttendance[]
 
   createdAt DateTime @default(now())
 
   @@index([classId])
+  @@index([mentorId])
 }
 
 model MenteeAttendance {
@@ -195,6 +206,7 @@ model Assignment {
   code        String
   title       String
   courseId    String
+  mentorId    String?
   issued      DateTime
   due         DateTime
   weight      Int
@@ -205,9 +217,12 @@ model Assignment {
   note        String           @db.Text
 
   course      Course                 @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  mentor      User?                  @relation("AssignmentMentor", fields: [mentorId], references: [id], onDelete: SetNull)
   submissionRecords AssignmentSubmission[]
 
   createdAt DateTime @default(now())
+
+  @@index([mentorId])
 }
 
 model AssignmentSubmission {
@@ -233,6 +248,7 @@ model DiscussionRoom {
   title     String
   courseId  String
   starterId String
+  mentorId  String?
   members   Int      @default(0)
   posts     Int      @default(0)
   pinned    Boolean  @default(false)
@@ -241,9 +257,12 @@ model DiscussionRoom {
 
   course   Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
   starter  User                @relation(fields: [starterId], references: [id], onDelete: Cascade)
+  mentor   User?               @relation("RoomMentor", fields: [mentorId], references: [id], onDelete: SetNull)
   messages DiscussionMessage[]
 
   createdAt DateTime @default(now())
+
+  @@index([mentorId])
 }
 
 model DiscussionMessage {

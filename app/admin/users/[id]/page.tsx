@@ -43,7 +43,7 @@ export default async function UserProfilePage({
   const trail = isStudent ? await attendanceForUser(u.id) : [];
   const enrolledCodes = enrolled.map((c) => c.code);
   const courseAssignments = enrolledCodes.length
-    ? await getAssignmentsView(enrolledCodes)
+    ? await getAssignmentsView({ course: { code: { in: enrolledCodes } } })
     : [];
 
   return (
