@@ -74,8 +74,6 @@ export const metadata = {
   description: "Term metrics and audits for the registrar.",
 };
 
-const SPARK = [42, 48, 51, 56, 49, 58, 63, 60, 67, 71, 68, 74];
-
 const sevBadge: Record<string, string> = {
   Low: "badge badge-muted",
   Medium: "badge badge-saffron",
@@ -93,6 +91,18 @@ export default async function ReportsPage() {
   const totalEnrolled = COURSES.reduce((s, c) => s + c.enrolled, 0);
   const totalCapacity = COURSES.reduce((s, c) => s + c.capacity, 0);
   const fillPct = totalCapacity ? Math.round((totalEnrolled / totalCapacity) * 100) : 0;
+
+  // Verified-attendance progress per course (real data, drives the chart below).
+  const ATT_COURSES = COURSE_ROWS.filter((c) => c.attendancePct !== null);
+  const avgAttendance = ATT_COURSES.length
+    ? Math.round(
+        ATT_COURSES.reduce((s, c) => s + (c.attendancePct ?? 0), 0) / ATT_COURSES.length,
+      )
+    : 0;
+  const topCourse = ATT_COURSES.reduce<CourseRow | null>(
+    (best, c) => (!best || (c.attendancePct ?? 0) > (best.attendancePct ?? 0) ? c : best),
+    null,
+  );
 
   // Real issues derived from current data
   const ISSUES: { code: string; t: string; c: string; sev: "Low" | "Medium" | "High" }[] = [];
@@ -152,29 +162,41 @@ export default async function ReportsPage() {
           <div className="col-span-12 lg:col-span-7">
             <div className="card p-6">
               <div className="flex items-baseline justify-between mb-1">
-                <h3 className="font-semibold text-lg">Attendance, by week</h3>
-                <span className="text-xs text-ink-muted">Last 12 weeks</span>
+                <h3 className="font-semibold text-lg">Progress by course</h3>
+                <span className="text-xs text-ink-muted">Verified attendance</span>
               </div>
               <p className="text-sm text-ink-muted mb-6 inline-flex items-center gap-1.5 flex-wrap">
-                <span>Average <span className="font-semibold text-ink tabular">59%</span></span>
-                <span className="text-rule">|</span>
-                <span className="inline-flex items-center gap-1 text-fern font-semibold">
-                  <TrendingUp size={14} /> +18 pp
-                </span>
+                <span>Average <span className="font-semibold text-ink tabular">{avgAttendance}%</span></span>
+                {topCourse && (
+                  <>
+                    <span className="text-rule">|</span>
+                    <span className="inline-flex items-center gap-1 text-fern font-semibold">
+                      <TrendingUp size={14} /> {topCourse.code} {topCourse.attendancePct}%
+                    </span>
+                  </>
+                )}
               </p>
-              <div className="flex items-end justify-between gap-2 h-48">
-                {SPARK.map((v, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                    <div
-                      className={`w-full rounded-sm ${
-                        i === SPARK.length - 1 ? "bg-oxblood" : "bg-paper-dark"
-                      }`}
-                      style={{ height: `${v}%` }}
-                    />
-                    <span className="text-xs text-ink-muted tabular">W{i + 1}</span>
-                  </div>
-                ))}
-              </div>
+              {COURSE_ROWS.length === 0 ? (
+                <p className="text-sm text-ink-muted h-48 flex items-center">No courses yet.</p>
+              ) : (
+                <div className="flex items-end justify-between gap-2 h-48">
+                  {COURSE_ROWS.map((c) => {
+                    const pct = c.attendancePct;
+                    return (
+                      <div key={c.id} className="flex-1 flex flex-col items-center gap-2 justify-end h-full">
+                        <span className="text-xs text-ink-muted tabular">
+                          {pct === null ? "—" : `${pct}%`}
+                        </span>
+                        <div
+                          className={`w-full rounded-sm ${pct === null ? "bg-paper-dark" : "bg-oxblood"}`}
+                          style={{ height: `${pct ?? 2}%` }}
+                        />
+                        <span className="text-xs text-ink-muted tabular">{c.code}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 
