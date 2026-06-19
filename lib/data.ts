@@ -28,6 +28,10 @@ export const MENTOR_MENTEE_CAP = 5;
 // A subject may have at most this many mentors assigned to it (SV Syaza: cap
 // the mentor pool per subject so it stays manageable).
 export const MENTOR_COURSE_CAP = 10;
+// A mentor handles at most this many mentees across ALL subjects combined —
+// a global ceiling on top of the per-course Enrollment.capacity, so a mentor
+// teaching several subjects is never overloaded overall (SV Syaza).
+export const MENTOR_GLOBAL_MENTEE_CAP = 5;
 
 export const ROLES: {
   key: Role;

@@ -3,7 +3,7 @@
 
 import { db } from "@/lib/db";
 import type { Course, User, Prisma } from "@prisma/client";
-import { MENTOR_MENTEE_CAP } from "@/lib/data";
+import { MENTOR_GLOBAL_MENTEE_CAP, MENTOR_MENTEE_CAP } from "@/lib/data";
 
 // ----------------------------------------------------------------------------
 // Courses
@@ -137,6 +137,18 @@ export async function mentorOptionsForCourse(courseId: string): Promise<MentorOp
   });
   const countMap = new Map(counts.map((c) => [c.mentorId, c._count.menteeId]));
 
+  // Global mentee counts per mentor across ALL subjects — drives the global cap
+  // so an overloaded mentor shows as full even with a free per-course slot.
+  const mentorIds = offerings.map((o) => o.user.id);
+  const globalCounts = await db.mentorshipAssignment.groupBy({
+    by: ["mentorId"],
+    where: { mentorId: { in: mentorIds } },
+    _count: { menteeId: true },
+  });
+  const globalMap = new Map(
+    globalCounts.map((c) => [c.mentorId, c._count.menteeId]),
+  );
+
   // Average feedback rating per mentor for this course.
   const ratings = await db.feedbackEntry.groupBy({
     by: ["mentorId"],
@@ -148,12 +160,17 @@ export async function mentorOptionsForCourse(courseId: string): Promise<MentorOp
   return offerings.map((o) => {
     const capacity = o.capacity ?? MENTOR_MENTEE_CAP;
     const taken = countMap.get(o.user.id) ?? 0;
-    const remaining = Math.max(0, capacity - taken);
+    const globalTaken = globalMap.get(o.user.id) ?? 0;
+    // A slot opens only if BOTH the per-course and the global cap allow it.
+    const remaining = Math.max(
+      0,
+      Math.min(capacity - taken, MENTOR_GLOBAL_MENTEE_CAP - globalTaken),
+    );
     return {
       mentorId: o.user.id,
       name: o.user.name,
-      cgpa: o.user.cgpa,
       rating: ratingMap.get(o.user.id) ?? null,
+      cgpa: o.user.cgpa,
       capacity,
       taken,
       remaining,

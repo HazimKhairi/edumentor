@@ -11,7 +11,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { db } from "@/lib/db";
 import { requireRole, requireUser } from "@/lib/session";
-import { MENTOR_COURSE_CAP, MENTOR_MENTEE_CAP, MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
+import { MENTOR_COURSE_CAP, MENTOR_GLOBAL_MENTEE_CAP, MENTOR_MENTEE_CAP, MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
 import { saveUploadedFile } from "@/lib/upload";
 
 function getFile(fd: FormData, name: string): File | null {
@@ -942,12 +942,21 @@ export async function chooseMentor(formData: FormData) {
   });
   if (!offering) redirect(`/dashboard?error=invalid-mentor`);
 
-  // Capacity check — count current mentees for this (mentor, course).
+  // Per-course capacity — count current mentees for this (mentor, course).
   const cap = offering.capacity ?? MENTOR_MENTEE_CAP;
   const taken = await db.mentorshipAssignment.count({
     where: { mentorId, courseId },
   });
   if (taken >= cap) redirect(`/dashboard?error=mentor-full`);
+
+  // Global cap — a mentor handles at most MENTOR_GLOBAL_MENTEE_CAP mentees
+  // across every subject combined, so no one is overloaded overall.
+  const totalMentees = await db.mentorshipAssignment.count({
+    where: { mentorId },
+  });
+  if (totalMentees >= MENTOR_GLOBAL_MENTEE_CAP) {
+    redirect(`/dashboard?error=mentor-overloaded`);
+  }
 
   await db.mentorshipAssignment.create({
     data: { menteeId: me.id, mentorId, courseId },

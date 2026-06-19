@@ -109,7 +109,9 @@ export default async function DashboardPage({
             <div className="rounded-md border border-oxblood/40 bg-oxblood/[0.06] px-4 py-2.5 text-sm text-oxblood">
               {error === "mentor-full"
                 ? "That mentor just filled up. Pick another one."
-                : "Could not record your choice. Try again."}
+                : error === "mentor-overloaded"
+                  ? "That mentor is already at their limit across all subjects. Pick another one."
+                  : "Could not record your choice. Try again."}
             </div>
           </div>
         </section>
