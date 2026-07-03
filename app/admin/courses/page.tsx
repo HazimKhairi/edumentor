@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Pencil, Plus, Search, Trash2, Users } from "lucide-react";
+import { Plus } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { requireRole } from "@/lib/session";
 import { getCoursesView } from "@/lib/queries";
+import { CoursesTable } from "./courses-table";
 
 export const metadata = {
   title: "Manage courses | Admin",
@@ -13,6 +14,15 @@ export const metadata = {
 export default async function AdminCoursesPage() {
   await requireRole("Admin");
   const courses = await getCoursesView();
+  const rows = courses.map((c) => ({
+    id: c.id,
+    code: c.code,
+    title: c.title,
+    mentor: c.mentor,
+    cohort: c.cohort,
+    enrolled: c.enrolled,
+    capacity: c.capacity,
+  }));
 
   return (
     <>
@@ -38,88 +48,8 @@ export default async function AdminCoursesPage() {
       </section>
 
       <section>
-        <div className="mx-auto max-w-[1400px] px-6 py-10 space-y-5">
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            <label className="relative flex-1 max-w-sm">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted" />
-              <input
-                type="search"
-                placeholder="Search by code or title"
-                className="input pl-9 py-2"
-              />
-            </label>
-            <select className="input max-w-[180px] py-2 text-sm">
-              <option>All subjects</option>
-              <option>Mathematics</option>
-              <option>Computer Science</option>
-              <option>Statistics</option>
-            </select>
-          </div>
-
-          <div className="card p-0 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-paper-dark/50 text-xs text-ink-muted">
-                <tr className="text-left">
-                  <th className="px-4 py-3 font-semibold">Code</th>
-                  <th className="px-4 py-3 font-semibold">Title</th>
-                  <th className="px-4 py-3 font-semibold">Mentor</th>
-                  <th className="px-4 py-3 font-semibold">Cohort</th>
-                  <th className="px-4 py-3 font-semibold">Enrolment</th>
-                  <th className="px-4 py-3 font-semibold text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-rule">
-                {courses.map((c) => {
-                  const pct = Math.round((c.enrolled / c.capacity) * 100);
-                  return (
-                    <tr key={c.id} className="hover:bg-paper-dark/30">
-                      <td className="px-4 py-3 font-medium tabular">{c.code}</td>
-                      <td className="px-4 py-3">
-                        <Link href={`/courses/${c.id}`} className="font-medium hover:text-oxblood">
-                          {c.title}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-ink-muted">{c.mentor}</td>
-                      <td className="px-4 py-3 text-ink-muted">{c.cohort}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <span className="tabular text-xs">{c.enrolled}/{c.capacity}</span>
-                          <div className="h-1 w-20 rounded-full bg-paper-dark overflow-hidden">
-                            <div className="h-full bg-oxblood rounded-full" style={{ width: `${pct}%` }} />
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-1">
-                          <Link
-                            href={`/admin/courses/${c.id}`}
-                            className="size-8 rounded-sm border border-rule hover:border-ink flex items-center justify-center"
-                            aria-label={`Manage mentors for ${c.code}`}
-                          >
-                            <Users size={14} />
-                          </Link>
-                          <Link
-                            href={`/admin/courses/${c.id}/edit`}
-                            className="size-8 rounded-sm border border-rule hover:border-ink flex items-center justify-center"
-                            aria-label={`Edit ${c.code}`}
-                          >
-                            <Pencil size={14} />
-                          </Link>
-                          <Link
-                            href={`/admin/courses/${c.id}/delete`}
-                            className="size-8 rounded-sm border border-rule hover:border-oxblood hover:bg-oxblood/5 hover:text-oxblood flex items-center justify-center"
-                            aria-label={`Delete ${c.code}`}
-                          >
-                            <Trash2 size={14} />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+        <div className="mx-auto max-w-[1400px] px-6 py-10">
+          <CoursesTable courses={rows} />
         </div>
       </section>
 

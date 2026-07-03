@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
@@ -26,16 +26,11 @@ export default async function AdminEvaluationsPage() {
             <Link href="/admin" className="hover:text-ink">Admin</Link>{" / "}
             <span className="text-ink">Evaluations</span>
           </div>
-          <div className="flex items-baseline justify-between flex-wrap gap-4">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">Evaluation rubrics</h1>
-              <p className="mt-2 text-ink-soft">
-                {rubrics.length} rubrics, {rubrics.filter((r) => r.active).length} active.
-              </p>
-            </div>
-            <Link href="/admin/evaluations/new" className="btn btn-primary">
-              <Plus size={16} /> Add rubric
-            </Link>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold">Evaluation rubrics</h1>
+            <p className="mt-2 text-ink-soft">
+              {rubrics.length} rubrics, {rubrics.filter((r) => r.active).length} active.
+            </p>
           </div>
         </div>
       </section>
@@ -69,7 +64,7 @@ export default async function AdminEvaluationsPage() {
                 </ul>
 
                 <div className="mt-5 pt-4 border-t border-rule flex items-center justify-end gap-2">
-                  <Link href="/admin/evaluations/new" className="btn btn-ghost btn-sm">
+                  <Link href={`/admin/evaluations/${r.id}/edit`} className="btn btn-ghost btn-sm">
                     <Pencil size={14} /> Edit
                   </Link>
                 </div>

@@ -1132,3 +1132,23 @@ export async function createRubric(formData: FormData) {
   revalidatePath("/admin/evaluations");
   redirect("/admin/evaluations");
 }
+
+export async function updateRubric(formData: FormData) {
+  await requireRole("Admin");
+  const id = getString(formData, "id");
+  const title = getString(formData, "title");
+  const target = getString(formData, "target", "Mentor");
+  const scale = getInt(formData, "scale", 5);
+  const active = formData.get("active") === "on";
+  const itemsRaw = formData.getAll("items");
+  const items = itemsRaw.filter((x): x is string => typeof x === "string" && x.trim().length > 0);
+  if (!id || !title || items.length === 0) {
+    redirect(`/admin/evaluations/${id}/edit?error=missing`);
+  }
+  await db.evaluationRubric.update({
+    where: { id },
+    data: { title, target, scale, items, active },
+  });
+  revalidatePath("/admin/evaluations");
+  redirect("/admin/evaluations");
+}

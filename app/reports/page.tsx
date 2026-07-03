@@ -280,69 +280,6 @@ export default async function ReportsPage() {
         </div>
       </section>
 
-      <section>
-        <div className="mx-auto max-w-[1400px] px-6 py-12">
-          <h2 className="font-semibold text-lg mb-4">By course</h2>
-          <p className="text-sm text-ink-muted mb-4">
-            Attendance, enrolment and feedback per course — to monitor the
-            programme course by course, not just overall.
-          </p>
-          <div className="card p-0 overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="bg-paper-dark/50 text-xs text-ink-muted">
-                <tr className="text-left">
-                  <th className="px-4 py-3 font-semibold">Course</th>
-                  <th className="px-4 py-3 font-semibold">Mentor</th>
-                  <th className="px-4 py-3 font-semibold text-right">Enrolled</th>
-                  <th className="px-4 py-3 font-semibold text-right">Attendance</th>
-                  <th className="px-4 py-3 font-semibold text-right">Rating</th>
-                  <th className="px-4 py-3 font-semibold text-right">Responses</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-rule">
-                {COURSE_ROWS.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-sm text-ink-muted">
-                      No courses yet.
-                    </td>
-                  </tr>
-                ) : (
-                  COURSE_ROWS.map((c) => (
-                    <tr key={c.id} className="hover:bg-paper-dark/30">
-                      <td className="px-4 py-3">
-                        <div className="font-medium">{c.code}</div>
-                        <div className="text-xs text-ink-muted">{c.title}</div>
-                      </td>
-                      <td className="px-4 py-3">{c.mentor}</td>
-                      <td className="px-4 py-3 text-right tabular text-ink-muted">
-                        {c.enrolled}/{c.capacity}
-                      </td>
-                      <td className="px-4 py-3 text-right tabular">
-                        {c.attendancePct === null ? (
-                          <span className="text-ink-muted">—</span>
-                        ) : (
-                          `${c.attendancePct}%`
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right tabular">
-                        {c.rating === null ? (
-                          <span className="text-ink-muted">—</span>
-                        ) : (
-                          c.rating.toFixed(1)
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right tabular text-ink-muted">
-                        {c.responses}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
       <SiteFooter />
     </>
   );
