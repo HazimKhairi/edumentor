@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  /* White-first palette */
-  --color-paper: #ffffff;
-  --color-paper-dark: #f7f7f8;
+  /* Soft off-white base so pages don't read as plain white; cards stay pure
+     white and lift off this tint for depth. */
+  --color-paper: #f4f5f8;
+  --color-paper-dark: #e8eaef;
   --color-ink: #1c1a17;
   --color-ink-soft: #383530;
   --color-ink-muted: #6b665d;

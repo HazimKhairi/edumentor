@@ -1,45 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 
-// Every link below points to a real route in this app. Add only after the
-// matching page exists.
+// SV Syaza: the footer should point out to real institutional pages, not back
+// into the app. These are live UiTM portals, opened in a new tab.
 const COLS = [
   {
-    title: "Learn",
+    title: "UiTM",
     links: [
-      { label: "Browse courses", href: "/courses" },
-      { label: "My dashboard", href: "/dashboard" },
-      { label: "Discussion rooms", href: "/discussion" },
-      { label: "Assignments", href: "/assignments" },
-      { label: "Attendance", href: "/attendance" },
-      { label: "Reviews", href: "/feedback" },
+      { label: "Official website", href: "https://www.uitm.edu.my/en/" },
+      { label: "iStudent Portal", href: "https://istudent.uitm.edu.my/" },
+      { label: "i-Learn", href: "https://i-learn.uitm.edu.my/" },
+      { label: "MyStudent", href: "https://mystudent.uitm.edu.my/" },
     ],
   },
   {
-    title: "Mentor",
+    title: "Student services",
     links: [
-      { label: "Become a mentor (CGPA 3.20+)", href: "/register" },
-      { label: "Mentor console", href: "/mentor" },
-      { label: "Schedule a class", href: "/mentor/classes/new" },
-      { label: "Create an assignment", href: "/mentor/assignments/new" },
-    ],
-  },
-  {
-    title: "Admin",
-    links: [
-      { label: "Admin console", href: "/admin" },
-      { label: "Manage users", href: "/admin/users" },
-      { label: "Manage courses", href: "/admin/courses" },
-      { label: "Evaluation rubrics", href: "/admin/evaluations" },
-      { label: "Reports", href: "/reports" },
-    ],
-  },
-  {
-    title: "Account",
-    links: [
-      { label: "Sign in", href: "/login" },
-      { label: "Create account", href: "/register" },
-      { label: "Capture face", href: "/profile/face" },
+      { label: "PTAR Library", href: "https://mobileptar.uitm.edu.my/" },
+      { label: "Student Affairs (HEP)", href: "https://hep.uitm.edu.my/" },
     ],
   },
 ];
@@ -48,7 +27,7 @@ export function SiteFooter() {
   return (
     <footer className="mt-24 bg-paper-dark/50 border-t border-rule">
       <div className="mx-auto max-w-[1400px] px-6 py-14 grid grid-cols-12 gap-8">
-        <div className="col-span-12 md:col-span-4">
+        <div className="col-span-12 md:col-span-6">
           <Link href="/" className="flex items-center">
             <Image
               src="/logo.png"
@@ -69,17 +48,20 @@ export function SiteFooter() {
         </div>
 
         {COLS.map((col) => (
-          <div key={col.title} className="col-span-6 md:col-span-2">
+          <div key={col.title} className="col-span-6 md:col-span-3">
             <h4 className="text-sm font-semibold text-ink mb-4">{col.title}</h4>
             <ul className="space-y-2">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  <Link
+                  <a
                     href={l.href}
-                    className="text-sm text-ink-muted hover:text-oxblood transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-oxblood transition-colors"
                   >
                     {l.label}
-                  </Link>
+                    <ExternalLink size={12} className="opacity-60" />
+                  </a>
                 </li>
               ))}
             </ul>
