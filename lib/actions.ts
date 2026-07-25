@@ -7,25 +7,14 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import bcrypt from "bcryptjs";
 import type { AssignmentStatus, ClassFormat, ClassState, Role } from "@prisma/client";
-import { promises as fs } from "node:fs";
-import path from "node:path";
 import { db } from "@/lib/db";
 import { requireRole, requireUser } from "@/lib/session";
 import { MENTOR_COURSE_CAP, MENTOR_GLOBAL_MENTEE_CAP, MENTOR_MENTEE_CAP, MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
-import { saveUploadedFile } from "@/lib/upload";
+import { deleteUploadedFile, saveUploadedFile } from "@/lib/upload";
 
 function getFile(fd: FormData, name: string): File | null {
   const f = fd.get(name);
   return f instanceof File ? f : null;
-}
-
-async function deleteIfExists(filePath: string | null | undefined) {
-  if (!filePath) return;
-  try {
-    await fs.unlink(path.join(process.cwd(), "public", filePath));
-  } catch {
-    // missing file is fine, demo-friendly
-  }
 }
 
 // ----------------------------------------------------------------------------
@@ -741,8 +730,8 @@ export async function submitAssignmentWork(formData: FormData) {
   });
 
   if (existing) {
-    // If a new file came in, retire the previous one from disk.
-    if (upload && existing.filePath) await deleteIfExists(existing.filePath);
+    // If a new file came in, retire the previous one from Blob storage.
+    if (upload && existing.filePath) await deleteUploadedFile(existing.filePath);
     await db.assignmentSubmission.update({
       where: { assignmentId_menteeId: { assignmentId, menteeId: me.id } },
       data: {
@@ -788,7 +777,7 @@ export async function withdrawSubmission(formData: FormData) {
   });
   if (!existing) return;
 
-  await deleteIfExists(existing.filePath);
+  await deleteUploadedFile(existing.filePath);
 
   await db.$transaction([
     db.assignmentSubmission.delete({

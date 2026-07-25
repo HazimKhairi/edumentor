@@ -1,7 +1,7 @@
-// File upload helper. Saves a Web `File` from a form action to disk under
-// public/uploads/<subdir>/, returns the display name + public URL path.
+// File upload helper. Saves a Web `File` from a form action to Vercel Blob
+// under <subdir>/, returns the display name + public Blob URL.
 
-import { promises as fs } from "node:fs";
+import { del, put } from "@vercel/blob";
 import path from "node:path";
 import crypto from "node:crypto";
 
@@ -27,7 +27,7 @@ const ALLOWED_EXT = new Set([
 
 export type SavedFile = {
   fileName: string; // original name shown in UI
-  filePath: string; // public-relative path, e.g. "/uploads/submissions/abc.pdf"
+  filePath: string; // public Blob URL, e.g. "https://<store>.public.blob.vercel-storage.com/submissions/abc.pdf"
 };
 
 function safeBase(name: string): string {
@@ -38,7 +38,7 @@ function safeBase(name: string): string {
     .slice(0, 80);
 }
 
-// Saves the file to public/uploads/<subdir>/. Returns null if no file was
+// Saves the file to Vercel Blob under <subdir>/. Returns null if no file was
 // provided (empty FormData entry). Throws on size or type violation.
 export async function saveUploadedFile(
   file: File | null,
@@ -61,15 +61,24 @@ export async function saveUploadedFile(
   const base = safeBase(path.basename(original, ext)) || "file";
   const stored = `${id}-${base}${ext || ""}`;
 
-  const targetDir = path.join(process.cwd(), "public", "uploads", subdir);
-  await fs.mkdir(targetDir, { recursive: true });
-  const targetPath = path.join(targetDir, stored);
-
-  const bytes = Buffer.from(await file.arrayBuffer());
-  await fs.writeFile(targetPath, bytes);
+  const blob = await put(`${subdir}/${stored}`, file, {
+    access: "public",
+    addRandomSuffix: false,
+  });
 
   return {
     fileName: original,
-    filePath: `/uploads/${subdir}/${stored}`,
+    filePath: blob.url,
   };
+}
+
+// Deletes a previously saved file from Blob storage. Safe to call with a
+// missing/already-deleted URL.
+export async function deleteUploadedFile(url: string | null | undefined) {
+  if (!url) return;
+  try {
+    await del(url);
+  } catch {
+    // missing file is fine, demo-friendly
+  }
 }

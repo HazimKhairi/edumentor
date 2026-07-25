@@ -1,16 +1,23 @@
-// Seed script ports demo data into MySQL using the real UiTM B.Sc. CS
+// Seed script ports demo data into Postgres using the real UiTM B.Sc. CS
 // course structure (sem 1, MAT133, sem 2, MAT183, sem 3, MAT210, sem 4, STA116).
 // Idempotent: clears existing rows in dependency order before inserting.
 
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { neonConfig } from "@neondatabase/serverless";
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+import ws from "ws";
 
-const url = process.env.DATABASE_URL;
-if (!url) throw new Error("DATABASE_URL not set");
+loadEnv();
+loadEnv({ path: ".env.local", override: true });
 
-const adapter = new PrismaMariaDb(url);
+neonConfig.webSocketConstructor = ws;
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) throw new Error("DATABASE_URL not set");
+
+const adapter = new PrismaNeon({ connectionString });
 const db = new PrismaClient({ adapter });
 
 const DEFAULT_PASSWORD = "edu1234";

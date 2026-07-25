@@ -6,14 +6,14 @@ UiTM FCMS mentorship platform — Admin / Mentor / Mentee roles with shared face
 
 - Next.js 16 (App Router) + React 19
 - Tailwind v4 with `@theme` tokens, Inter font, Lucide icons
-- Prisma 7 + MySQL (XAMPP local) via `@prisma/adapter-mariadb`
+- Prisma 7 + Postgres (Neon, via Vercel Marketplace) using `@prisma/adapter-neon`
 - Auth.js v5 (NextAuth) with JWT credentials
 - `@vladmandic/face-api` for in-browser face recognition
 
 ## Getting started
 
-1. Start MySQL via XAMPP (default `mysql://root:@localhost:3306/edumentor`).
-2. Copy env: ensure `.env` has `DATABASE_URL`, `AUTH_SECRET`, `AUTH_TRUST_HOST`.
+1. Pull env vars from the linked Vercel project: `vercel env pull .env.local` (provides `DATABASE_URL` for the Neon database).
+2. Copy env: ensure `.env` has `AUTH_SECRET`, `AUTH_TRUST_HOST`.
 3. Install + migrate + seed:
 
 ```bash

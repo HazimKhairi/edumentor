@@ -5,7 +5,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
 }
 
 // ----------------------------------------------------------------------------
@@ -62,7 +62,7 @@ model User {
   joined          DateTime   @default(now())
   semester        Int?
   cgpa            Float?
-  faceDescriptor  Bytes?     @db.LongBlob
+  faceDescriptor  Bytes?
 
   passedCourses    PassedSubject[]
   enrollments      Enrollment[]
