@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { db } from "@/lib/db";
+import { getCourseOptions } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
 import { createDiscussionRoom } from "@/lib/actions";
 import { RequiredMark } from "@/components/required-mark";
@@ -15,12 +15,9 @@ export default async function NewDiscussionPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  await requireUser();
+  const user = await requireUser();
   const { error } = await searchParams;
-  const courses = await db.course.findMany({
-    select: { id: true, code: true, title: true },
-    orderBy: { semester: "asc" },
-  });
+  const courses = await getCourseOptions(user);
 
   return (
     <>

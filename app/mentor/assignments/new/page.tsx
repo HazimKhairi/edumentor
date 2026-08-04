@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
-import { db } from "@/lib/db";
+import { getCourseOptions } from "@/lib/queries";
 import { requireRole } from "@/lib/session";
 import { createAssignment } from "@/lib/actions";
 import { RequiredMark } from "@/components/required-mark";
@@ -11,11 +11,8 @@ export const metadata = {
 };
 
 export default async function AddAssignmentPage() {
-  await requireRole(["Mentor", "Admin"]);
-  const courses = await db.course.findMany({
-    select: { id: true, code: true, title: true },
-    orderBy: { semester: "asc" },
-  });
+  const user = await requireRole(["Mentor", "Admin"]);
+  const courses = await getCourseOptions(user, "Mentor");
 
   return (
     <>

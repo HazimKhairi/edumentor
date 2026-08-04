@@ -33,6 +33,22 @@ function getOptionalString(fd: FormData, name: string): string | undefined {
   return t.length > 0 ? t : undefined;
 }
 
+// A mentor may only create classes/assignments for courses they mentor. The
+// form dropdowns are already scoped, this guards the action against a forged
+// courseId. Admins pass through.
+async function assertMentorTeaches(
+  user: { id: string; role: Role },
+  courseId: string,
+  backTo: string,
+) {
+  if (user.role !== "Mentor") return;
+  const teaches = await db.enrollment.findFirst({
+    where: { userId: user.id, courseId, asRole: "Mentor" },
+    select: { courseId: true },
+  });
+  if (!teaches) redirect(`${backTo}?error=course`);
+}
+
 function getInt(fd: FormData, name: string, fallback = 0): number {
   const v = fd.get(name);
   if (typeof v !== "string") return fallback;
@@ -366,6 +382,7 @@ export async function createAssignment(formData: FormData) {
   if (!data.code || !data.title || !data.courseId) {
     redirect("/mentor/assignments/new?error=missing");
   }
+  await assertMentorTeaches(user, data.courseId, "/mentor/assignments/new");
   // Own the assignment so only this mentor's mentees receive it. Admin-created
   // assignments stay unowned (visible to admins only) until assigned.
   const mentorId = user.role === "Mentor" ? user.id : null;
@@ -531,6 +548,7 @@ export async function createClassSession(formData: FormData) {
   if (!courseId || !topic || !date || !time || !room) {
     redirect("/mentor/classes/new?error=missing");
   }
+  await assertMentorTeaches(user, courseId, "/mentor/classes/new");
 
   await db.classSession.create({
     data: {

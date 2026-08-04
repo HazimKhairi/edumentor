@@ -2,7 +2,7 @@
 // match the original lib/data.ts shapes, so page templates can stay simple.
 
 import { db } from "@/lib/db";
-import type { Course, User, Prisma } from "@prisma/client";
+import type { Course, EnrollmentRole, User, Prisma } from "@prisma/client";
 import { MENTOR_GLOBAL_MENTEE_CAP, MENTOR_MENTEE_CAP } from "@/lib/data";
 
 // ----------------------------------------------------------------------------
@@ -14,6 +14,23 @@ export type CourseView = Course & {
   mentorId: string | null;
   lecturer: string;
 };
+
+// Course options for form dropdowns, scoped to the signed-in user. Admin sees
+// every course; everyone else sees only courses they are enrolled in — pass
+// asRole to narrow further (e.g. "Mentor" for the mentor console forms).
+export async function getCourseOptions(
+  user: Pick<User, "id" | "role">,
+  asRole?: EnrollmentRole,
+): Promise<Pick<Course, "id" | "code" | "title">[]> {
+  return db.course.findMany({
+    where:
+      user.role === "Admin"
+        ? undefined
+        : { enrollments: { some: { userId: user.id, ...(asRole ? { asRole } : {}) } } },
+    select: { id: true, code: true, title: true },
+    orderBy: { semester: "asc" },
+  });
+}
 
 export async function getCoursesView(): Promise<CourseView[]> {
   const courses = await db.course.findMany({

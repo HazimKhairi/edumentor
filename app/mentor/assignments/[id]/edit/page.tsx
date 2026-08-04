@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { db } from "@/lib/db";
+import { getCourseOptions } from "@/lib/queries";
 import { requireRole } from "@/lib/session";
 import { updateAssignment } from "@/lib/actions";
 
@@ -13,7 +14,7 @@ export default async function EditAssignmentPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireRole(["Mentor", "Admin"]);
+  const user = await requireRole(["Mentor", "Admin"]);
   const { id } = await params;
   const a = await db.assignment.findUnique({
     where: { id },
@@ -21,10 +22,7 @@ export default async function EditAssignmentPage({
   });
   if (!a) notFound();
 
-  const courses = await db.course.findMany({
-    select: { id: true, code: true, title: true },
-    orderBy: { semester: "asc" },
-  });
+  const courses = await getCourseOptions(user, "Mentor");
 
   return (
     <>
