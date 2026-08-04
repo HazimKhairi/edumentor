@@ -2,22 +2,18 @@
 // course structure (sem 1, MAT133, sem 2, MAT183, sem 3, MAT210, sem 4, STA116).
 // Idempotent: clears existing rows in dependency order before inserting.
 
-import { neonConfig } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { config as loadEnv } from "dotenv";
-import ws from "ws";
+import { makeAdapter } from "../lib/db-adapter";
 
 loadEnv();
 loadEnv({ path: ".env.local", override: true });
 
-neonConfig.webSocketConstructor = ws;
-
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL not set");
 
-const adapter = new PrismaNeon({ connectionString });
+const adapter = makeAdapter(connectionString);
 const db = new PrismaClient({ adapter });
 
 const DEFAULT_PASSWORD = "edu1234";

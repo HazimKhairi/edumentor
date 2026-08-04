@@ -1,9 +1,5 @@
-import { neonConfig } from "@neondatabase/serverless";
-import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "@prisma/client";
-import ws from "ws";
-
-neonConfig.webSocketConstructor = ws;
+import { makeAdapter } from "@/lib/db-adapter";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -14,7 +10,7 @@ function buildClient(): PrismaClient {
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set. Check .env.");
   }
-  const adapter = new PrismaNeon({ connectionString });
+  const adapter = makeAdapter(connectionString);
   return new PrismaClient({
     adapter,
     log:

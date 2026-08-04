@@ -43,11 +43,24 @@ fi
 say "Update repo"
 git pull --ff-only
 
+# Pilih database untuk local run
+say "Pilih database"
+echo "  [1] MySQL XAMPP (default), data demo, boleh tengok guna phpMyAdmin"
+echo "  [2] Neon production, data LIVE website edumentor.my (hati-hati)"
+read -r -p "Pilihan (Enter untuk 1): " db_choice
+USE_MYSQL=1
+[ "$db_choice" = "2" ] && USE_MYSQL=0
+
 # 2a-pre. Kalau .env.local sedia ada tapi tak lengkap (versi lama), buang
 # supaya di-decrypt semula dari env.local.enc terkini.
 if [ -f .env.local ] && [ -f env.local.enc ]; then
-  if ! grep -q "^AUTH_SECRET=" .env.local || ! grep -q "^DATABASE_URL=" .env.local; then
-    say ".env.local lama tak lengkap, akan decrypt semula"
+  stale=0
+  grep -q "^AUTH_SECRET=" .env.local || stale=1
+  grep -q "^DATABASE_URL=" .env.local || stale=1
+  # Nak Neon tapi env dah di-tukar ke MySQL → decrypt semula
+  if [ "$USE_MYSQL" = "0" ] && grep -q '^DATABASE_URL=.mysql:' .env.local; then stale=1; fi
+  if [ "$stale" = "1" ]; then
+    say ".env.local lama tak sesuai, akan decrypt semula"
     rm -f .env.local
   fi
 fi
@@ -95,33 +108,42 @@ fi
 say "npm install"
 npm install
 
-# 5b. Health checks — pinpoint punca masalah sebelum start server
-say "Health checks"
-fail=0
-for key in DATABASE_URL AUTH_SECRET AUTH_TRUST_HOST BLOB_READ_WRITE_TOKEN; do
-  if grep -q "^$key=." .env.local; then
-    echo "  [OK]   env: $key"
-  else
-    echo "  [FAIL] env: $key tiada dalam .env.local"
-    fail=1
+# 6. Mode MySQL XAMPP: tukar provider, buat table, isi data demo
+if [ "$USE_MYSQL" = "1" ]; then
+  say "Check MySQL XAMPP (port 3306)"
+  if ! (exec 3<>/dev/tcp/127.0.0.1/3306) 2>/dev/null; then
+    echo "MySQL tak jalan. Start MySQL dalam XAMPP Control Panel, pastu run semula."
+    exit 1
   fi
-done
-if echo "SELECT 1" | npx prisma db execute --stdin >/dev/null 2>&1; then
-  echo "  [OK]   database: connect ke Neon berjaya"
+
+  # Schema variant MySQL (auto-jana, tak masuk git)
+  sed 's/provider = "postgresql"/provider = "mysql"/' prisma/schema.prisma > prisma/schema.mysql.prisma
+
+  # Point DATABASE_URL ke MySQL local, baris env lain kekal
+  grep -v "^DATABASE_URL=" .env.local > .env.local.tmp
+  echo 'DATABASE_URL="mysql://root:@localhost:3306/edumentor"' >> .env.local.tmp
+  mv .env.local.tmp .env.local
+
+  say "Buat database + table dalam MySQL"
+  npx prisma db push --schema prisma/schema.mysql.prisma
+
+  say "Isi data demo (seed)"
+  npm run db:seed
+fi
+
+# 7. Doctor: diagnostic check, punca masalah nampak terus kat sini
+say "Doctor check"
+node scripts/doctor.mjs
+
+# 8. UI database
+if [ "$USE_MYSQL" = "1" ]; then
+  say "Tengok database: http://localhost/phpmyadmin (database: edumentor)"
 else
-  echo "  [FAIL] database: tak boleh connect (internet/firewall/DATABASE_URL lapuk)"
-  fail=1
-fi
-if [ "$fail" -ne 0 ]; then
-  echo "Health check gagal — fokus kat baris [FAIL] di atas."
-  exit 1
+  say "Start Prisma Studio, http://localhost:5555"
+  (npx prisma studio >/dev/null 2>&1 &)
 fi
 
-# 6. Prisma Studio (UI database, ganti phpMyAdmin) di background
-say "Start Prisma Studio, http://localhost:5555"
-(npx prisma studio >/dev/null 2>&1 &)
-
-# 7. Terus jalankan dev server
+# 9. Terus jalankan dev server
 say "Siap. Start dev server (Ctrl+C untuk berhenti)"
-say "App: http://localhost:3000 | Database UI: http://localhost:5555"
+say "App: http://localhost:3000"
 npm run dev

@@ -63,13 +63,22 @@ try {
     git pull --ff-only
     Assert-LastExit "git pull"
 
+    # Pilih database untuk local run
+    Say "Pilih database"
+    Write-Host "  [1] MySQL XAMPP (default), data demo, boleh tengok guna phpMyAdmin"
+    Write-Host "  [2] Neon production, data LIVE website edumentor.my (hati-hati)"
+    $dbChoice = Read-Host "Pilihan (Enter untuk 1)"
+    $UseMysql = ($dbChoice -ne "2")
+
     # 2a-pre. Kalau .env.local sedia ada tapi tak lengkap (versi lama), buang
     # supaya di-decrypt semula dari env.local.enc yang terkini.
     if ((Test-Path ".env.local") -and (Test-Path "env.local.enc")) {
         $hasSecret = Select-String -Path ".env.local" -Pattern "^AUTH_SECRET=" -Quiet
         $hasDb = Select-String -Path ".env.local" -Pattern "^DATABASE_URL=" -Quiet
-        if (-not ($hasSecret -and $hasDb)) {
-            Say ".env.local lama tak lengkap, akan decrypt semula"
+        $isMysqlEnv = Select-String -Path ".env.local" -Pattern "^DATABASE_URL=.mysql:" -Quiet
+        # Tak lengkap, atau nak Neon tapi env dah di-tukar ke MySQL → decrypt semula
+        if ((-not ($hasSecret -and $hasDb)) -or ((-not $UseMysql) -and $isMysqlEnv)) {
+            Say ".env.local lama tak sesuai, akan decrypt semula"
             Remove-Item ".env.local"
         }
     }
@@ -133,53 +142,49 @@ try {
     npm.cmd install
     Assert-LastExit "npm install"
 
-    # 5b. Health checks — pinpoint punca masalah SEBELUM start server
-    Say "Health checks"
-    $failures = @()
-
-    foreach ($key in @("DATABASE_URL", "AUTH_SECRET", "AUTH_TRUST_HOST", "BLOB_READ_WRITE_TOKEN")) {
-        if (Select-String -Path ".env.local" -Pattern "^$key=." -Quiet) {
-            Write-Host "  [OK]   env: $key" -ForegroundColor Green
-        } else {
-            Write-Host "  [FAIL] env: $key tiada dalam .env.local" -ForegroundColor Red
-            $failures += "env $key tiada — padam .env.local, run semula, pastikan passphrase betul"
+    # 6. Mode MySQL XAMPP: tukar provider, buat table, isi data demo
+    if ($UseMysql) {
+        Say "Check MySQL XAMPP (port 3306)"
+        $tcp = New-Object Net.Sockets.TcpClient
+        try { $tcp.Connect("127.0.0.1", 3306) } catch {}
+        if (-not $tcp.Connected) {
+            throw "MySQL tak jalan. Buka XAMPP Control Panel, tekan Start pada MySQL, pastu run semula one-liner."
         }
+        $tcp.Close()
+
+        # Schema variant MySQL (auto-jana, tak masuk git)
+        (Get-Content "prisma/schema.prisma" -Raw) -replace 'provider = "postgresql"', 'provider = "mysql"' |
+            Set-Content "prisma/schema.mysql.prisma"
+
+        # Point DATABASE_URL ke MySQL local, baris env lain kekal
+        $envLines = Get-Content ".env.local" | Where-Object { $_ -notmatch "^DATABASE_URL=" }
+        $envLines + 'DATABASE_URL="mysql://root:@localhost:3306/edumentor"' | Set-Content ".env.local"
+
+        Say "Buat database + table dalam MySQL"
+        npx.cmd prisma db push --schema prisma/schema.mysql.prisma
+        Assert-LastExit "prisma db push"
+
+        Say "Isi data demo (seed)"
+        npm.cmd run db:seed
+        Assert-LastExit "db:seed"
     }
 
-    cmd /c "echo SELECT 1 | npx prisma db execute --stdin >NUL 2>&1"
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "  [OK]   database: connect ke Neon berjaya" -ForegroundColor Green
+    # 7. Doctor: diagnostic check, punca masalah nampak terus kat sini
+    Say "Doctor check"
+    node scripts/doctor.mjs
+    Assert-LastExit "doctor (baca baris PUNCA di atas)"
+
+    # 8. UI database
+    if ($UseMysql) {
+        Say "Tengok database: http://localhost/phpmyadmin (database: edumentor)"
     } else {
-        Write-Host "  [FAIL] database: tak boleh connect" -ForegroundColor Red
-        $failures += "database connect gagal — semak internet/firewall, atau DATABASE_URL dah lapuk"
+        Say "Start Prisma Studio, http://localhost:5555"
+        Start-Process -FilePath "cmd" -ArgumentList "/c npx prisma studio" -WorkingDirectory (Get-Location)
     }
 
-    # Port 3000 dipegang dev server lama? Bunuh process tu supaya server baru
-    # (dengan env terkini) yang dapat port — punca klasik 'env dah betul tapi
-    # error sama je'.
-    $stale = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
-    if ($stale) {
-        $stalePid = $stale[0].OwningProcess
-        Write-Host "  [FIX]  port 3000 dipegang process lama (PID $stalePid), dihentikan" -ForegroundColor Yellow
-        Stop-Process -Id $stalePid -Force -ErrorAction SilentlyContinue
-    } else {
-        Write-Host "  [OK]   port 3000 kosong" -ForegroundColor Green
-    }
-
-    if ($failures.Count -gt 0) {
-        Write-Host ""
-        Write-Host "PUNCA DIKESAN:" -ForegroundColor Red
-        $failures | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
-        throw "Health check gagal ($($failures.Count) isu). Fokus kat senarai PUNCA DIKESAN di atas."
-    }
-
-    # 6. Prisma Studio (UI database, ganti phpMyAdmin) dalam window berasingan
-    Say "Start Prisma Studio, http://localhost:5555"
-    Start-Process -FilePath "cmd" -ArgumentList "/c npx prisma studio" -WorkingDirectory (Get-Location)
-
-    # 7. Terus jalankan dev server
+    # 9. Terus jalankan dev server
     Say "Siap. Start dev server (Ctrl+C untuk berhenti)"
-    Say "App: http://localhost:3000 | Database UI: http://localhost:5555"
+    Say "App: http://localhost:3000"
     npm.cmd run dev
 }
 catch {
