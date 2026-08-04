@@ -16,6 +16,10 @@
 
 $ErrorActionPreference = "Stop"
 
+# Semua output masuk log sekali, senang trace bila ada masalah
+$LogPath = Join-Path $env:USERPROFILE "edumentor-setup.log"
+try { Start-Transcript -Path $LogPath -Append | Out-Null } catch {}
+
 function Say($msg) { Write-Host "`n==> $msg" -ForegroundColor Cyan }
 
 function Assert-LastExit($what) {
@@ -58,6 +62,17 @@ try {
     Say "Update repo"
     git pull --ff-only
     Assert-LastExit "git pull"
+
+    # 2a-pre. Kalau .env.local sedia ada tapi tak lengkap (versi lama), buang
+    # supaya di-decrypt semula dari env.local.enc yang terkini.
+    if ((Test-Path ".env.local") -and (Test-Path "env.local.enc")) {
+        $hasSecret = Select-String -Path ".env.local" -Pattern "^AUTH_SECRET=" -Quiet
+        $hasDb = Select-String -Path ".env.local" -Pattern "^DATABASE_URL=" -Quiet
+        if (-not ($hasSecret -and $hasDb)) {
+            Say ".env.local lama tak lengkap, akan decrypt semula"
+            Remove-Item ".env.local"
+        }
+    }
 
     # 2a. Kalau ada env.local.enc (env vars yang di-encrypt AES-256 dalam
     # repo), decrypt dia jadi .env.local. Passphrase diberi oleh admin secara
@@ -131,4 +146,8 @@ catch {
     Write-Host ""
     Write-Host "Setup berhenti: $_" -ForegroundColor Red
     Write-Host "Selesaikan isu kat atas, pastu run semula one-liner yang sama." -ForegroundColor Yellow
+    Write-Host "Log penuh: $LogPath" -ForegroundColor Yellow
+}
+finally {
+    try { Stop-Transcript | Out-Null } catch {}
 }

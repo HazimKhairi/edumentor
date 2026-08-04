@@ -43,6 +43,15 @@ fi
 say "Update repo"
 git pull --ff-only
 
+# 2a-pre. Kalau .env.local sedia ada tapi tak lengkap (versi lama), buang
+# supaya di-decrypt semula dari env.local.enc terkini.
+if [ -f .env.local ] && [ -f env.local.enc ]; then
+  if ! grep -q "^AUTH_SECRET=" .env.local || ! grep -q "^DATABASE_URL=" .env.local; then
+    say ".env.local lama tak lengkap, akan decrypt semula"
+    rm -f .env.local
+  fi
+fi
+
 # 2a. Kalau ada env.local.enc (env vars di-encrypt AES-256 dalam repo),
 # decrypt jadi .env.local. Passphrase diberi oleh admin secara berasingan —
 # jangan sesekali commit passphrase atau .env.local plain.
