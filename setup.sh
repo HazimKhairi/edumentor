@@ -39,6 +39,20 @@ else
   cd "$DIR"
 fi
 
+# 2a. Kalau ada env.local.enc (env vars di-encrypt AES-256 dalam repo),
+# decrypt jadi .env.local. Passphrase diberi oleh admin secara berasingan —
+# jangan sesekali commit passphrase atau .env.local plain.
+if [ ! -f .env.local ] && [ -f env.local.enc ]; then
+  command -v openssl >/dev/null 2>&1 || { echo "openssl tak jumpa."; exit 1; }
+  say "Decrypt env vars (minta passphrase dari admin)"
+  read -r -s -p "Passphrase: " pass; echo
+  if ! openssl enc -d -aes-256-cbc -pbkdf2 -in env.local.enc -out .env.local -pass "pass:$pass"; then
+    rm -f .env.local
+    echo "Passphrase salah. Run semula dan cuba lagi."
+    exit 1
+  fi
+fi
+
 # 2-4. Env vars. Kalau .env.local dah ada (contoh: dihantar terus oleh admin),
 # skip terus semua step Vercel — machine ni tak perlu login atau simpan
 # sebarang token Vercel.

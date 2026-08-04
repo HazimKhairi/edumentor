@@ -54,6 +54,27 @@ try {
         Set-Location $Dir
     }
 
+    # 2a. Kalau ada env.local.enc (env vars yang di-encrypt AES-256 dalam
+    # repo), decrypt dia jadi .env.local. Passphrase diberi oleh admin secara
+    # berasingan — jangan sesekali commit passphrase atau .env.local plain.
+    if ((-not (Test-Path ".env.local")) -and (Test-Path "env.local.enc")) {
+        $openssl = (Get-Command openssl -ErrorAction SilentlyContinue).Source
+        if (-not $openssl) {
+            $gitOpenssl = Join-Path $env:ProgramFiles "Git\usr\bin\openssl.exe"
+            if (Test-Path $gitOpenssl) { $openssl = $gitOpenssl }
+        }
+        if (-not $openssl) {
+            throw "openssl tak jumpa (sepatutnya datang dengan Git for Windows)."
+        }
+        Say "Decrypt env vars (minta passphrase dari admin)"
+        $pass = Read-Host "Passphrase"
+        & $openssl enc -d -aes-256-cbc -pbkdf2 -in env.local.enc -out .env.local -pass "pass:$pass"
+        if ($LASTEXITCODE -ne 0) {
+            Remove-Item ".env.local" -ErrorAction SilentlyContinue
+            throw "Passphrase salah. Run semula one-liner dan cuba lagi."
+        }
+    }
+
     # 2-4. Env vars. Kalau .env.local dah ada (contoh: dihantar terus oleh
     # admin), skip terus semua step Vercel — machine ni tak perlu login atau
     # simpan sebarang token Vercel.
