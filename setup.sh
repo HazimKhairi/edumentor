@@ -143,7 +143,16 @@ else
   (npx prisma studio >/dev/null 2>&1 &)
 fi
 
-# 9. Terus jalankan dev server
+# 9. Pastikan port 3000 tak dipegang dev server lama — punca klasik
+# "env dah betul tapi error sama je": server lama yang masih serve.
+stale_pid=$(lsof -ti tcp:3000 2>/dev/null | sed -n 1p)
+if [ -n "$stale_pid" ]; then
+  say "Port 3000 dipegang process lama (PID $stale_pid), dihentikan"
+  kill -9 "$stale_pid" 2>/dev/null || true
+  sleep 1
+fi
+
+# 10. Terus jalankan dev server
 say "Siap. Start dev server (Ctrl+C untuk berhenti)"
 say "App: http://localhost:3000"
 npm run dev

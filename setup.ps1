@@ -182,7 +182,17 @@ try {
         Start-Process -FilePath "cmd" -ArgumentList "/c npx prisma studio" -WorkingDirectory (Get-Location)
     }
 
-    # 9. Terus jalankan dev server
+    # 9. Pastikan port 3000 tak dipegang dev server lama — punca klasik
+    # "env dah betul tapi error sama je": server lama yang masih serve.
+    $stale = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
+    if ($stale) {
+        $stalePid = $stale[0].OwningProcess
+        Write-Host "Port 3000 dipegang process lama (PID $stalePid), dihentikan" -ForegroundColor Yellow
+        Stop-Process -Id $stalePid -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 1
+    }
+
+    # 10. Terus jalankan dev server
     Say "Siap. Start dev server (Ctrl+C untuk berhenti)"
     Say "App: http://localhost:3000"
     npm.cmd run dev
