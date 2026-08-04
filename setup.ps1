@@ -133,6 +133,46 @@ try {
     npm.cmd install
     Assert-LastExit "npm install"
 
+    # 5b. Health checks — pinpoint punca masalah SEBELUM start server
+    Say "Health checks"
+    $failures = @()
+
+    foreach ($key in @("DATABASE_URL", "AUTH_SECRET", "AUTH_TRUST_HOST", "BLOB_READ_WRITE_TOKEN")) {
+        if (Select-String -Path ".env.local" -Pattern "^$key=." -Quiet) {
+            Write-Host "  [OK]   env: $key" -ForegroundColor Green
+        } else {
+            Write-Host "  [FAIL] env: $key tiada dalam .env.local" -ForegroundColor Red
+            $failures += "env $key tiada — padam .env.local, run semula, pastikan passphrase betul"
+        }
+    }
+
+    cmd /c "echo SELECT 1 | npx prisma db execute --stdin >NUL 2>&1"
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  [OK]   database: connect ke Neon berjaya" -ForegroundColor Green
+    } else {
+        Write-Host "  [FAIL] database: tak boleh connect" -ForegroundColor Red
+        $failures += "database connect gagal — semak internet/firewall, atau DATABASE_URL dah lapuk"
+    }
+
+    # Port 3000 dipegang dev server lama? Bunuh process tu supaya server baru
+    # (dengan env terkini) yang dapat port — punca klasik 'env dah betul tapi
+    # error sama je'.
+    $stale = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue
+    if ($stale) {
+        $stalePid = $stale[0].OwningProcess
+        Write-Host "  [FIX]  port 3000 dipegang process lama (PID $stalePid), dihentikan" -ForegroundColor Yellow
+        Stop-Process -Id $stalePid -Force -ErrorAction SilentlyContinue
+    } else {
+        Write-Host "  [OK]   port 3000 kosong" -ForegroundColor Green
+    }
+
+    if ($failures.Count -gt 0) {
+        Write-Host ""
+        Write-Host "PUNCA DIKESAN:" -ForegroundColor Red
+        $failures | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+        throw "Health check gagal ($($failures.Count) isu). Fokus kat senarai PUNCA DIKESAN di atas."
+    }
+
     # 6. Prisma Studio (UI database, ganti phpMyAdmin) dalam window berasingan
     Say "Start Prisma Studio, http://localhost:5555"
     Start-Process -FilePath "cmd" -ArgumentList "/c npx prisma studio" -WorkingDirectory (Get-Location)

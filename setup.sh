@@ -95,6 +95,28 @@ fi
 say "npm install"
 npm install
 
+# 5b. Health checks — pinpoint punca masalah sebelum start server
+say "Health checks"
+fail=0
+for key in DATABASE_URL AUTH_SECRET AUTH_TRUST_HOST BLOB_READ_WRITE_TOKEN; do
+  if grep -q "^$key=." .env.local; then
+    echo "  [OK]   env: $key"
+  else
+    echo "  [FAIL] env: $key tiada dalam .env.local"
+    fail=1
+  fi
+done
+if echo "SELECT 1" | npx prisma db execute --stdin >/dev/null 2>&1; then
+  echo "  [OK]   database: connect ke Neon berjaya"
+else
+  echo "  [FAIL] database: tak boleh connect (internet/firewall/DATABASE_URL lapuk)"
+  fail=1
+fi
+if [ "$fail" -ne 0 ]; then
+  echo "Health check gagal — fokus kat baris [FAIL] di atas."
+  exit 1
+fi
+
 # 6. Prisma Studio (UI database, ganti phpMyAdmin) di background
 say "Start Prisma Studio, http://localhost:5555"
 (npx prisma studio >/dev/null 2>&1 &)
