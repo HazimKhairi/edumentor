@@ -198,6 +198,12 @@ try {
         Start-Sleep -Seconds 1
     }
 
+    # Buang cache build lama — kalau provider database bertukar (postgres ↔
+    # mysql), cache .next boleh serve Prisma client lama dan error mengelirukan
+    if (Test-Path ".next") {
+        Remove-Item ".next" -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
     # 10. Terus jalankan dev server
     Say "Siap. Start dev server (Ctrl+C untuk berhenti)"
     Say "App: http://localhost:3000"

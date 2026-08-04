@@ -47,7 +47,9 @@ git pull --ff-only
 say "Pilih database"
 echo "  [1] MySQL XAMPP (default), data demo, boleh tengok guna phpMyAdmin"
 echo "  [2] Neon production, data LIVE website edumentor.my (hati-hati)"
-read -r -p "Pilihan (Enter untuk 1): " db_choice
+# `|| db_choice=""`: kalau script di-pipe (curl | bash) stdin bukan tty,
+# read gagal — jangan biar set -e bunuh script senyap, default ke MySQL
+read -r -p "Pilihan (Enter untuk 1): " db_choice || db_choice=""
 USE_MYSQL=1
 [ "$db_choice" = "2" ] && USE_MYSQL=0
 
@@ -71,7 +73,8 @@ fi
 if [ ! -f .env.local ] && [ -f env.local.enc ]; then
   command -v openssl >/dev/null 2>&1 || { echo "openssl tak jumpa."; exit 1; }
   say "Decrypt env vars (minta passphrase dari admin)"
-  read -r -s -p "Passphrase: " pass; echo
+  read -r -s -p "Passphrase: " pass </dev/tty || { echo "Tak dapat baca passphrase (takde terminal interaktif)."; exit 1; }
+  echo
   if ! openssl enc -d -aes-256-cbc -pbkdf2 -in env.local.enc -out .env.local -pass "pass:$pass"; then
     rm -f .env.local
     echo "Passphrase salah. Run semula dan cuba lagi."
@@ -156,6 +159,10 @@ if [ -n "$stale_pid" ]; then
   kill -9 "$stale_pid" 2>/dev/null || true
   sleep 1
 fi
+
+# Buang cache build lama — kalau provider database bertukar (postgres ↔
+# mysql), cache .next boleh serve Prisma client lama dan error mengelirukan
+rm -rf .next
 
 # 10. Terus jalankan dev server
 say "Siap. Start dev server (Ctrl+C untuk berhenti)"
