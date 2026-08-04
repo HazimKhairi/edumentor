@@ -10,6 +10,9 @@
 #
 # Nota: jangan guna `exit` kat sini — bila script jalan melalui `irm | iex`,
 # `exit` akan tutup seluruh tetingkap PowerShell. Guna throw + try/catch.
+# Nota 2: panggil npm.cmd / vercel.cmd, bukan npm / vercel — PowerShell resolve
+# nama tanpa extension ke shim .ps1, yang kena block bila execution policy
+# Restricted (default Windows). Shim .cmd tak terkesan dengan policy tu.
 
 $ErrorActionPreference = "Stop"
 
@@ -54,36 +57,36 @@ try {
     # 2. Vercel CLI
     if (-not (Get-Command vercel -ErrorAction SilentlyContinue)) {
         Say "Install Vercel CLI"
-        npm i -g vercel@latest
+        npm.cmd i -g vercel@latest
         Assert-LastExit "npm i -g vercel"
     }
 
     # 3. Login kalau belum (browser akan terbuka)
-    vercel whoami *> $null
+    vercel.cmd whoami *> $null
     if ($LASTEXITCODE -ne 0) {
         Say "Login Vercel"
-        vercel login
+        vercel.cmd login
         Assert-LastExit "vercel login"
     }
 
     # 4. Link folder ke project + tarik env vars dari Vercel
     Say "Link ke project edumentor"
-    vercel link --yes --project edumentor
+    vercel.cmd link --yes --project edumentor
     Assert-LastExit "vercel link"
 
     Say "Tarik env vars ke .env.local"
-    vercel env pull .env.local --yes
+    vercel.cmd env pull .env.local --yes
     Assert-LastExit "vercel env pull"
 
     # 5. Dependencies (postinstall auto-run prisma generate)
     Say "npm install"
-    npm install
+    npm.cmd install
     Assert-LastExit "npm install"
 
     # 6. Terus jalankan dev server
     Say "Siap. Start dev server (Ctrl+C untuk berhenti)"
     Say "Bila dah naik, buka http://localhost:3000"
-    npm run dev
+    npm.cmd run dev
 }
 catch {
     Write-Host ""
