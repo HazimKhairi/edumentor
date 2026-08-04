@@ -6,7 +6,8 @@
 #
 # Script ni akan: clone repo (kalau belum), install Vercel CLI, login,
 # link ke project Vercel, tarik semua env vars (.env.local), npm install
-# (prisma generate jalan sendiri masa postinstall). Lepas siap: npm run dev.
+# (prisma generate jalan sendiri masa postinstall), pastu terus start
+# npm run dev.
 
 set -euo pipefail
 
@@ -61,9 +62,7 @@ vercel env pull .env.local --yes
 say "npm install"
 npm install
 
-say "Siap semua."
-if [ "$DIR" = "." ]; then
-  echo "Jalankan: npm run dev"
-else
-  echo "Jalankan: cd $DIR && npm run dev"
-fi
+# 6. Terus jalankan dev server
+say "Siap. Start dev server (Ctrl+C untuk berhenti)"
+say "Bila dah naik, buka http://localhost:3000"
+npm run dev
