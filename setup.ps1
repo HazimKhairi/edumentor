@@ -118,9 +118,13 @@ try {
     npm.cmd install
     Assert-LastExit "npm install"
 
-    # 6. Terus jalankan dev server
+    # 6. Prisma Studio (UI database, ganti phpMyAdmin) dalam window berasingan
+    Say "Start Prisma Studio, http://localhost:5555"
+    Start-Process -FilePath "cmd" -ArgumentList "/c npx prisma studio" -WorkingDirectory (Get-Location)
+
+    # 7. Terus jalankan dev server
     Say "Siap. Start dev server (Ctrl+C untuk berhenti)"
-    Say "Bila dah naik, buka http://localhost:3000"
+    Say "App: http://localhost:3000 | Database UI: http://localhost:5555"
     npm.cmd run dev
 }
 catch {

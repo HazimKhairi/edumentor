@@ -86,7 +86,11 @@ fi
 say "npm install"
 npm install
 
-# 6. Terus jalankan dev server
+# 6. Prisma Studio (UI database, ganti phpMyAdmin) di background
+say "Start Prisma Studio, http://localhost:5555"
+(npx prisma studio >/dev/null 2>&1 &)
+
+# 7. Terus jalankan dev server
 say "Siap. Start dev server (Ctrl+C untuk berhenti)"
-say "Bila dah naik, buka http://localhost:3000"
+say "App: http://localhost:3000 | Database UI: http://localhost:5555"
 npm run dev
