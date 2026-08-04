@@ -54,29 +54,35 @@ try {
         Set-Location $Dir
     }
 
-    # 2. Vercel CLI
-    if (-not (Get-Command vercel -ErrorAction SilentlyContinue)) {
-        Say "Install Vercel CLI"
-        npm.cmd i -g vercel@latest
-        Assert-LastExit "npm i -g vercel"
+    # 2-4. Env vars. Kalau .env.local dah ada (contoh: dihantar terus oleh
+    # admin), skip terus semua step Vercel — machine ni tak perlu login atau
+    # simpan sebarang token Vercel.
+    if (Test-Path ".env.local") {
+        Say ".env.local dah ada, skip login Vercel"
+    } else {
+        if (-not (Get-Command vercel -ErrorAction SilentlyContinue)) {
+            Say "Install Vercel CLI"
+            npm.cmd i -g vercel@latest
+            Assert-LastExit "npm i -g vercel"
+        }
+
+        # Login kalau belum (browser akan terbuka) — mesti akaun yang ada
+        # access ke project edumentor
+        vercel.cmd whoami *> $null
+        if ($LASTEXITCODE -ne 0) {
+            Say "Login Vercel"
+            vercel.cmd login
+            Assert-LastExit "vercel login"
+        }
+
+        Say "Link ke project edumentor"
+        vercel.cmd link --yes --project edumentor
+        Assert-LastExit "vercel link"
+
+        Say "Tarik env vars ke .env.local"
+        vercel.cmd env pull .env.local --yes
+        Assert-LastExit "vercel env pull"
     }
-
-    # 3. Login kalau belum (browser akan terbuka)
-    vercel.cmd whoami *> $null
-    if ($LASTEXITCODE -ne 0) {
-        Say "Login Vercel"
-        vercel.cmd login
-        Assert-LastExit "vercel login"
-    }
-
-    # 4. Link folder ke project + tarik env vars dari Vercel
-    Say "Link ke project edumentor"
-    vercel.cmd link --yes --project edumentor
-    Assert-LastExit "vercel link"
-
-    Say "Tarik env vars ke .env.local"
-    vercel.cmd env pull .env.local --yes
-    Assert-LastExit "vercel env pull"
 
     # 5. Dependencies (postinstall auto-run prisma generate)
     Say "npm install"

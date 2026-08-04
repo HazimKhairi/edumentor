@@ -39,24 +39,30 @@ else
   cd "$DIR"
 fi
 
-# 2. Vercel CLI
-if ! command -v vercel >/dev/null 2>&1; then
-  say "Install Vercel CLI"
-  npm i -g vercel@latest
+# 2-4. Env vars. Kalau .env.local dah ada (contoh: dihantar terus oleh admin),
+# skip terus semua step Vercel — machine ni tak perlu login atau simpan
+# sebarang token Vercel.
+if [ -f .env.local ]; then
+  say ".env.local dah ada, skip login Vercel"
+else
+  if ! command -v vercel >/dev/null 2>&1; then
+    say "Install Vercel CLI"
+    npm i -g vercel@latest
+  fi
+
+  # Login kalau belum (browser akan terbuka) — mesti akaun yang ada access
+  # ke project edumentor
+  if ! vercel whoami >/dev/null 2>&1; then
+    say "Login Vercel"
+    vercel login
+  fi
+
+  say "Link ke project edumentor"
+  vercel link --yes --project edumentor
+
+  say "Tarik env vars ke .env.local"
+  vercel env pull .env.local --yes
 fi
-
-# 3. Login kalau belum (browser akan terbuka)
-if ! vercel whoami >/dev/null 2>&1; then
-  say "Login Vercel"
-  vercel login
-fi
-
-# 4. Link folder ke project + tarik env vars dari Vercel
-say "Link ke project edumentor"
-vercel link --yes --project edumentor
-
-say "Tarik env vars ke .env.local"
-vercel env pull .env.local --yes
 
 # 5. Dependencies (postinstall auto-run prisma generate)
 say "npm install"
