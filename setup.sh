@@ -39,6 +39,10 @@ else
   cd "$DIR"
 fi
 
+# Pastikan clone sedia ada dapat file terbaru (contoh: env.local.enc)
+say "Update repo"
+git pull --ff-only
+
 # 2a. Kalau ada env.local.enc (env vars di-encrypt AES-256 dalam repo),
 # decrypt jadi .env.local. Passphrase diberi oleh admin secara berasingan —
 # jangan sesekali commit passphrase atau .env.local plain.

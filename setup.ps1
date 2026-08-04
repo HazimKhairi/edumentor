@@ -54,6 +54,11 @@ try {
         Set-Location $Dir
     }
 
+    # Pastikan clone sedia ada dapat file terbaru (contoh: env.local.enc)
+    Say "Update repo"
+    git pull --ff-only
+    Assert-LastExit "git pull"
+
     # 2a. Kalau ada env.local.enc (env vars yang di-encrypt AES-256 dalam
     # repo), decrypt dia jadi .env.local. Passphrase diberi oleh admin secara
     # berasingan — jangan sesekali commit passphrase atau .env.local plain.
@@ -88,8 +93,11 @@ try {
         }
 
         # Login kalau belum (browser akan terbuka) — mesti akaun yang ada
-        # access ke project edumentor
-        vercel.cmd whoami *> $null
+        # access ke project edumentor. Redirect stderr DALAM cmd.exe, bukan
+        # dalam PowerShell — PS 5.1 + ErrorActionPreference Stop akan throw
+        # bila native command tulis ke stderr yang di-redirect (banner versi
+        # Vercel pun masuk stderr).
+        cmd /c "vercel whoami >NUL 2>&1"
         if ($LASTEXITCODE -ne 0) {
             Say "Login Vercel"
             vercel.cmd login
