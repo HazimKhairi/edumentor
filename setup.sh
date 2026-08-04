@@ -127,6 +127,11 @@ if [ "$USE_MYSQL" = "1" ]; then
   say "Buat database + table dalam MySQL"
   npx prisma db push --schema prisma/schema.mysql.prisma
 
+  # db push TAK auto-generate client dalam Prisma 7 — kena generate sendiri
+  # dengan schema mysql, kalau tak client kekal provider postgres
+  say "Generate Prisma client (mysql)"
+  npx prisma generate --schema prisma/schema.mysql.prisma
+
   say "Isi data demo (seed)"
   npm run db:seed
 fi

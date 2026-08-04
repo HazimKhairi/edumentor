@@ -164,6 +164,12 @@ try {
         npx.cmd prisma db push --schema prisma/schema.mysql.prisma
         Assert-LastExit "prisma db push"
 
+        # db push TAK auto-generate client dalam Prisma 7 — kena generate
+        # sendiri dengan schema mysql, kalau tak client kekal provider postgres
+        Say "Generate Prisma client (mysql)"
+        npx.cmd prisma generate --schema prisma/schema.mysql.prisma
+        Assert-LastExit "prisma generate"
+
         Say "Isi data demo (seed)"
         npm.cmd run db:seed
         Assert-LastExit "db:seed"
