@@ -839,17 +839,28 @@ export async function submitFeedback(formData: FormData) {
     redirect("/feedback?error=missing");
   }
 
-  // Find the mentor enrolled in this course (asRole=Mentor)
-  const mentor = await db.enrollment.findFirst({
-    where: { courseId, asRole: "Mentor" },
-    select: { userId: true },
+  // A course can carry a pool of mentors, so the review must go to the mentor
+  // THIS mentee actually picked, not an arbitrary enrollment row.
+  const assignment = await db.mentorshipAssignment.findUnique({
+    where: { menteeId_courseId: { menteeId: me.id, courseId } },
+    select: { mentorId: true },
   });
-  if (!mentor) redirect("/feedback?error=no-mentor");
+  let mentorId = assignment?.mentorId ?? null;
+  if (!mentorId) {
+    // No pick yet: only unambiguous when the course has exactly one mentor.
+    const mentors = await db.enrollment.findMany({
+      where: { courseId, asRole: "Mentor" },
+      select: { userId: true },
+      take: 2,
+    });
+    if (mentors.length === 1) mentorId = mentors[0].userId;
+    else redirect(`/feedback?error=${mentors.length === 0 ? "no-mentor" : "pick-mentor"}`);
+  }
 
   await db.feedbackEntry.create({
     data: {
       courseId,
-      mentorId: mentor.userId,
+      mentorId,
       authorId: anonymous ? null : me.id,
       score,
       n: 1,

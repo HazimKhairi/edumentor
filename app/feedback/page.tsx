@@ -17,6 +17,8 @@ export const metadata = {
 const errorCopy: Record<string, string> = {
   missing: "Pick a course, a rating, and write a comment.",
   "no-mentor": "That course has no mentor assigned yet.",
+  "pick-mentor":
+    "Choose your mentor for this course on the dashboard first, so the review goes to the right person.",
 };
 
 export default async function FeedbackPage({
@@ -29,14 +31,28 @@ export default async function FeedbackPage({
   // Mentees rate their own enrolled courses. Mentors can rate other mentors,
   // so we use their Mentee enrollments (a mentor might also be a mentee for
   // their own semester). A mentor never sees their own course in the picker.
-  const enrollmentRole = me.role === "Mentor" ? "Mentor" : "Mentee";
-  const [scopedCourses, allFeedback] = await Promise.all([
-    coursesForUserAsRole(me.id, enrollmentRole),
-    getFeedbackView(),
-  ]);
+  const [scopedCourses, allFeedback, myAssignments, myMentorEnrollments] =
+    await Promise.all([
+      coursesForUserAsRole(me.id, "Mentee"),
+      getFeedbackView(),
+      db.mentorshipAssignment.findMany({
+        where: { menteeId: me.id },
+        select: { courseId: true, mentorId: true, mentor: { select: { name: true } } },
+      }),
+      db.enrollment.findMany({
+        where: { userId: me.id, asRole: "Mentor" },
+        select: { courseId: true },
+      }),
+    ]);
+  // Courses can carry a mentor pool; each review targets the mentor this
+  // mentee picked, so the picker must name THAT mentor, not the pool's first.
+  const assignedMentor = new Map(
+    myAssignments.map((a) => [a.courseId, a.mentor.name]),
+  );
   // M3: a mentor cannot evaluate themselves. Drop any course where the
-  // current user is the assigned mentor.
-  const enrolled = scopedCourses.filter((c) => c.mentorId !== me.id);
+  // current user is one of the mentors.
+  const myMentorCourseIds = new Set(myMentorEnrollments.map((e) => e.courseId));
+  const enrolled = scopedCourses.filter((c) => !myMentorCourseIds.has(c.id));
   // G6/A7: pick up the active mentor-evaluation rubric (admin-authored).
   // Items render as per-criterion star pickers below.
   const rubric = await db.evaluationRubric.findFirst({
@@ -105,7 +121,7 @@ export default async function FeedbackPage({
                     <select name="courseId" required className="input">
                       {enrolled.map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.code}, {c.title}, mentor {c.mentor}
+                          {c.code}, {c.title}, mentor {assignedMentor.get(c.id) ?? c.mentor}
                         </option>
                       ))}
                     </select>
