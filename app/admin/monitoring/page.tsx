@@ -3,10 +3,11 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import {
   CourseBreakdownTable,
-  CourseFilter,
   OverallTable,
+  PerformanceLegend,
   PerformanceSummary,
 } from "@/components/performance-monitor";
+import { CourseSelect } from "@/components/course-select";
 import { db } from "@/lib/db";
 import { getMonitoringRows } from "@/lib/queries";
 import { requireRole } from "@/lib/session";
@@ -56,7 +57,7 @@ export default async function AdminMonitoringPage({
 
       <section>
         <div className="mx-auto max-w-[1400px] px-6 pt-10">
-          <CourseFilter
+          <CourseSelect
             courses={courses}
             active={course}
             basePath="/admin/monitoring"
@@ -88,6 +89,9 @@ export default async function AdminMonitoringPage({
             </span>
           </div>
           <CourseBreakdownTable rows={rows} />
+          <div className="mt-6">
+            <PerformanceLegend />
+          </div>
         </div>
       </section>
 

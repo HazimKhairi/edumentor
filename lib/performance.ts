@@ -120,6 +120,16 @@ export function bandFor(percentage: number | null): PerformanceBand {
   return "Critical";
 }
 
+// Single source for the thresholds used by bandFor above, so the on-screen
+// legend can never drift from the logic that assigns the bands.
+export const BAND_RANGES: { band: PerformanceBand; range: string }[] = [
+  { band: "Strong", range: "80% and above" },
+  { band: "On track", range: "65% to 79.9%" },
+  { band: "At risk", range: "50% to 64.9%" },
+  { band: "Critical", range: "below 50%" },
+  { band: "No data", range: "nothing marked yet" },
+];
+
 export const BAND_BADGE: Record<PerformanceBand, string> = {
   Strong: "badge badge-fern",
   "On track": "badge badge-muted",
