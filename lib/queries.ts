@@ -4,6 +4,7 @@
 import { db } from "@/lib/db";
 import type { Course, EnrollmentRole, User, Prisma } from "@prisma/client";
 import { MENTOR_GLOBAL_MENTEE_CAP, MENTOR_MENTEE_CAP } from "@/lib/data";
+import { computePerformance, type Performance } from "@/lib/performance";
 
 // ----------------------------------------------------------------------------
 // Courses
@@ -550,4 +551,206 @@ export async function getStats() {
     { label: "Student mentors",      value: String(mentors).padStart(2, "0"),  caption: "across all faculties" },
     { label: "Attendance accuracy",  value: accuracy,                          caption: total > 0 ? `${counted} of ${total} sessions verified` : "no sessions closed yet" },
   ];
+}
+
+// ----------------------------------------------------------------------------
+// Performance monitoring (admin + mentor)
+// ----------------------------------------------------------------------------
+
+export type MonitoringItem = {
+  assignmentId: string;
+  code: string;
+  title: string;
+  weight: number;
+  /** Numeric mark 0..100, null when not graded (or not submitted). */
+  mark: number | null;
+  submitted: boolean;
+};
+
+export type MonitoringCourse = {
+  courseId: string;
+  courseCode: string;
+  courseTitle: string;
+  mentorId: string | null;
+  mentorName: string;
+  items: MonitoringItem[];
+  performance: Performance;
+};
+
+export type MonitoringStudent = {
+  studentId: string;
+  studentName: string;
+  matric: string;
+  semester: number | null;
+  courses: MonitoringCourse[];
+  /** Weighted across every course the student appears in. */
+  overall: Performance;
+};
+
+// Rows for the monitoring tables.
+//
+// Scoping: pass mentorId to restrict to that mentor's assigned mentees (the
+// mentor view). Omit it for the admin view, which additionally surfaces
+// students who are enrolled but have not picked a mentor yet, so nobody is
+// silently missing from the register.
+export async function getMonitoringRows(opts: {
+  mentorId?: string;
+  courseId?: string;
+} = {}): Promise<MonitoringStudent[]> {
+  const { mentorId, courseId } = opts;
+
+  const pairs = await db.mentorshipAssignment.findMany({
+    where: {
+      ...(mentorId ? { mentorId } : {}),
+      ...(courseId ? { courseId } : {}),
+    },
+    select: { menteeId: true, mentorId: true, courseId: true },
+  });
+
+  // Admin also wants enrolled-but-unassigned mentees listed (they show as
+  // "No data" rather than vanishing). A mentor has no claim over those.
+  const enrollments = mentorId
+    ? []
+    : await db.enrollment.findMany({
+        where: { asRole: "Mentee", ...(courseId ? { courseId } : {}) },
+        select: { userId: true, courseId: true },
+      });
+
+  // One cell per (student, course).
+  const cells = new Map<
+    string,
+    { studentId: string; courseId: string; mentorId: string | null }
+  >();
+  for (const e of enrollments) {
+    cells.set(`${e.userId}::${e.courseId}`, {
+      studentId: e.userId,
+      courseId: e.courseId,
+      mentorId: null,
+    });
+  }
+  for (const p of pairs) {
+    cells.set(`${p.menteeId}::${p.courseId}`, {
+      studentId: p.menteeId,
+      courseId: p.courseId,
+      mentorId: p.mentorId,
+    });
+  }
+  if (cells.size === 0) return [];
+
+  const cellList = [...cells.values()];
+  const studentIds = [...new Set(cellList.map((c) => c.studentId))];
+  const courseIds = [...new Set(cellList.map((c) => c.courseId))];
+
+  // Assignments are owned by a specific mentor, so a student only ever sees
+  // the set issued by THEIR mentor for that course. Mirrors visibilityScope.
+  const mentorCoursePairs = [
+    ...new Set(
+      cellList
+        .filter((c) => c.mentorId)
+        .map((c) => `${c.mentorId}::${c.courseId}`),
+    ),
+  ].map((k) => {
+    const [m, c] = k.split("::");
+    return { mentorId: m, courseId: c };
+  });
+
+  const [students, courses, mentors, assignments] = await Promise.all([
+    db.user.findMany({
+      where: { id: { in: studentIds } },
+      select: { id: true, name: true, identity: true, semester: true },
+    }),
+    db.course.findMany({
+      where: { id: { in: courseIds } },
+      select: { id: true, code: true, title: true },
+    }),
+    db.user.findMany({
+      where: { id: { in: [...new Set(cellList.map((c) => c.mentorId).filter((m): m is string => Boolean(m)))] } },
+      select: { id: true, name: true },
+    }),
+    mentorCoursePairs.length
+      ? db.assignment.findMany({
+          where: { OR: mentorCoursePairs },
+          select: {
+            id: true,
+            code: true,
+            title: true,
+            weight: true,
+            courseId: true,
+            mentorId: true,
+          },
+          orderBy: { issued: "asc" },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const submissions = assignments.length
+    ? await db.assignmentSubmission.findMany({
+        where: {
+          assignmentId: { in: assignments.map((a) => a.id) },
+          menteeId: { in: studentIds },
+        },
+        select: { assignmentId: true, menteeId: true, mark: true },
+      })
+    : [];
+
+  const studentById = new Map(students.map((s) => [s.id, s]));
+  const courseById = new Map(courses.map((c) => [c.id, c]));
+  const mentorById = new Map(mentors.map((m) => [m.id, m]));
+  const subByKey = new Map(
+    submissions.map((s) => [`${s.assignmentId}::${s.menteeId}`, s]),
+  );
+
+  const byStudent = new Map<string, MonitoringCourse[]>();
+  for (const cell of cellList) {
+    const course = courseById.get(cell.courseId);
+    if (!course) continue;
+
+    const mine = assignments.filter(
+      (a) => a.courseId === cell.courseId && a.mentorId === cell.mentorId,
+    );
+    const items: MonitoringItem[] = mine.map((a) => {
+      const sub = subByKey.get(`${a.id}::${cell.studentId}`);
+      return {
+        assignmentId: a.id,
+        code: a.code,
+        title: a.title,
+        weight: a.weight,
+        mark: sub?.mark ?? null,
+        submitted: Boolean(sub),
+      };
+    });
+
+    const list = byStudent.get(cell.studentId) ?? [];
+    list.push({
+      courseId: course.id,
+      courseCode: course.code,
+      courseTitle: course.title,
+      mentorId: cell.mentorId,
+      mentorName: cell.mentorId
+        ? mentorById.get(cell.mentorId)?.name ?? "—"
+        : "Not chosen",
+      items,
+      performance: computePerformance(items),
+    });
+    byStudent.set(cell.studentId, list);
+  }
+
+  const rows: MonitoringStudent[] = [];
+  for (const [studentId, courseRows] of byStudent) {
+    const student = studentById.get(studentId);
+    if (!student) continue;
+    courseRows.sort((a, b) => a.courseCode.localeCompare(b.courseCode));
+    rows.push({
+      studentId,
+      studentName: student.name,
+      matric: student.identity,
+      semester: student.semester,
+      courses: courseRows,
+      // Overall spans every assignment across every course, so a heavier
+      // course does not get flattened into a plain per-course average.
+      overall: computePerformance(courseRows.flatMap((c) => c.items)),
+    });
+  }
+  rows.sort((a, b) => a.studentName.localeCompare(b.studentName));
+  return rows;
 }

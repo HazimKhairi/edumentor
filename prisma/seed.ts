@@ -244,23 +244,38 @@ async function main() {
   console.log("Seeding assignments…");
   await db.assignment.createMany({
     data: [
-      { id: "as-01", code: "PS-04",    title: "Functions, transformations, and inverses",   courseId: "mat133", mentorId: "u-006", issued: new Date("2026-04-22"), due: new Date("2026-05-06"), weight: 12, status: "Open",        submissions: 1, ofCount: 2,  type: "Problem Set", note: "Six problems on function composition, inverses, and transformations. Show working." },
+      { id: "as-01", code: "PS-04",    title: "Functions, transformations, and inverses",   courseId: "mat133", mentorId: "u-006", issued: new Date("2026-04-22"), due: new Date("2026-05-06"), weight: 12, status: "Open",        submissions: 2, ofCount: 2,  type: "Problem Set", note: "Six problems on function composition, inverses, and transformations. Show working." },
       { id: "as-02", code: "LAB-02",   title: "Limit calculations and the squeeze theorem", courseId: "mat183", mentorId: "u-006", issued: new Date("2026-04-18"), due: new Date("2026-05-02"), weight: 10, status: "ClosingSoon", submissions: 2, ofCount: 2,  type: "Lab",         note: "Work through eight limit problems. Use the squeeze theorem on at least three." },
-      { id: "as-03", code: "ESSAY-01", title: "Graphs in everyday networks",                 courseId: "mat210", mentorId: "u-007", issued: new Date("2026-04-12"), due: new Date("2026-04-30"), weight:  8, status: "Closed",      submissions: 1, ofCount: 1,  type: "Essay",       note: "Write 1200 to 1500 words. Pick a real-world network and analyse it as a graph." },
-      { id: "as-04", code: "PS-05",    title: "Trigonometric identities, full proofs",       courseId: "mat133", mentorId: "u-006", issued: new Date("2026-05-02"), due: new Date("2026-05-16"), weight: 14, status: "Open",        submissions: 0, ofCount: 2,  type: "Problem Set", note: "Prove ten standard identities. Diagrams encouraged." },
+      { id: "as-03", code: "ESSAY-01", title: "Graphs in everyday networks",                 courseId: "mat210", mentorId: "u-007", issued: new Date("2026-04-12"), due: new Date("2026-04-30"), weight:  8, status: "Closed",      submissions: 2, ofCount: 2,  type: "Essay",       note: "Write 1200 to 1500 words. Pick a real-world network and analyse it as a graph." },
+      { id: "as-04", code: "PS-05",    title: "Trigonometric identities, full proofs",       courseId: "mat133", mentorId: "u-006", issued: new Date("2026-05-02"), due: new Date("2026-05-16"), weight: 14, status: "Open",        submissions: 2, ofCount: 2,  type: "Problem Set", note: "Prove ten standard identities. Diagrams encouraged." },
+      { id: "as-05", code: "QUIZ-01",  title: "Continuity and one-sided limits",             courseId: "mat183", mentorId: "u-006", issued: new Date("2026-04-26"), due: new Date("2026-05-09"), weight:  8, status: "Closed",      submissions: 2, ofCount: 2,  type: "Quiz",        note: "Twenty short questions. Closed book, 45 minutes." },
+      { id: "as-06", code: "PS-02",    title: "Spanning trees and shortest paths",           courseId: "mat210", mentorId: "u-007", issued: new Date("2026-04-28"), due: new Date("2026-05-12"), weight: 12, status: "Open",        submissions: 2, ofCount: 2,  type: "Problem Set", note: "Apply Kruskal and Dijkstra to the given weighted graphs. Show each step." },
     ],
   });
 
   console.log("Seeding assignment submissions (so grading has real work)…");
+  // Marks are the numeric source of truth; `grade` is the derived label. The
+  // spread below deliberately covers every performance band so the monitoring
+  // tables show Strong, On track, At risk, and Critical side by side, plus one
+  // ungraded submission and one mentee with no mentor (and so no marks).
   await db.assignmentSubmission.createMany({
     data: [
-      // as-01 PS-04 (MAT133, mentor Adam) — Aiman submitted, already graded.
-      { assignmentId: "as-01", menteeId: "u-001", body: "My six function-composition problems with working shown.", linkUrl: "https://example.com/aiman-ps04", grade: "A-" },
-      // as-02 LAB-02 (MAT183, mentor Adam) — two submissions, ungraded (to grade in demo).
-      { assignmentId: "as-02", menteeId: "u-003", body: "Eight limit problems, squeeze theorem used on three.", linkUrl: "https://example.com/faris-lab02" },
-      { assignmentId: "as-02", menteeId: "u-004", body: "Limit calculations attached. Unsure about problem 6." },
-      // as-03 ESSAY-01 (MAT210, mentor Nadia) — Hafiz submitted, graded, closed.
-      { assignmentId: "as-03", menteeId: "u-005", body: "1300-word essay analysing the KL rail network as a graph.", grade: "B+" },
+      // MAT133, mentor Adam
+      { assignmentId: "as-01", menteeId: "u-001", body: "My six function-composition problems with working shown.", linkUrl: "https://example.com/aiman-ps04", mark: 82, grade: "A" },
+      { assignmentId: "as-01", menteeId: "u-002", body: "Attached my working for all six problems.", mark: 71, grade: "B+" },
+      { assignmentId: "as-04", menteeId: "u-001", body: "Ten identities proved, diagrams included for four.", mark: 88, grade: "A" },
+      { assignmentId: "as-04", menteeId: "u-002", body: "Eight of ten proved. Stuck on the last two.", mark: 64, grade: "B-" },
+      // MAT183, mentor Adam
+      { assignmentId: "as-02", menteeId: "u-003", body: "Eight limit problems, squeeze theorem used on three.", linkUrl: "https://example.com/faris-lab02", mark: 76, grade: "A-" },
+      { assignmentId: "as-02", menteeId: "u-004", body: "Limit calculations attached. Unsure about problem 6.", mark: 48, grade: "C-" },
+      { assignmentId: "as-05", menteeId: "u-003", body: "Quiz script submitted in class.", mark: 69, grade: "B" },
+      { assignmentId: "as-05", menteeId: "u-004", body: "Quiz script submitted in class.", mark: 41, grade: "D" },
+      // MAT210, mentor Nadia
+      { assignmentId: "as-03", menteeId: "u-005", body: "1300-word essay analysing the KL rail network as a graph.", mark: 72, grade: "B+" },
+      { assignmentId: "as-03", menteeId: "u-006", body: "1450-word essay on the Klang Valley bus network.", mark: 90, grade: "A+" },
+      // Submitted but not marked yet — drives the "awaiting marks" figure.
+      { assignmentId: "as-06", menteeId: "u-005", body: "Kruskal and Dijkstra worked through for both graphs." },
+      { assignmentId: "as-06", menteeId: "u-006", body: "Both algorithms applied, each step shown.", mark: 86, grade: "A" },
     ],
   });
 

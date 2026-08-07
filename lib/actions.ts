@@ -11,6 +11,7 @@ import { db } from "@/lib/db";
 import { requireRole, requireUser } from "@/lib/session";
 import { MENTOR_COURSE_CAP, MENTOR_GLOBAL_MENTEE_CAP, MENTOR_MENTEE_CAP, MENTOR_MIN_CGPA, MENTOR_SUBJECT_CAP } from "@/lib/data";
 import { deleteUploadedFile, saveUploadedFile } from "@/lib/upload";
+import { clampMark, letterFromMark } from "@/lib/performance";
 
 function getFile(fd: FormData, name: string): File | null {
   const f = fd.get(name);
@@ -423,8 +424,21 @@ export async function deleteAssignment(formData: FormData) {
 export async function gradeSubmission(formData: FormData) {
   const me = await requireRole(["Mentor", "Admin"]);
   const submissionId = getString(formData, "submissionId");
-  const grade = getString(formData, "grade");
+  const markRaw = getString(formData, "mark");
   if (!submissionId) redirect("/mentor/assignments");
+
+  // Marks drive every percentage in the monitoring module, so the numeric
+  // value is the source of truth and the letter label is derived from it.
+  // An empty box clears the mark (back to ungraded).
+  let mark: number | null = null;
+  if (markRaw.trim()) {
+    const parsed = Number(markRaw);
+    if (!Number.isFinite(parsed) || parsed < 0 || parsed > 100) {
+      redirect(`/mentor/assignments?error=bad-mark`);
+    }
+    mark = clampMark(parsed);
+  }
+  const grade = mark === null ? null : letterFromMark(mark);
 
   const sub = await db.assignmentSubmission.findUnique({
     where: { id: submissionId },
@@ -450,7 +464,7 @@ export async function gradeSubmission(formData: FormData) {
 
   await db.assignmentSubmission.update({
     where: { id: submissionId },
-    data: { grade: grade || null },
+    data: { grade, mark },
   });
   revalidatePath(`/mentor/assignments/${sub.assignment.id}`);
   revalidatePath("/assignments");

@@ -90,6 +90,7 @@ const NAV_MENTOR = [
   { href: "/mentor", label: "Mentor console" },
   { href: "/discussion", label: "Discussion" },
   { href: "/mentor/assignments", label: "Assignments" },
+  { href: "/mentor/monitoring", label: "Monitoring" },
   { href: "/mentor/classes", label: "Classes" },
   { href: "/attendance", label: "Attendance" },
   { href: "/feedback", label: "Feedback" },
@@ -101,6 +102,7 @@ const NAV_ADMIN = [
   { href: "/admin/courses", label: "Courses" },
   { href: "/discussion", label: "Discussion" },
   { href: "/admin/evaluations", label: "Evaluations" },
+  { href: "/admin/monitoring", label: "Monitoring" },
   { href: "/reports", label: "Reports" },
 ];
 

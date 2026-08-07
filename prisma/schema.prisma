@@ -234,6 +234,10 @@ model AssignmentSubmission {
   fileName     String?
   filePath     String?
   grade        String?
+  // Numeric mark out of 100. Drives every performance percentage in the
+  // monitoring module. `grade` stays as the human-facing label (letter or
+  // free text); `mark` is the machine-readable figure.
+  mark         Int?
   submittedAt  DateTime @default(now())
 
   assignment Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)

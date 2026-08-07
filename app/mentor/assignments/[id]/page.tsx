@@ -44,7 +44,7 @@ export default async function MentorAssignmentDetailPage({
     orderBy: { submittedAt: "asc" },
   });
 
-  const gradedCount = submissions.filter((s) => s.grade).length;
+  const gradedCount = submissions.filter((s) => s.mark !== null).length;
 
   return (
     <>
@@ -145,21 +145,24 @@ export default async function MentorAssignmentDetailPage({
                   <form action={gradeSubmission} className="flex items-end gap-2 pt-3 border-t border-rule">
                     <input type="hidden" name="submissionId" value={s.id} />
                     <div>
-                      <label className="block text-xs font-medium mb-1.5">Grade</label>
+                      <label className="block text-xs font-medium mb-1.5">Mark, out of 100</label>
                       <input
-                        type="text"
-                        name="grade"
-                        defaultValue={s.grade ?? ""}
-                        placeholder="e.g. A, 18/20, 85%"
+                        type="number"
+                        name="mark"
+                        min={0}
+                        max={100}
+                        step={1}
+                        defaultValue={s.mark ?? ""}
+                        placeholder="e.g. 78"
                         className="input py-1.5 w-40 text-sm"
                       />
                     </div>
                     <button type="submit" className="btn btn-primary btn-sm">
-                      {s.grade ? "Update grade" : "Save grade"}
+                      {s.mark === null ? "Save mark" : "Update mark"}
                     </button>
-                    {s.grade ? (
+                    {s.mark !== null ? (
                       <span className="inline-flex items-center gap-1 text-xs text-fern font-medium pb-2">
-                        <CheckCircle2 size={13} /> {s.grade}
+                        <CheckCircle2 size={13} /> {s.mark} , {s.grade}
                       </span>
                     ) : null}
                   </form>
